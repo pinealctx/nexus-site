@@ -1,0 +1,179 @@
+---
+title: Message Types
+description: All message types agents can send and receive
+---
+
+Nexus AI supports multiple message types. Agents can send and receive all of them. Messages are carried in a `MessageBody` structure where `type` identifies the kind and `content` holds the payload.
+
+## Text (TEXT)
+
+The most basic type, with optional rich text entities (mentions, URLs, phone numbers).
+
+```json
+{
+  "clientMessageId": "1",
+  "conversationId": "8589934634",
+  "body": {
+    "type": "MESSAGE_TYPE_TEXT",
+    "text": {
+      "text": "Hello @Alice, check https://example.com",
+      "entities": [
+        {"type": "MESSAGE_ENTITY_TYPE_MENTION", "offset": 6, "length": 6, "mention": {"userId": 42}},
+        {"type": "MESSAGE_ENTITY_TYPE_URL", "offset": 20, "length": 19, "url": {"url": "https://example.com"}}
+      ]
+    }
+  }
+}
+```
+
+Max length: 10,000 characters.
+
+## Markdown (MARKDOWN)
+
+Ideal for formatted agent output. Clients render the markdown.
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_MARKDOWN",
+    "markdown": {
+      "rawMarkdown": "## Result\n\n- Item A: **passed**\n- Item B: *failed*\n\n```python\nprint('hello')\n```"
+    }
+  }
+}
+```
+
+Max length: 20,000 characters.
+
+## Image (IMAGE)
+
+Upload via `MediaService.UploadFile` first, then send with the returned `file_id`:
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_IMAGE",
+    "image": {
+      "fileId": "file_abc123",
+      "thumbnailFileId": "file_thumb_abc123",
+      "width": 1920, "height": 1080,
+      "sizeBytes": "2048000", "format": "jpg"
+    }
+  }
+}
+```
+
+## File (FILE)
+
+Small files (< 5 MB) use `UploadFile`. Large files use chunked upload (`InitUpload` → `UploadChunk` → `CompleteUpload`).
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_FILE",
+    "file": {
+      "fileId": "file_doc123",
+      "filename": "report.pdf",
+      "sizeBytes": "1048576",
+      "mimeType": "application/pdf"
+    }
+  }
+}
+```
+
+## Adaptive Card (CARD)
+
+Interactive cards following the [Adaptive Cards](https://adaptivecards.io/) spec. Great for forms, selectors, and rich displays.
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_CARD",
+    "card": {
+      "cardJson": "{\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"text\":\"Rate this response\",\"weight\":\"bolder\"},{\"type\":\"Input.ChoiceSet\",\"id\":\"rating\",\"choices\":[{\"title\":\"Good\",\"value\":\"good\"},{\"title\":\"Bad\",\"value\":\"bad\"}]}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Submit\"}]}",
+      "fallbackText": "Rate this response: Good / Bad"
+    }
+  }
+}
+```
+
+When a user clicks `Action.Submit`, the agent receives a `CARD_ACTION` event. Respond via `AnswerCardAction` or update the card via `EditMessage`.
+
+Card JSON limit: 50 KB.
+
+## Streaming (STREAM)
+
+Designed for LLM token-by-token output. Flow:
+
+1. **Create**: Call `SendMessage` with `type` = `MESSAGE_TYPE_STREAM`
+2. **Push deltas**: Call `PushStreamDelta` to send incremental text fragments
+3. **Finalize**: Call `EndStream` with the complete accumulated text
+
+```bash
+# 1. Create streaming message
+curl -X POST .../api.v1.MessageService/SendMessage \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{
+    "clientMessageId": "100",
+    "conversationId": "8589934634",
+    "body": {"type": "MESSAGE_TYPE_STREAM", "stream": {"phase": "STREAM_PHASE_START", "contentType": "text/markdown"}}
+  }'
+# Returns {"messageId": "2001", ...}
+
+# 2. Push deltas
+curl -X POST .../api.v1.MessageService/PushStreamDelta \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "seq": 1, "delta": "Hello, "}'
+
+curl -X POST .../api.v1.MessageService/PushStreamDelta \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "seq": 2, "delta": "world!"}'
+
+# 3. Finalize
+curl -X POST .../api.v1.MessageService/EndStream \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "accumulatedText": "Hello, world!"}'
+```
+
+On error, call `ErrorStream` to terminate:
+
+```bash
+curl -X POST .../api.v1.MessageService/ErrorStream \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "errorMessage": "Generation failed"}'
+```
+
+## Replies
+
+Any message type supports quoting via `replyToMessageId`:
+
+```json
+{
+  "clientMessageId": "2",
+  "conversationId": "8589934634",
+  "replyToMessageId": "1001",
+  "body": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "This is a reply."}}
+}
+```
+
+## Editing
+
+Agents can edit their own messages within 24 hours. The message type cannot be changed:
+
+```bash
+curl -X POST .../api.v1.MessageService/EditMessage \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "newBody": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "Updated."}}}'
+```
+
+## Recall
+
+Agents can recall their own messages within 24 hours:
+
+```bash
+curl -X POST .../api.v1.MessageService/RecallMessage \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001"}'
+```
+
+The message content is replaced with `RecalledContent`, visible to all participants.

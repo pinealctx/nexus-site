@@ -1,0 +1,277 @@
+---
+title: Agent 快速上手
+description: 10 分钟创建你的第一个 Nexus AI Agent
+---
+
+本指南将带你从零开始创建一个能接收消息并自动回复的 Agent。完成后你将拥有一个可以在 Nexus AI 中与用户对话的 Bot。
+
+## 前置条件
+
+- 一个 Nexus AI 普通用户账号（用于与 AgentRoot 对话）
+- 可以访问 Nexus AI API 网关（测试环境：`https://nexus-dev.xsyphon.com`）
+- 一个可公网访问的 HTTPS 端点（Webhook 模式），或可运行常驻进程（WebSocket 模式）
+
+## 第一步：通过 AgentRoot 创建 Agent
+
+Agent 的创建入口是 AgentRoot——一个内置的系统 Agent。在客户端中找到 AgentRoot 并发起对话，发送以下命令：
+
+```text
+/newagent weather_bot Weather Bot
+```
+
+成功后 AgentRoot 会返回：
+- Agent 基本信息（username、display name、agent user ID）
+- 一次性明文 Token（`nxa_` 前缀，请立即保存）
+
+如果 Token 丢失，可以通过以下命令重置（旧 Token 立即失效）：
+
+```text
+/token weather_bot
+```
+
+### AgentRoot 常用命令
+
+| 命令 | 说明 |
+|------|------|
+| `/newagent <username> <display_name>` | 创建 Agent，返回一次性 Token |
+| `/myagents` | 查看你名下的 Agent 列表 |
+| `/agent <username>` | 查看 Agent 详情（投递模式、命令等） |
+| `/token <username>` | 重置 Token（旧 Token 立即失效） |
+| `/setwebhook <username> <url>` | 配置 Webhook 并返回 webhook secret |
+| `/deletewebhook <username>` | 停止事件投递 |
+| `/websocket <username>` | 切换为 WebSocket 投递模式 |
+| `/setcommands <username> <cmd:desc> ...` | 配置斜杠命令 |
+| `/help` | 查看命令帮助 |
+
+## 第二步：验证 Token 可用
+
+调用 `GetSelfAgent` 确认 Agent 身份：
+
+```bash
+curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/GetSelfAgent \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_your_token_here" \
+  -d '{}'
+```
+
+成功返回 Agent 的 user info 和 profile 信息，说明 Token 有效。
+
+## 第三步：配置事件接收
+
+Agent 有两种接收事件的方式，二选一。
+
+### 方式一：Webhook（推荐入门）
+
+最简单的接入方式。可以通过 AgentRoot 命令配置：
+
+```text
+/setwebhook weather_bot https://your-server.com/webhook
+```
+
+或者通过 API 调用：
+
+```bash
+curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_your_token_here" \
+  -d '{"webhook": {"url": "https://your-server.com/webhook"}}'
+```
+
+成功后返回 `webhook_secret`，用于验证请求签名。请妥善保存。
+
+### 方式二：WebSocket
+
+适合需要低延迟或无法暴露公网端点的场景。详见 [WebSocket 接入](/docs/agent/websocket)。
+
+## 第四步：处理 Webhook 事件
+
+Nexus AI 发送的 Webhook 请求体是 JSON 格式的 `WebhookEvent`：
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
+  "timestamp": "1712000000000",
+  "relatedUsers": [
+    {
+      "userId": 42,
+      "username": "alice",
+      "nickname": "Alice",
+      "avatarUrl": "https://...",
+      "accountType": "ACCOUNT_TYPE_USER"
+    }
+  ],
+  "messageEvent": {
+    "message": {
+      "messageId": "1001",
+      "conversationId": "8589934634",
+      "senderId": 42,
+      "body": {
+        "type": "MESSAGE_TYPE_TEXT",
+        "text": {
+          "text": "Hello, Agent!"
+        }
+      },
+      "createdAt": "1712000000000"
+    }
+  }
+}
+```
+
+### 事件类型
+
+| 事件类型 | 说明 |
+|----------|------|
+| `MESSAGE` | 收到新消息（包括文本、图片、群事件等所有消息类型） |
+| `CARD_ACTION` | 用户点击了 Adaptive Card 的 Action.Submit 按钮 |
+| `CONTACT_ADDED` | 用户将 Agent 添加为联系人 |
+| `REMOVED_FROM_GROUP` | Agent 被移出群组 |
+| `GROUP_DISSOLVED` | Agent 所在的群组被解散 |
+
+## 第五步：回复消息
+
+收到消息后，使用 `SendMessage` API 回复：
+
+```bash
+curl -X POST https://nexus-dev.xsyphon.com/api.v1.MessageService/SendMessage \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_your_token_here" \
+  -d '{
+    "clientMessageId": "1",
+    "conversationId": "8589934634",
+    "body": {
+      "type": "MESSAGE_TYPE_TEXT",
+      "text": {
+        "text": "Hello! I am your AI assistant."
+      }
+    }
+  }'
+```
+
+关键字段说明：
+
+| 字段 | 说明 |
+|------|------|
+| `clientMessageId` | 客户端生成的唯一 ID，用于幂等去重。建议使用递增数字或 UUID |
+| `conversationId` | 从收到的 Webhook 事件中获取 |
+| `body.type` | 消息类型，这里是纯文本 |
+| `body.text.text` | 消息内容 |
+
+## 第六步：完整示例（Python）
+
+下面是一个最小可运行的 Echo Agent：
+
+```python
+from flask import Flask, request, jsonify
+import requests
+import hmac
+import hashlib
+
+app = Flask(__name__)
+
+AGENT_TOKEN = "nxa_your_token_here"
+WEBHOOK_SECRET = "your_webhook_secret"
+API_BASE = "https://nexus-dev.xsyphon.com"
+msg_counter = 0
+
+def verify_signature(body: bytes, timestamp: str, signature: str) -> bool:
+    """Verify the webhook request signature."""
+    payload = f"{timestamp}.".encode() + body
+    expected = hmac.new(
+        WEBHOOK_SECRET.encode(), payload, hashlib.sha256
+    ).hexdigest()
+    # Signature header format: sha256=<hex>
+    got = signature.removeprefix("sha256=")
+    return hmac.compare_digest(expected, got)
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    global msg_counter
+
+    # Verify signature
+    raw_body = request.get_data()
+    ts = request.headers.get("X-Nexus-Timestamp", "")
+    sig = request.headers.get("X-Nexus-Signature", "")
+    if not verify_signature(raw_body, ts, sig):
+        return jsonify({"error": "invalid signature"}), 401
+
+    event = request.json
+    event_type = event.get("eventType", "")
+
+    # Handle new messages
+    if event_type == "WEBHOOK_EVENT_TYPE_MESSAGE":
+        msg = event["messageEvent"]["message"]
+        body = msg.get("body", {})
+
+        # Skip non-text messages
+        if body.get("type") != "MESSAGE_TYPE_TEXT":
+            return jsonify({"ok": True})
+
+        user_text = body["text"]["text"]
+        conversation_id = msg["conversationId"]
+
+        # Echo reply
+        msg_counter += 1
+        requests.post(
+            f"{API_BASE}/api.v1.MessageService/SendMessage",
+            headers={
+                "Content-Type": "application/json",
+                "Connect-Protocol-Version": "1",
+                "Authorization": f"Bearer {AGENT_TOKEN}",
+            },
+            json={
+                "clientMessageId": str(msg_counter),
+                "conversationId": conversation_id,
+                "body": {
+                    "type": "MESSAGE_TYPE_TEXT",
+                    "text": {"text": f"You said: {user_text}"},
+                },
+            },
+        )
+
+    # Handle contact added — send welcome message
+    elif event_type == "WEBHOOK_EVENT_TYPE_CONTACT_ADDED":
+        user_id = event["contactAdded"]["userId"]
+        # Compute private conversation ID:
+        # int64(max(a,b)) << 32 | int64(min(a,b))
+        # where a = agent_user_id, b = user_id
+        pass
+
+    return jsonify({"ok": True})
+
+if __name__ == "__main__":
+    app.run(port=8080)
+```
+
+## 第七步：验证 Webhook 签名
+
+每个 Webhook 请求都包含签名 Header：
+
+| Header | 说明 |
+|--------|------|
+| `X-Nexus-Signature` | `sha256=<hex>`（HMAC-SHA256 签名） |
+| `X-Nexus-Timestamp` | 请求时间戳（Unix 秒） |
+| `X-Nexus-Event-Type` | 事件类型 |
+
+验证逻辑：
+
+```python
+import hmac, hashlib
+
+def verify_signature(body: bytes, timestamp: str, signature: str, secret: str) -> bool:
+    payload = f"{timestamp}.".encode() + body
+    expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+    got = signature.removeprefix("sha256=")
+    return hmac.compare_digest(expected, got)
+```
+
+建议同时校验时间戳，拒绝超过 5 分钟的请求以防重放攻击。
+
+## 下一步
+
+- **[Webhook 事件详解](/docs/agent/webhook)** — 所有事件类型和字段说明
+- **[WebSocket 接入](/docs/agent/websocket)** — 实时双向通讯
+- **[消息类型](/docs/agent/messages)** — 发送图片、Markdown、Adaptive Card、流式消息
+- **[API 参考](/api)** — 完整的 API 端点文档

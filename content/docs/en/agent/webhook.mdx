@@ -1,0 +1,150 @@
+---
+title: Webhook Events
+description: Receive Agent events via HTTP POST
+---
+
+Webhook is the primary way for agents to receive events. Nexus AI delivers events as JSON via HTTP POST to your configured HTTPS endpoint.
+
+## Configuration
+
+Call `AgentService.SetDeliveryConfig`:
+
+```bash
+curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_your_token_here" \
+  -d '{"webhook": {"url": "https://your-server.com/webhook"}}'
+```
+
+On success, the response contains a `webhook_secret` for signature verification. The server sends a test request to verify reachability before saving.
+
+Also configurable via AgentRoot command:
+
+```text
+/setwebhook <agent_username> https://your-server.com/webhook
+```
+
+**Notes:**
+- URL must be HTTPS
+- Each `SetDeliveryConfig` call generates a new `webhook_secret`, invalidating the previous one immediately
+- Switching to WebSocket mode clears the Webhook configuration
+
+## Request Format
+
+Each Webhook request includes these HTTP headers:
+
+| Header | Description |
+|--------|-------------|
+| `Content-Type` | `application/json` |
+| `X-Nexus-Signature` | HMAC-SHA256 signature (hex encoded) |
+| `X-Nexus-Timestamp` | Request timestamp (Unix seconds) |
+| `X-Nexus-Event-Type` | Event type (e.g. `MESSAGE`) |
+
+The body is a JSON-serialized `WebhookEvent`.
+
+## Signature Verification
+
+Signature header format is `sha256=<hex>`, computed as: `HMAC-SHA256(secret, "{timestamp}.{body}")`
+
+```python
+import hmac, hashlib
+
+def verify(body: bytes, timestamp: str, signature: str, secret: str) -> bool:
+    payload = f"{timestamp}.".encode() + body
+    expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+    got = signature.removeprefix("sha256=")
+    return hmac.compare_digest(expected, got)
+```
+
+Also validate the timestamp — reject requests older than 5 minutes to prevent replay attacks.
+
+## Event Types
+
+### MESSAGE
+
+New message received. The most common event, covering all message types.
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
+  "timestamp": "1712000000000",
+  "relatedUsers": [{"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}],
+  "messageEvent": {
+    "message": {
+      "messageId": "1001",
+      "conversationId": "8589934634",
+      "senderId": 42,
+      "body": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "Hello!"}},
+      "createdAt": "1712000000000"
+    }
+  }
+}
+```
+
+Message type is identified by `body.type`: `TEXT`, `IMAGE`, `AUDIO`, `VIDEO`, `FILE`, `MARKDOWN`, `CARD`, `STREAM`, `GROUP` (group events), `RECALLED` (recall notification).
+
+Group event messages (`MESSAGE_TYPE_GROUP`) have `senderId` of 0, with event details in `body.group`.
+
+### CARD_ACTION
+
+User clicked an Adaptive Card Action.Submit button.
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_CARD_ACTION",
+  "timestamp": "1712000000000",
+  "cardAction": {
+    "id": "act_abc123",
+    "senderId": 42,
+    "conversationId": "8589934634",
+    "messageId": "1001",
+    "actionData": "{\"choice\": \"option_a\"}",
+    "verb": "submit_form"
+  }
+}
+```
+
+Respond via `MessageService.AnswerCardAction` (toast/alert) or update the card via `MessageService.EditMessage`.
+
+### CONTACT_ADDED
+
+User added the Agent as a contact. Good place to send a welcome message.
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_CONTACT_ADDED",
+  "timestamp": "1712000000000",
+  "relatedUsers": [{"userId": 42, "nickname": "Alice"}],
+  "contactAdded": {"userId": 42}
+}
+```
+
+### REMOVED_FROM_GROUP
+
+Agent was removed from a group by the owner.
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_REMOVED_FROM_GROUP",
+  "removedFromGroup": {"groupId": 100, "operatorId": 1}
+}
+```
+
+### GROUP_DISSOLVED
+
+A group the Agent belongs to was dissolved.
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_GROUP_DISSOLVED",
+  "groupDissolved": {"groupId": 100, "operatorId": 1}
+}
+```
+
+## Response Requirements
+
+- Return HTTP 2xx to acknowledge
+- Non-2xx responses trigger retries (up to 3 times with exponential backoff)
+- Response body content is ignored
+- Respond within 5 seconds; timeouts are treated as failures

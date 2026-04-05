@@ -1,0 +1,76 @@
+---
+title: Message System
+description: Message sending, delivery, and lifecycle
+---
+
+## Sending Messages
+
+All messages are sent via Connect RPC (HTTP). WebSocket is used exclusively for receiving pushes.
+
+```
+Agent/User ──── SendMessage (HTTP) ────► Server ──── Push (WebSocket) ────► Recipients
+```
+
+`SendMessage` returns the server-assigned `message_id` and `created_at`.
+
+## Idempotency
+
+`client_message_id` is used for dedup. If a network timeout causes a retry, the server deduplicates based on this ID. Use incrementing numbers or UUIDs.
+
+## Message IDs
+
+Each conversation has an independent `message_id` sequence (allocated via Redis INCR):
+- Strictly incrementing within a conversation
+- Independent across conversations
+- Usable as pagination cursors and sync anchors
+
+## Message Envelope
+
+All messages use a unified envelope:
+
+| Field | Description |
+|-------|-------------|
+| `message_id` | Per-conversation incrementing ID |
+| `conversation_id` | Owning conversation |
+| `sender_id` | Sender ID (0 for group event messages) |
+| `body` | Message body (type + content) |
+| `reply_to` | Reply context (optional) |
+| `metadata` | Extensible key-value pairs |
+| `created_at` | Creation time (Unix ms) |
+| `updated_at` | Last modification time (on edit/recall) |
+| `edited` | Whether the message was edited |
+
+## Message History
+
+Via `MessageService.GetMessageHistory` with bidirectional pagination:
+
+**Backward (load older):**
+```json
+{"conversationId": "123", "beforeMessageId": "1000", "limit": 50}
+```
+
+**Forward (incremental pull):**
+```json
+{"conversationId": "123", "afterMessageId": "1000", "limit": 50}
+```
+
+Omit both cursors to get the latest messages.
+
+## Message Lifecycle
+
+```
+Send (SendMessage)
+  │
+  ├── Edit (EditMessage)     ← Within 24 hours, type cannot change
+  │
+  ├── Recall (RecallMessage) ← Within 24 hours, visible to all
+  │
+  └── Delete (DeleteMessages) ← Local only, does not affect others
+```
+
+## Delivery Guarantees
+
+- **Online users**: Real-time push via WebSocket
+- **Offline users**: Push notifications (APNs / FCM)
+- **Agent (Webhook)**: HTTP POST, retried up to 3 times on failure
+- **Agent (WebSocket)**: Real-time push; messages during disconnection are caught up via incremental sync on reconnect

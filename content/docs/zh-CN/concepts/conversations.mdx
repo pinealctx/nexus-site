@@ -1,0 +1,76 @@
+---
+title: 会话模型
+description: 私聊和群聊的统一抽象
+---
+
+会话 (Conversation) 是 Nexus AI 中消息的容器。所有消息都属于某个会话。
+
+## 会话类型
+
+| 类型 | 说明 | 创建方式 |
+|------|------|----------|
+| `PRIVATE` | 一对一私聊 | 接受好友请求或添加 Agent 联系人时自动创建 |
+| `GROUP` | 群聊 | 调用 `GroupService.CreateGroup` |
+
+## 会话 ID 编码
+
+会话 ID 是 `int64` 类型，编码规则：
+
+- **私聊**：`int64(max(a, b)) << 32 | int64(min(a, b))`，其中 `a`、`b` 是两个用户的 ID
+- **群聊**：`int64(group_id)`
+
+这意味着私聊的会话 ID 是确定性的——知道两个用户 ID 就能计算出来，无需查询服务端。
+
+```python
+def private_conversation_id(user_a: int, user_b: int) -> int:
+    a, b = max(user_a, user_b), min(user_a, user_b)
+    return (a << 32) | b
+```
+
+## 会话列表
+
+通过 `ConversationService.ListConversations` 获取，按 `last_message_time` 降序排列。
+
+响应包含：
+- `conversations`：会话列表
+- `related_users`：关联的用户信息（私聊对方、消息发送者）
+- `related_groups`：关联的群组信息
+
+## 未读计数
+
+服务端不维护未读计数。客户端本地计算：
+
+```
+unread = last_message_id - last_read_message_id
+```
+
+通过 `ConversationService.MarkAsRead` 更新已读位置。
+
+## 会话操作
+
+通过 `UpdateConversationAction` 执行：
+
+| 操作 | 说明 |
+|------|------|
+| `MUTE` | 静音通知 |
+| `UNMUTE` | 取消静音 |
+| `DELETE` | 软删除（从列表中移除） |
+
+删除行为：
+- 仅影响当前用户（其他参与者不受影响）
+- 可选择同时清除消息历史（`clear_messages`）
+- 当新消息到达时自动恢复（服务端清除 `is_deleted` 标记）
+- 没有显式的"恢复"操作，恢复是隐式的
+
+## Agent 与会话
+
+Agent 参与会话的方式：
+
+1. **私聊**：用户通过 `ContactService.AddContact` 添加 Agent 后自动创建
+2. **群聊**：群主通过 `GroupService.AddAgent` 将 Agent 加入群组
+
+Agent 在会话中可以：
+- 发送所有类型的消息
+- 编辑和撤回自己的消息
+- 接收所有消息和群事件
+- 被群主移除

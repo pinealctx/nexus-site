@@ -1,0 +1,67 @@
+---
+title: Conversations
+description: Unified abstraction for private and group chats
+---
+
+A Conversation is the container for messages in Nexus AI. Every message belongs to a conversation.
+
+## Types
+
+| Type | Description | Created by |
+|------|-------------|------------|
+| `PRIVATE` | One-on-one chat | Accepting a friend request or adding an Agent contact |
+| `GROUP` | Group chat | `GroupService.CreateGroup` |
+
+## Conversation ID Encoding
+
+Conversation IDs are `int64`, encoded as:
+
+- **Private**: `int64(max(a, b)) << 32 | int64(min(a, b))` where `a`, `b` are the two user IDs
+- **Group**: `int64(group_id)`
+
+Private conversation IDs are deterministic — you can compute them from two user IDs without querying the server.
+
+```python
+def private_conversation_id(user_a: int, user_b: int) -> int:
+    a, b = max(user_a, user_b), min(user_a, user_b)
+    return (a << 32) | b
+```
+
+## Conversation List
+
+Fetched via `ConversationService.ListConversations`, ordered by `last_message_time` descending. Responses include denormalized `related_users` and `related_groups`.
+
+## Unread Count
+
+The server does not maintain unread counts. Clients compute locally:
+
+```
+unread = last_message_id - last_read_message_id
+```
+
+Update read position via `ConversationService.MarkAsRead`.
+
+## Actions
+
+Via `UpdateConversationAction`:
+
+| Action | Description |
+|--------|-------------|
+| `MUTE` | Mute notifications |
+| `UNMUTE` | Unmute notifications |
+| `DELETE` | Soft-delete from list |
+
+Delete behavior:
+- Affects only the current user
+- Optionally clears message history (`clear_messages`)
+- Automatically restored when a new message arrives (server clears `is_deleted`)
+- No explicit restore action — restoration is implicit
+
+## Agents in Conversations
+
+Agents participate via:
+
+1. **Private chat**: Created when a user adds the Agent via `ContactService.AddContact`
+2. **Group chat**: Group owner adds the Agent via `GroupService.AddAgent`
+
+Agents can send all message types, edit/recall their own messages, and receive all messages and group events.

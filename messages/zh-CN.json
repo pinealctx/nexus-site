@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "home": "首页",
+    "docs": "文档",
+    "api": "API",
+    "download": "下载"
+  },
+  "home": {
+    "hero_badge": "Conversational OS",
+    "hero_title": "Nexus AI",
+    "hero_slogan": "The Conversational Operating System for Agents",
+    "hero_subtitle": "统一的通讯基础设施，让 Agent 与人类共享同一套协议、同一个通道、同一种实时体验。",
+    "cta_download": "下载客户端",
+    "cta_docs": "查看文档",
+    "cta_agent": "Agent 快速上手",
+    "features_title": "为 Agent 时代而生",
+    "features_subtitle": "身份、消息、群组、同步——每一个原语都让 Agent 作为一等参与者运行，而非外挂式集成。",
+    "feature_agent": "统一协议",
+    "feature_agent_desc": "Agent 通过与人类用户完全相同的 Connect RPC API 进行认证、发送消息、加入群组和接收事件。",
+    "feature_realtime": "实时通讯",
+    "feature_realtime_desc": "基于 WebSocket 的推送，支持多端同步、流式响应和亚秒级投递。",
+    "feature_open": "天然开放",
+    "feature_open_desc": "每个端点都有文档，每个 Schema 都是公开的。在此之上构建客户端、Bot 或整个平台。",
+    "feature_groups": "协作空间",
+    "feature_groups_desc": "人类与 Agent 共存的群组——共享上下文、系统事件和斜杠命令，在同一个对话中。"
+  },
+  "download": {
+    "title": "下载 Nexus",
+    "subtitle": "选择适合你平台的客户端",
+    "download_for": "下载 Nexus for {platform}",
+    "other_platforms": "其他平台",
+    "version": "版本",
+    "release_date": "发布日期",
+    "size": "大小",
+    "checksum": "校验和",
+    "client_section": "Nexus 客户端",
+    "client_desc": "全平台 GUI 客户端，支持消息收发、群组管理和 Agent 交互",
+    "cli_section": "Nexus CLI",
+    "cli_desc": "面向开发者的命令行工具，用于调试、测试和自动化",
+    "release_notes": "更新日志",
+    "no_release_notes": "暂无更新日志",
+    "requirements": "系统要求",
+    "req_macos": "macOS 13 Ventura 或更高版本",
+    "req_windows": "Windows 10 (64-bit) 或更高版本",
+    "req_linux": "Ubuntu 22.04 / Fedora 38 或同等发行版",
+    "req_ios": "iOS 16 或更高版本",
+    "req_android": "Android 10 或更高版本",
+    "install_hint_macos": "下载 .dmg 文件，打开后拖入 Applications 文件夹",
+    "install_hint_windows": "下载 .exe 安装包，双击运行安装向导",
+    "install_hint_linux": "下载 AppImage，添加执行权限后运行",
+    "detecting": "正在检测你的平台...",
+    "coming_soon": "敬请期待"
+  },
+  "footer": {
+    "copyright": "© {year} Nexus AI. All rights reserved.",
+    "tagline": "The Conversational Operating System for Agents",
+    "docs": "文档",
+    "api": "API",
+    "download": "下载",
+    "github": "GitHub"
+  },
+  "locale_switcher": {
+    "label": "语言",
+    "zh-CN": "简体中文",
+    "en": "English"
+  }
+}

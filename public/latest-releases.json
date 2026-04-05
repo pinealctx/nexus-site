@@ -1,0 +1,95 @@
+{
+  "version": "0.1.0",
+  "release_date": "2026-04-01",
+  "release_notes": [
+    "Initial release of Nexus AI — The Conversational Operating System for Agents",
+    "Unified protocol: agents and humans share the same Connect RPC API",
+    "Multi-device sync with real-time WebSocket push",
+    "Group creation, member management, and in-group Agent access",
+    "Connect RPC based API with full documentation"
+  ],
+  "client": [
+    {
+      "platform": "macos",
+      "arch": "arm64",
+      "available": false,
+      "download_url": "",
+      "checksum_sha256": "",
+      "size_bytes": 0
+    },
+    {
+      "platform": "macos",
+      "arch": "x86_64",
+      "available": false,
+      "download_url": "",
+      "checksum_sha256": "",
+      "size_bytes": 0
+    },
+    {
+      "platform": "windows",
+      "arch": "x86_64",
+      "available": false,
+      "download_url": "",
+      "checksum_sha256": "",
+      "size_bytes": 0
+    },
+    {
+      "platform": "linux",
+      "arch": "x86_64",
+      "available": false,
+      "download_url": "",
+      "checksum_sha256": "",
+      "size_bytes": 0
+    },
+    {
+      "platform": "ios",
+      "arch": "arm64",
+      "available": false,
+      "download_url": "",
+      "checksum_sha256": "",
+      "size_bytes": 0
+    },
+    {
+      "platform": "android",
+      "arch": "arm64",
+      "available": false,
+      "download_url": "",
+      "checksum_sha256": "",
+      "size_bytes": 0
+    }
+  ],
+  "cli": [
+    {
+      "platform": "macos",
+      "arch": "arm64",
+      "available": true,
+      "download_url": "https://github.com/pinealctx/nexus-ai/releases/download/v0.1.0/nexus-cli-macos-arm64.tar.gz",
+      "checksum_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 12582912
+    },
+    {
+      "platform": "macos",
+      "arch": "x86_64",
+      "available": true,
+      "download_url": "https://github.com/pinealctx/nexus-ai/releases/download/v0.1.0/nexus-cli-macos-x86_64.tar.gz",
+      "checksum_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 13631488
+    },
+    {
+      "platform": "windows",
+      "arch": "x86_64",
+      "available": true,
+      "download_url": "https://github.com/pinealctx/nexus-ai/releases/download/v0.1.0/nexus-cli-windows-x86_64.zip",
+      "checksum_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 12058624
+    },
+    {
+      "platform": "linux",
+      "arch": "x86_64",
+      "available": true,
+      "download_url": "https://github.com/pinealctx/nexus-ai/releases/download/v0.1.0/nexus-cli-linux-x86_64.tar.gz",
+      "checksum_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 11534336
+    }
+  ]
+}

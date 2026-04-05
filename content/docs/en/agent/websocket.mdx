@@ -1,0 +1,153 @@
+---
+title: WebSocket
+description: Real-time event delivery via WebSocket
+---
+
+Agent WebSocket provides low-latency real-time event delivery, ideal for scenarios requiring instant responses or when you cannot expose a public endpoint.
+
+## Endpoint
+
+```
+wss://nexus-dev.xsyphon.com/ws/agent
+```
+
+## Protocol Overview
+
+Agent WebSocket uses protojson-serialized frames:
+
+- **Upstream** (`AgentClientFrame`): Agent → Server
+- **Downstream** (`AgentServerFrame`): Server → Agent
+
+Connection lifecycle:
+
+```
+Agent                          Gateway
+  │                               │
+  │──── AgentAuthRequest ────────►│  (Agent Token)
+  │◄─── GatewayAuthResponse ─────│  (Auth result)
+  │                               │
+  │──── HeartbeatPing ───────────►│  (Every 30s)
+  │◄─── HeartbeatPong ───────────│
+  │                               │
+  │◄─── AgentEventPush ──────────│  (Event delivery)
+  │◄─── AgentEventPush ──────────│
+  │                               │
+```
+
+## Authentication
+
+The first frame after connection must be an auth request:
+
+```json
+{
+  "requestId": "1",
+  "type": "AGENT_CLIENT_FRAME_TYPE_AUTH_REQUEST",
+  "authRequest": {"token": "nxa_your_token_here"}
+}
+```
+
+Server response:
+
+```json
+{
+  "requestId": "1",
+  "type": "AGENT_SERVER_FRAME_TYPE_AUTH_RESPONSE",
+  "authResponse": {"success": true, "userId": 1001}
+}
+```
+
+On failure, `success` is `false` and the connection is closed.
+
+## Heartbeat
+
+Send a heartbeat every 30 seconds after authentication:
+
+```json
+{
+  "requestId": "2",
+  "type": "AGENT_CLIENT_FRAME_TYPE_HEARTBEAT_PING",
+  "heartbeatPing": {}
+}
+```
+
+The server disconnects after 90 seconds without a heartbeat.
+
+## Receiving Events
+
+Events arrive as `AgentEventPush` frames containing the same `WebhookEvent` structure used by Webhook:
+
+```json
+{
+  "requestId": "0",
+  "type": "AGENT_SERVER_FRAME_TYPE_EVENT_PUSH",
+  "eventPush": {
+    "event": {
+      "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
+      "timestamp": "1712000000000",
+      "relatedUsers": [{"userId": 42, "nickname": "Alice"}],
+      "messageEvent": {
+        "message": {
+          "messageId": "1001",
+          "conversationId": "8589934634",
+          "senderId": 42,
+          "body": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "Hello!"}},
+          "createdAt": "1712000000000"
+        }
+      }
+    }
+  }
+}
+```
+
+Event types and fields are identical to Webhook. See [Webhook Events](/docs/agent/webhook) for details.
+
+## Error Handling
+
+The server may push error frames:
+
+```json
+{
+  "requestId": "0",
+  "type": "AGENT_SERVER_FRAME_TYPE_ERROR",
+  "error": {
+    "error": {"errorCode": 1001, "errorName": "INVALID_TOKEN"},
+    "fatal": true
+  }
+}
+```
+
+When `fatal` is `true`, the connection will close and the agent should reconnect.
+
+## Reconnection Strategy
+
+Use exponential backoff:
+
+| Attempt | Wait |
+|---------|------|
+| 1 | 1s |
+| 2 | 2s |
+| 3 | 4s |
+| 4 | 8s |
+| 5+ | 30s (cap) |
+
+Re-authenticate after each reconnection.
+
+## Configuration
+
+Switch to WebSocket mode via `SetDeliveryConfig`:
+
+```bash
+curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_your_token_here" \
+  -d '{"websocket": {}}'
+```
+
+Also configurable via AgentRoot command:
+
+```text
+/websocket <agent_username>
+```
+
+This clears any existing Webhook configuration. The two modes are mutually exclusive.

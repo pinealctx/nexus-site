@@ -1,0 +1,76 @@
+---
+title: 消息系统
+description: 消息的发送、投递和生命周期
+---
+
+## 消息发送
+
+所有消息通过 Connect RPC（HTTP）发送，WebSocket 仅用于接收推送。
+
+```
+Agent/User ──── SendMessage (HTTP) ────► Server ──── Push (WebSocket) ────► Recipients
+```
+
+`SendMessage` 返回服务端分配的 `message_id` 和 `created_at`。
+
+## 幂等性
+
+`client_message_id` 用于去重。如果网络超时导致重试，服务端会根据此 ID 去重，确保消息不会重复发送。建议使用递增数字或 UUID。
+
+## 消息 ID
+
+每个会话内的 `message_id` 是独立递增的（通过 Redis INCR 分配）。这意味着：
+- 同一会话内 `message_id` 严格递增
+- 不同会话的 `message_id` 互相独立
+- 可用于分页游标和增量同步
+
+## 消息信封 (MessageEnvelope)
+
+所有消息使用统一的信封结构：
+
+| 字段 | 说明 |
+|------|------|
+| `message_id` | 会话内递增 ID |
+| `conversation_id` | 所属会话 |
+| `sender_id` | 发送者 ID（群事件消息为 0） |
+| `body` | 消息体（类型 + 内容） |
+| `reply_to` | 引用回复上下文（可选） |
+| `metadata` | 扩展键值对 |
+| `created_at` | 创建时间（Unix ms） |
+| `updated_at` | 最后修改时间（编辑/撤回时设置） |
+| `edited` | 是否被编辑过 |
+
+## 消息历史
+
+通过 `MessageService.GetMessageHistory` 获取，支持双向分页：
+
+**向前翻页（加载更旧的消息）：**
+```json
+{"conversationId": "123", "beforeMessageId": "1000", "limit": 50}
+```
+
+**向后翻页（增量拉取新消息）：**
+```json
+{"conversationId": "123", "afterMessageId": "1000", "limit": 50}
+```
+
+省略两个游标则返回最新消息。
+
+## 消息生命周期
+
+```
+发送 (SendMessage)
+  │
+  ├── 编辑 (EditMessage)     ← 24 小时内，不可改类型
+  │
+  ├── 撤回 (RecallMessage)   ← 24 小时内，所有人可见
+  │
+  └── 删除 (DeleteMessages)  ← 仅本人可见，不影响其他人
+```
+
+## 投递保证
+
+- **在线用户**：通过 WebSocket 实时推送
+- **离线用户**：通过推送通知（APNs / FCM）
+- **Agent (Webhook)**：HTTP POST，失败重试 3 次
+- **Agent (WebSocket)**：实时推送，断线期间的消息通过重连后的增量同步补齐

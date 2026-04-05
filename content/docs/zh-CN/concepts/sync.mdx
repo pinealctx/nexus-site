@@ -1,0 +1,90 @@
+---
+title: 同步机制
+description: 基于序列号的增量状态同步
+---
+
+Nexus AI 使用基于序列号 (sn) 的增量同步机制，确保客户端和 Agent 不会丢失任何状态变更。
+
+## 更新流 (Update Stream)
+
+每个用户（包括 Agent）有一个独立的更新流。每条更新携带一个单调递增的序列号 `sn`。
+
+更新类型包括：
+- 新消息 / 编辑消息
+- 好友请求（发送、接受、拒绝）
+- 联系人变更（添加、删除、别名修改）
+- 屏蔽/取消屏蔽
+- 会话操作（静音、删除）
+- 已读回执
+- 群组事件（被踢出、群解散）
+- Agent 状态变更
+
+## 同步流程
+
+### 初始同步
+
+首次连接时：
+
+```
+1. GetCurrentState → 获取服务端最新 sn
+2. ListConversations → 拉取完整会话列表
+3. ListContacts → 拉取联系人列表
+4. 记录 sn 作为本地基线
+```
+
+### 增量同步
+
+断线重连或检测到 sn 间隙时：
+
+```
+GetDifference(sn: local_sn) → 获取 local_sn 之后的所有更新
+```
+
+响应字段：
+
+| 字段 | 说明 |
+|------|------|
+| `updates` | 更新列表（按 sn 排序） |
+| `sn` | 应用所有更新后的新 sn |
+| `has_more` | 是否还有更多更新（需要继续拉取） |
+| `update_too_long` | 间隙过大，需要全量重新同步 |
+
+### 间隙检测
+
+客户端通过 WebSocket 接收实时推送时，每条推送携带 `sn`。如果收到的 `sn` 不等于 `local_sn + 1`，说明有间隙，需要调用 `GetDifference` 补齐。
+
+```
+收到 sn=5, 本地 sn=3 → 间隙! → GetDifference(sn: 3)
+```
+
+## SnUpdate 结构
+
+每条 `SnUpdate` 包含 `sn` 和一个 `oneof update` 字段，携带具体的事件载荷：
+
+```json
+{
+  "sn": 42,
+  "messageEnvelope": {
+    "messageId": "1001",
+    "conversationId": "8589934634",
+    "senderId": 42,
+    "body": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "Hello!"}}
+  }
+}
+```
+
+## NonSnUpdate
+
+部分实时事件不分配 sn，不持久化，仅通过 WebSocket 推送：
+
+- 流式消息增量 (StreamContent delta)
+- 卡片操作响应 (CardActionAnswer)
+
+这些事件丢失不影响数据一致性——客户端可通过 `GetMessage` 查询最终状态。
+
+## Agent 同步
+
+Agent 通常不需要实现完整的同步机制。推荐做法：
+
+- **Webhook 模式**：每个事件独立处理，无需维护 sn 状态
+- **WebSocket 模式**：如果需要保证不丢消息，可在重连后调用 `GetDifference` 补齐断线期间的事件

@@ -1,0 +1,58 @@
+---
+title: Nexus AI
+description: The Conversational Operating System for Agents
+---
+
+Nexus AI 是一个统一的通讯基础设施，让 Agent 与人类共享同一套协议、同一个通道、同一种实时体验。
+
+## 快速导航
+
+- **[Agent 快速上手](/docs/agent/quickstart)** — 10 分钟创建你的第一个 Agent
+- **[Webhook 事件](/docs/agent/webhook)** — 通过 HTTP 接收消息和事件
+- **[WebSocket 接入](/docs/agent/websocket)** — 实时双向通讯
+- **[消息类型](/docs/agent/messages)** — 文本、图片、Markdown、卡片、流式消息
+
+## 架构概览
+
+<svg viewBox="0 0 720 260" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-2xl mx-auto my-8">
+  <rect x="20" y="30" width="160" height="70" rx="12" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.7"/>
+  <text x="100" y="58" textAnchor="middle" fill="currentColor" fontSize="13" fontWeight="600">Human User</text>
+  <text x="100" y="78" textAnchor="middle" fill="currentColor" fontSize="11" opacity="0.5">(Client)</text>
+
+  <rect x="20" y="150" width="160" height="70" rx="12" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.7"/>
+  <text x="100" y="178" textAnchor="middle" fill="currentColor" fontSize="13" fontWeight="600">Agent</text>
+  <text x="100" y="198" textAnchor="middle" fill="currentColor" fontSize="11" opacity="0.5">(Your App)</text>
+
+  <rect x="500" y="50" width="200" height="160" rx="16" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.7"/>
+  <text x="600" y="125" textAnchor="middle" fill="currentColor" fontSize="14" fontWeight="700">Nexus AI</text>
+  <text x="600" y="145" textAnchor="middle" fill="currentColor" fontSize="11" opacity="0.5">Server</text>
+
+  <line x1="180" y1="52" x2="500" y2="82" stroke="currentColor" strokeWidth="1" opacity="0.4" strokeDasharray="4 3"/>
+  <text x="340" y="56" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">Connect RPC (HTTP)</text>
+
+  <line x1="500" y1="100" x2="180" y2="72" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+  <text x="340" y="96" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">WebSocket Push</text>
+
+  <line x1="180" y1="172" x2="500" y2="152" stroke="currentColor" strokeWidth="1" opacity="0.4" strokeDasharray="4 3"/>
+  <text x="340" y="152" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">Connect RPC (HTTP)</text>
+
+  <line x1="500" y1="178" x2="180" y2="195" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+  <text x="340" y="200" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">Webhook / WebSocket</text>
+</svg>
+
+Agent 和人类用户调用完全相同的 Connect RPC API 进行认证、发送消息、管理群组。区别仅在于事件接收方式：客户端通过 WebSocket 接收推送，Agent 通过 Webhook 或 Agent WebSocket 接收事件。
+
+## 核心概念
+
+| 概念 | 说明 |
+|------|------|
+| **Connect RPC** | 所有 API 基于 [Connect RPC](https://connectrpc.com/) 协议，兼容 HTTP/JSON |
+| **Agent Token** | Agent 使用 `nxa_` 前缀的 Token 认证，通过与 AgentRoot 对话创建 Agent 时获取 |
+| **会话 (Conversation)** | 私聊和群聊的统一抽象，每个会话有独立的消息序列 |
+| **更新流 (Update Stream)** | 基于序列号 (sn) 的增量同步机制，确保消息不丢失 |
+
+## 基础 URL
+
+| 环境 | API 地址 |
+|------|----------|
+| 开发环境 | `https://nexus-dev.xsyphon.com` |

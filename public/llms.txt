@@ -1,0 +1,125 @@
+# Nexus AI
+
+> The Conversational Operating System for Agents.
+
+## Site Structure
+
+- / - Homepage
+- /docs - Developer documentation
+- /api - API reference (auto-generated from Protobuf)
+- /download - Client downloads
+
+## Documentation
+
+- [消息类型](/docs/agent/messages)
+- [Agent 快速上手](/docs/agent/quickstart)
+- [Webhook 事件](/docs/agent/webhook)
+- [WebSocket 接入](/docs/agent/websocket)
+- [认证](/docs/concepts/authentication)
+- [会话模型](/docs/concepts/conversations)
+- [消息系统](/docs/concepts/message-system)
+- [同步机制](/docs/concepts/sync)
+- [Nexus AI 文档](/docs)
+
+## API Services
+
+### AgentService
+- POST /api.v1.AgentService/ListFeaturedAgents
+- POST /api.v1.AgentService/GetAgentDetail
+- POST /api.v1.AgentService/GetSelfAgent
+- POST /api.v1.AgentService/UpdateSelfAgent
+- POST /api.v1.AgentService/DeleteSelfAgent
+- POST /api.v1.AgentService/RevokeSelfToken
+- POST /api.v1.AgentService/SetDeliveryConfig
+
+### UserService
+- POST /api.v1.UserService/GetProfile
+- POST /api.v1.UserService/UpdateProfile
+- POST /api.v1.UserService/ListDevices
+- POST /api.v1.UserService/RemoveDevice
+- POST /api.v1.UserService/SetUsername
+- POST /api.v1.UserService/ResolveUsername
+- POST /api.v1.UserService/BatchGetUserInfo
+
+### AuthService
+- POST /api.v1.AuthService/RequestVerifyCode
+- POST /api.v1.AuthService/VerifyCode
+- POST /api.v1.AuthService/LoginPassword
+- POST /api.v1.AuthService/RefreshToken
+- POST /api.v1.AuthService/Logout
+- POST /api.v1.AuthService/LogoutAll
+- POST /api.v1.AuthService/SetupPassword
+- POST /api.v1.AuthService/ChangePassword
+- POST /api.v1.AuthService/ResetPasswordRequest
+- POST /api.v1.AuthService/ResetPasswordVerify
+- POST /api.v1.AuthService/ResetPasswordConfirm
+- POST /api.v1.AuthService/GetClientConfig
+
+### ContactService
+- POST /api.v1.ContactService/SendFriendRequest
+- POST /api.v1.ContactService/ListPendingRequests
+- POST /api.v1.ContactService/AcceptFriendRequest
+- POST /api.v1.ContactService/RejectFriendRequest
+- POST /api.v1.ContactService/AddContact
+- POST /api.v1.ContactService/ListContacts
+- POST /api.v1.ContactService/DeleteContact
+- POST /api.v1.ContactService/UpdateContactAlias
+- POST /api.v1.ContactService/SearchUsers
+- POST /api.v1.ContactService/BlockUser
+- POST /api.v1.ContactService/UnblockUser
+- POST /api.v1.ContactService/ListBlocked
+
+### ConversationService
+- POST /api.v1.ConversationService/GetConversation
+- POST /api.v1.ConversationService/ListConversations
+- POST /api.v1.ConversationService/UpdateConversationAction
+- POST /api.v1.ConversationService/MarkAsRead
+
+### GroupService
+- POST /api.v1.GroupService/CreateGroup
+- POST /api.v1.GroupService/DissolveGroup
+- POST /api.v1.GroupService/UpdateGroupName
+- POST /api.v1.GroupService/UpdateGroupAvatar
+- POST /api.v1.GroupService/UpdateGroupDescription
+- POST /api.v1.GroupService/InviteMembers
+- POST /api.v1.GroupService/RemoveMember
+- POST /api.v1.GroupService/LeaveGroup
+- POST /api.v1.GroupService/AddAgent
+- POST /api.v1.GroupService/RemoveAgent
+- POST /api.v1.GroupService/GetGroupInfo
+- POST /api.v1.GroupService/ListMembers
+- POST /api.v1.GroupService/ListGroups
+
+### MediaService
+- POST /api.v1.MediaService/UploadFile
+- POST /api.v1.MediaService/InitUpload
+- POST /api.v1.MediaService/UploadChunk
+- POST /api.v1.MediaService/CompleteUpload
+- POST /api.v1.MediaService/GetDownloadURL
+
+### MessageService
+- POST /api.v1.MessageService/SendMessage
+- POST /api.v1.MessageService/EditMessage
+- POST /api.v1.MessageService/DeleteMessages
+- POST /api.v1.MessageService/DeleteHistory
+- POST /api.v1.MessageService/RecallMessage
+- POST /api.v1.MessageService/GetMessage
+- POST /api.v1.MessageService/GetMessageHistory
+- POST /api.v1.MessageService/SubmitCardAction
+- POST /api.v1.MessageService/PushStreamDelta
+- POST /api.v1.MessageService/EndStream
+- POST /api.v1.MessageService/ErrorStream
+- POST /api.v1.MessageService/AnswerCardAction
+
+### PushService
+- POST /api.v1.PushService/RegisterToken
+- POST /api.v1.PushService/UnregisterToken
+- POST /api.v1.PushService/ClearBadge
+
+### SyncService
+- POST /api.v1.SyncService/GetDifference
+- POST /api.v1.SyncService/GetCurrentState
+
+## Machine-Readable Context
+
+For structured API data, fetch /nexus-context.json

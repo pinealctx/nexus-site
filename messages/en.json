@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "home": "Home",
+    "docs": "Docs",
+    "api": "API",
+    "download": "Download"
+  },
+  "home": {
+    "hero_badge": "Conversational OS",
+    "hero_title": "Nexus AI",
+    "hero_slogan": "The Conversational Operating System for Agents",
+    "hero_subtitle": "A unified messaging infrastructure where agents and humans share the same protocol, the same channels, and the same real-time experience.",
+    "cta_download": "Download",
+    "cta_docs": "Documentation",
+    "cta_agent": "Agent Quick Start",
+    "features_title": "Built for the Agent Era",
+    "features_subtitle": "Every primitive — identity, messaging, groups, sync — is designed so agents operate as first-class participants, not bolted-on integrations.",
+    "feature_agent": "Unified Protocol",
+    "feature_agent_desc": "Agents authenticate, send messages, join groups, and receive events through the exact same Connect RPC API as human users.",
+    "feature_realtime": "Real-time Fabric",
+    "feature_realtime_desc": "WebSocket push with multi-device sync, streaming responses, and sub-second delivery across every participant.",
+    "feature_open": "Open by Default",
+    "feature_open_desc": "Every endpoint is documented, every schema is public. Build clients, bots, or entire platforms on top.",
+    "feature_groups": "Collaborative Spaces",
+    "feature_groups_desc": "Groups where humans and agents coexist — shared context, system events, and slash commands in one conversation."
+  },
+  "download": {
+    "title": "Download Nexus",
+    "subtitle": "Choose the client for your platform",
+    "download_for": "Download Nexus for {platform}",
+    "other_platforms": "Other platforms",
+    "version": "Version",
+    "release_date": "Release date",
+    "size": "Size",
+    "checksum": "Checksum",
+    "client_section": "Nexus Client",
+    "client_desc": "Cross-platform GUI client for messaging, group management, and Agent interaction",
+    "cli_section": "Nexus CLI",
+    "cli_desc": "Developer command-line tool for debugging, testing, and automation",
+    "release_notes": "Release Notes",
+    "no_release_notes": "No release notes available",
+    "requirements": "System Requirements",
+    "req_macos": "macOS 13 Ventura or later",
+    "req_windows": "Windows 10 (64-bit) or later",
+    "req_linux": "Ubuntu 22.04 / Fedora 38 or equivalent",
+    "req_ios": "iOS 16 or later",
+    "req_android": "Android 10 or later",
+    "install_hint_macos": "Download the .dmg file, open it and drag to Applications",
+    "install_hint_windows": "Download the .exe installer and run the setup wizard",
+    "install_hint_linux": "Download the AppImage, make it executable, and run",
+    "detecting": "Detecting your platform...",
+    "coming_soon": "Coming Soon"
+  },
+  "footer": {
+    "copyright": "© {year} Nexus AI. All rights reserved.",
+    "tagline": "The Conversational Operating System for Agents",
+    "docs": "Docs",
+    "api": "API",
+    "download": "Download",
+    "github": "GitHub"
+  },
+  "locale_switcher": {
+    "label": "Language",
+    "zh-CN": "简体中文",
+    "en": "English"
+  }
+}

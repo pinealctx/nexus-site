@@ -1,0 +1,685 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-04-04T15:02:54.833Z",
+  "api": {
+    "baseUrl": "https://nexus-dev.xsyphon.com",
+    "services": [
+      {
+        "name": "AgentService",
+        "methods": [
+          {
+            "name": "ListFeaturedAgents",
+            "path": "/api.v1.AgentService/ListFeaturedAgents",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ListFeaturedAgentsRequest",
+            "responseType": "ListFeaturedAgentsResponse"
+          },
+          {
+            "name": "GetAgentDetail",
+            "path": "/api.v1.AgentService/GetAgentDetail",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "GetAgentDetailRequest",
+            "responseType": "GetAgentDetailResponse"
+          },
+          {
+            "name": "GetSelfAgent",
+            "path": "/api.v1.AgentService/GetSelfAgent",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "GetSelfAgentRequest",
+            "responseType": "GetSelfAgentResponse"
+          },
+          {
+            "name": "UpdateSelfAgent",
+            "path": "/api.v1.AgentService/UpdateSelfAgent",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "UpdateSelfAgentRequest",
+            "responseType": "UpdateSelfAgentResponse"
+          },
+          {
+            "name": "DeleteSelfAgent",
+            "path": "/api.v1.AgentService/DeleteSelfAgent",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "DeleteSelfAgentRequest",
+            "responseType": "DeleteSelfAgentResponse"
+          },
+          {
+            "name": "RevokeSelfToken",
+            "path": "/api.v1.AgentService/RevokeSelfToken",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "RevokeSelfTokenRequest",
+            "responseType": "RevokeSelfTokenResponse"
+          },
+          {
+            "name": "SetDeliveryConfig",
+            "path": "/api.v1.AgentService/SetDeliveryConfig",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "SetDeliveryConfigRequest",
+            "responseType": "SetDeliveryConfigResponse"
+          }
+        ]
+      },
+      {
+        "name": "UserService",
+        "methods": [
+          {
+            "name": "GetProfile",
+            "path": "/api.v1.UserService/GetProfile",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "GetProfileRequest",
+            "responseType": "GetProfileResponse"
+          },
+          {
+            "name": "UpdateProfile",
+            "path": "/api.v1.UserService/UpdateProfile",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "UpdateProfileRequest",
+            "responseType": "UpdateProfileResponse"
+          },
+          {
+            "name": "ListDevices",
+            "path": "/api.v1.UserService/ListDevices",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "ListDevicesRequest",
+            "responseType": "ListDevicesResponse"
+          },
+          {
+            "name": "RemoveDevice",
+            "path": "/api.v1.UserService/RemoveDevice",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "RemoveDeviceRequest",
+            "responseType": "RemoveDeviceResponse"
+          },
+          {
+            "name": "SetUsername",
+            "path": "/api.v1.UserService/SetUsername",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "SetUsernameRequest",
+            "responseType": "SetUsernameResponse"
+          },
+          {
+            "name": "ResolveUsername",
+            "path": "/api.v1.UserService/ResolveUsername",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ResolveUsernameRequest",
+            "responseType": "ResolveUsernameResponse"
+          },
+          {
+            "name": "BatchGetUserInfo",
+            "path": "/api.v1.UserService/BatchGetUserInfo",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "BatchGetUserInfoRequest",
+            "responseType": "BatchGetUserInfoResponse"
+          }
+        ]
+      },
+      {
+        "name": "AuthService",
+        "methods": [
+          {
+            "name": "RequestVerifyCode",
+            "path": "/api.v1.AuthService/RequestVerifyCode",
+            "description": "",
+            "auth": "none",
+            "requestType": "RequestVerifyCodeRequest",
+            "responseType": "RequestVerifyCodeResponse"
+          },
+          {
+            "name": "VerifyCode",
+            "path": "/api.v1.AuthService/VerifyCode",
+            "description": "",
+            "auth": "none",
+            "requestType": "VerifyCodeRequest",
+            "responseType": "VerifyCodeResponse"
+          },
+          {
+            "name": "LoginPassword",
+            "path": "/api.v1.AuthService/LoginPassword",
+            "description": "",
+            "auth": "none",
+            "requestType": "LoginPasswordRequest",
+            "responseType": "LoginPasswordResponse"
+          },
+          {
+            "name": "RefreshToken",
+            "path": "/api.v1.AuthService/RefreshToken",
+            "description": "",
+            "auth": "none",
+            "requestType": "RefreshTokenRequest",
+            "responseType": "RefreshTokenResponse"
+          },
+          {
+            "name": "Logout",
+            "path": "/api.v1.AuthService/Logout",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "LogoutRequest",
+            "responseType": "LogoutResponse"
+          },
+          {
+            "name": "LogoutAll",
+            "path": "/api.v1.AuthService/LogoutAll",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "LogoutAllRequest",
+            "responseType": "LogoutAllResponse"
+          },
+          {
+            "name": "SetupPassword",
+            "path": "/api.v1.AuthService/SetupPassword",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "SetupPasswordRequest",
+            "responseType": "SetupPasswordResponse"
+          },
+          {
+            "name": "ChangePassword",
+            "path": "/api.v1.AuthService/ChangePassword",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "ChangePasswordRequest",
+            "responseType": "ChangePasswordResponse"
+          },
+          {
+            "name": "ResetPasswordRequest",
+            "path": "/api.v1.AuthService/ResetPasswordRequest",
+            "description": "",
+            "auth": "none",
+            "requestType": "ResetPasswordRequestRequest",
+            "responseType": "ResetPasswordRequestResponse"
+          },
+          {
+            "name": "ResetPasswordVerify",
+            "path": "/api.v1.AuthService/ResetPasswordVerify",
+            "description": "",
+            "auth": "none",
+            "requestType": "ResetPasswordVerifyRequest",
+            "responseType": "ResetPasswordVerifyResponse"
+          },
+          {
+            "name": "ResetPasswordConfirm",
+            "path": "/api.v1.AuthService/ResetPasswordConfirm",
+            "description": "",
+            "auth": "none",
+            "requestType": "ResetPasswordConfirmRequest",
+            "responseType": "ResetPasswordConfirmResponse"
+          },
+          {
+            "name": "GetClientConfig",
+            "path": "/api.v1.AuthService/GetClientConfig",
+            "description": "",
+            "auth": "none",
+            "requestType": "GetClientConfigRequest",
+            "responseType": "GetClientConfigResponse"
+          }
+        ]
+      },
+      {
+        "name": "ContactService",
+        "methods": [
+          {
+            "name": "SendFriendRequest",
+            "path": "/api.v1.ContactService/SendFriendRequest",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "SendFriendRequestRequest",
+            "responseType": "SendFriendRequestResponse"
+          },
+          {
+            "name": "ListPendingRequests",
+            "path": "/api.v1.ContactService/ListPendingRequests",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ListPendingRequestsRequest",
+            "responseType": "ListPendingRequestsResponse"
+          },
+          {
+            "name": "AcceptFriendRequest",
+            "path": "/api.v1.ContactService/AcceptFriendRequest",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "AcceptFriendRequestRequest",
+            "responseType": "AcceptFriendRequestResponse"
+          },
+          {
+            "name": "RejectFriendRequest",
+            "path": "/api.v1.ContactService/RejectFriendRequest",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "RejectFriendRequestRequest",
+            "responseType": "RejectFriendRequestResponse"
+          },
+          {
+            "name": "AddContact",
+            "path": "/api.v1.ContactService/AddContact",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "AddContactRequest",
+            "responseType": "AddContactResponse"
+          },
+          {
+            "name": "ListContacts",
+            "path": "/api.v1.ContactService/ListContacts",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ListContactsRequest",
+            "responseType": "ListContactsResponse"
+          },
+          {
+            "name": "DeleteContact",
+            "path": "/api.v1.ContactService/DeleteContact",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "DeleteContactRequest",
+            "responseType": "DeleteContactResponse"
+          },
+          {
+            "name": "UpdateContactAlias",
+            "path": "/api.v1.ContactService/UpdateContactAlias",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UpdateContactAliasRequest",
+            "responseType": "UpdateContactAliasResponse"
+          },
+          {
+            "name": "SearchUsers",
+            "path": "/api.v1.ContactService/SearchUsers",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "SearchUsersRequest",
+            "responseType": "SearchUsersResponse"
+          },
+          {
+            "name": "BlockUser",
+            "path": "/api.v1.ContactService/BlockUser",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "BlockUserRequest",
+            "responseType": "BlockUserResponse"
+          },
+          {
+            "name": "UnblockUser",
+            "path": "/api.v1.ContactService/UnblockUser",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UnblockUserRequest",
+            "responseType": "UnblockUserResponse"
+          },
+          {
+            "name": "ListBlocked",
+            "path": "/api.v1.ContactService/ListBlocked",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ListBlockedRequest",
+            "responseType": "ListBlockedResponse"
+          }
+        ]
+      },
+      {
+        "name": "ConversationService",
+        "methods": [
+          {
+            "name": "GetConversation",
+            "path": "/api.v1.ConversationService/GetConversation",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "GetConversationRequest",
+            "responseType": "GetConversationResponse"
+          },
+          {
+            "name": "ListConversations",
+            "path": "/api.v1.ConversationService/ListConversations",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ListConversationsRequest",
+            "responseType": "ListConversationsResponse"
+          },
+          {
+            "name": "UpdateConversationAction",
+            "path": "/api.v1.ConversationService/UpdateConversationAction",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UpdateConversationActionRequest",
+            "responseType": "UpdateConversationActionResponse"
+          },
+          {
+            "name": "MarkAsRead",
+            "path": "/api.v1.ConversationService/MarkAsRead",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "MarkAsReadRequest",
+            "responseType": "MarkAsReadResponse"
+          }
+        ]
+      },
+      {
+        "name": "GroupService",
+        "methods": [
+          {
+            "name": "CreateGroup",
+            "path": "/api.v1.GroupService/CreateGroup",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "CreateGroupRequest",
+            "responseType": "CreateGroupResponse"
+          },
+          {
+            "name": "DissolveGroup",
+            "path": "/api.v1.GroupService/DissolveGroup",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "DissolveGroupRequest",
+            "responseType": "DissolveGroupResponse"
+          },
+          {
+            "name": "UpdateGroupName",
+            "path": "/api.v1.GroupService/UpdateGroupName",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UpdateGroupNameRequest",
+            "responseType": "UpdateGroupNameResponse"
+          },
+          {
+            "name": "UpdateGroupAvatar",
+            "path": "/api.v1.GroupService/UpdateGroupAvatar",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UpdateGroupAvatarRequest",
+            "responseType": "UpdateGroupAvatarResponse"
+          },
+          {
+            "name": "UpdateGroupDescription",
+            "path": "/api.v1.GroupService/UpdateGroupDescription",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UpdateGroupDescriptionRequest",
+            "responseType": "UpdateGroupDescriptionResponse"
+          },
+          {
+            "name": "InviteMembers",
+            "path": "/api.v1.GroupService/InviteMembers",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "InviteMembersRequest",
+            "responseType": "InviteMembersResponse"
+          },
+          {
+            "name": "RemoveMember",
+            "path": "/api.v1.GroupService/RemoveMember",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "RemoveMemberRequest",
+            "responseType": "RemoveMemberResponse"
+          },
+          {
+            "name": "LeaveGroup",
+            "path": "/api.v1.GroupService/LeaveGroup",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "LeaveGroupRequest",
+            "responseType": "LeaveGroupResponse"
+          },
+          {
+            "name": "AddAgent",
+            "path": "/api.v1.GroupService/AddAgent",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "AddAgentRequest",
+            "responseType": "AddAgentResponse"
+          },
+          {
+            "name": "RemoveAgent",
+            "path": "/api.v1.GroupService/RemoveAgent",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "RemoveAgentRequest",
+            "responseType": "RemoveAgentResponse"
+          },
+          {
+            "name": "GetGroupInfo",
+            "path": "/api.v1.GroupService/GetGroupInfo",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "GetGroupInfoRequest",
+            "responseType": "GetGroupInfoResponse"
+          },
+          {
+            "name": "ListMembers",
+            "path": "/api.v1.GroupService/ListMembers",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ListMembersRequest",
+            "responseType": "ListMembersResponse"
+          },
+          {
+            "name": "ListGroups",
+            "path": "/api.v1.GroupService/ListGroups",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ListGroupsRequest",
+            "responseType": "ListGroupsResponse"
+          }
+        ]
+      },
+      {
+        "name": "MediaService",
+        "methods": [
+          {
+            "name": "UploadFile",
+            "path": "/api.v1.MediaService/UploadFile",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UploadFileRequest",
+            "responseType": "UploadFileResponse"
+          },
+          {
+            "name": "InitUpload",
+            "path": "/api.v1.MediaService/InitUpload",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "InitUploadRequest",
+            "responseType": "InitUploadResponse"
+          },
+          {
+            "name": "UploadChunk",
+            "path": "/api.v1.MediaService/UploadChunk",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "UploadChunkRequest",
+            "responseType": "UploadChunkResponse"
+          },
+          {
+            "name": "CompleteUpload",
+            "path": "/api.v1.MediaService/CompleteUpload",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "CompleteUploadRequest",
+            "responseType": "CompleteUploadResponse"
+          },
+          {
+            "name": "GetDownloadURL",
+            "path": "/api.v1.MediaService/GetDownloadURL",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "GetDownloadURLRequest",
+            "responseType": "GetDownloadURLResponse"
+          }
+        ]
+      },
+      {
+        "name": "MessageService",
+        "methods": [
+          {
+            "name": "SendMessage",
+            "path": "/api.v1.MessageService/SendMessage",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "SendMessageRequest",
+            "responseType": "SendMessageResponse"
+          },
+          {
+            "name": "EditMessage",
+            "path": "/api.v1.MessageService/EditMessage",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "EditMessageRequest",
+            "responseType": "EditMessageResponse"
+          },
+          {
+            "name": "DeleteMessages",
+            "path": "/api.v1.MessageService/DeleteMessages",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "DeleteMessagesRequest",
+            "responseType": "DeleteMessagesResponse"
+          },
+          {
+            "name": "DeleteHistory",
+            "path": "/api.v1.MessageService/DeleteHistory",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "DeleteHistoryRequest",
+            "responseType": "DeleteHistoryResponse"
+          },
+          {
+            "name": "RecallMessage",
+            "path": "/api.v1.MessageService/RecallMessage",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "RecallMessageRequest",
+            "responseType": "RecallMessageResponse"
+          },
+          {
+            "name": "GetMessage",
+            "path": "/api.v1.MessageService/GetMessage",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "GetMessageRequest",
+            "responseType": "GetMessageResponse"
+          },
+          {
+            "name": "GetMessageHistory",
+            "path": "/api.v1.MessageService/GetMessageHistory",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "GetMessageHistoryRequest",
+            "responseType": "GetMessageHistoryResponse"
+          },
+          {
+            "name": "SubmitCardAction",
+            "path": "/api.v1.MessageService/SubmitCardAction",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "SubmitCardActionRequest",
+            "responseType": "SubmitCardActionResponse"
+          },
+          {
+            "name": "PushStreamDelta",
+            "path": "/api.v1.MessageService/PushStreamDelta",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "PushStreamDeltaRequest",
+            "responseType": "PushStreamDeltaResponse"
+          },
+          {
+            "name": "EndStream",
+            "path": "/api.v1.MessageService/EndStream",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "EndStreamRequest",
+            "responseType": "EndStreamResponse"
+          },
+          {
+            "name": "ErrorStream",
+            "path": "/api.v1.MessageService/ErrorStream",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "ErrorStreamRequest",
+            "responseType": "ErrorStreamResponse"
+          },
+          {
+            "name": "AnswerCardAction",
+            "path": "/api.v1.MessageService/AnswerCardAction",
+            "description": "",
+            "auth": "agent_token",
+            "requestType": "AnswerCardActionRequest",
+            "responseType": "AnswerCardActionResponse"
+          }
+        ]
+      },
+      {
+        "name": "PushService",
+        "methods": [
+          {
+            "name": "RegisterToken",
+            "path": "/api.v1.PushService/RegisterToken",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "RegisterTokenRequest",
+            "responseType": "RegisterTokenResponse"
+          },
+          {
+            "name": "UnregisterToken",
+            "path": "/api.v1.PushService/UnregisterToken",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "UnregisterTokenRequest",
+            "responseType": "UnregisterTokenResponse"
+          },
+          {
+            "name": "ClearBadge",
+            "path": "/api.v1.PushService/ClearBadge",
+            "description": "",
+            "auth": "access_token",
+            "requestType": "ClearBadgeRequest",
+            "responseType": "ClearBadgeResponse"
+          }
+        ]
+      },
+      {
+        "name": "SyncService",
+        "methods": [
+          {
+            "name": "GetDifference",
+            "path": "/api.v1.SyncService/GetDifference",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "GetDifferenceRequest",
+            "responseType": "GetDifferenceResponse"
+          },
+          {
+            "name": "GetCurrentState",
+            "path": "/api.v1.SyncService/GetCurrentState",
+            "description": "",
+            "auth": "user_token",
+            "requestType": "GetCurrentStateRequest",
+            "responseType": "GetCurrentStateResponse"
+          }
+        ]
+      }
+    ]
+  },
+  "docsIndex": [
+    {
+      "title": "Agent 快速上手",
+      "path": "/docs/agent/quickstart"
+    },
+    {
+      "title": "文档首页",
+      "path": "/docs"
+    }
+  ]
+}

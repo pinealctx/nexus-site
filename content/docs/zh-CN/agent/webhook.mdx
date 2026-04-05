@@ -1,0 +1,155 @@
+---
+title: Webhook 事件
+description: 通过 HTTP POST 接收 Agent 事件
+---
+
+Webhook 是 Agent 接收事件的主要方式。Nexus AI 将事件以 JSON 格式通过 HTTP POST 发送到你配置的 HTTPS 端点。
+
+## 配置 Webhook
+
+调用 `AgentService.SetDeliveryConfig`：
+
+```bash
+curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_your_token_here" \
+  -d '{"webhook": {"url": "https://your-server.com/webhook"}}'
+```
+
+配置成功后返回 `webhook_secret`，用于签名验证。服务端会先向你的 URL 发送一个测试请求以验证可达性。
+
+也可以通过 AgentRoot 命令配置：
+
+```text
+/setwebhook <agent_username> https://your-server.com/webhook
+```
+
+**注意事项：**
+- URL 必须是 HTTPS
+- 每次调用 `SetDeliveryConfig` 会生成新的 `webhook_secret`，旧的立即失效
+- 切换到 WebSocket 模式会清除 Webhook 配置
+
+## 请求格式
+
+每个 Webhook 请求包含以下 HTTP Header：
+
+| Header | 说明 |
+|--------|------|
+| `Content-Type` | `application/json` |
+| `X-Nexus-Signature` | HMAC-SHA256 签名（hex 编码） |
+| `X-Nexus-Timestamp` | 请求时间戳（Unix 秒） |
+| `X-Nexus-Event-Type` | 事件类型（如 `MESSAGE`） |
+
+请求体是 JSON 序列化的 `WebhookEvent`。
+
+## 签名验证
+
+签名 Header 格式为 `sha256=<hex>`，计算方式：`HMAC-SHA256(secret, "{timestamp}.{body}")`
+
+```python
+import hmac, hashlib
+
+def verify(body: bytes, timestamp: str, signature: str, secret: str) -> bool:
+    payload = f"{timestamp}.".encode() + body
+    expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+    got = signature.removeprefix("sha256=")
+    return hmac.compare_digest(expected, got)
+```
+
+建议同时校验时间戳，拒绝超过 5 分钟的请求以防重放攻击。
+
+## 事件类型详解
+
+### MESSAGE
+
+收到新消息。这是最常见的事件，涵盖所有消息类型。
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
+  "timestamp": "1712000000000",
+  "relatedUsers": [{"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}],
+  "messageEvent": {
+    "message": {
+      "messageId": "1001",
+      "conversationId": "8589934634",
+      "senderId": 42,
+      "body": {
+        "type": "MESSAGE_TYPE_TEXT",
+        "text": {"text": "Hello!"}
+      },
+      "createdAt": "1712000000000"
+    }
+  }
+}
+```
+
+消息类型通过 `body.type` 区分，包括：`TEXT`、`IMAGE`、`AUDIO`、`VIDEO`、`FILE`、`MARKDOWN`、`CARD`、`STREAM`、`GROUP`（群事件）、`RECALLED`（撤回通知）。
+
+群事件消息（`MESSAGE_TYPE_GROUP`）的 `senderId` 为 0，具体事件内容在 `body.group` 中。
+
+### CARD_ACTION
+
+用户点击了 Adaptive Card 的 Action.Submit 按钮。
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_CARD_ACTION",
+  "timestamp": "1712000000000",
+  "cardAction": {
+    "id": "act_abc123",
+    "senderId": 42,
+    "conversationId": "8589934634",
+    "messageId": "1001",
+    "actionData": "{\"choice\": \"option_a\"}",
+    "verb": "submit_form"
+  }
+}
+```
+
+收到后可通过 `MessageService.AnswerCardAction` 返回 toast 或 alert 提示，也可通过 `MessageService.EditMessage` 更新卡片内容。
+
+### CONTACT_ADDED
+
+用户将 Agent 添加为联系人。适合发送欢迎消息。
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_CONTACT_ADDED",
+  "timestamp": "1712000000000",
+  "relatedUsers": [{"userId": 42, "nickname": "Alice"}],
+  "contactAdded": {"userId": 42}
+}
+```
+
+### REMOVED_FROM_GROUP
+
+Agent 被群主移出群组。
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_REMOVED_FROM_GROUP",
+  "timestamp": "1712000000000",
+  "removedFromGroup": {"groupId": 100, "operatorId": 1}
+}
+```
+
+### GROUP_DISSOLVED
+
+Agent 所在的群组被解散。
+
+```json
+{
+  "eventType": "WEBHOOK_EVENT_TYPE_GROUP_DISSOLVED",
+  "timestamp": "1712000000000",
+  "groupDissolved": {"groupId": 100, "operatorId": 1}
+}
+```
+
+## 响应要求
+
+- 返回 HTTP 2xx 表示成功
+- 非 2xx 响应会触发重试（最多 3 次，指数退避）
+- 响应体内容不做要求，可以为空
+- 建议在 5 秒内响应，超时视为失败

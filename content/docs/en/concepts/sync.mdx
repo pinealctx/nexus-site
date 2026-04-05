@@ -1,0 +1,90 @@
+---
+title: Sync Mechanism
+description: Sequence-number based incremental state synchronization
+---
+
+Nexus AI uses a sequence-number (sn) based incremental sync mechanism to ensure clients and agents never miss state changes.
+
+## Update Stream
+
+Each user (including agents) has an independent update stream. Each update carries a monotonically increasing sequence number `sn`.
+
+Update types include:
+- New/edited messages
+- Friend requests (sent, accepted, rejected)
+- Contact changes (added, deleted, alias updated)
+- Block/unblock
+- Conversation actions (mute, delete)
+- Read receipts
+- Group events (kicked, dissolved)
+- Agent status changes
+
+## Sync Flow
+
+### Initial Sync
+
+On first connection:
+
+```
+1. GetCurrentState → Get server's latest sn
+2. ListConversations → Pull full conversation list
+3. ListContacts → Pull contact list
+4. Record sn as local baseline
+```
+
+### Incremental Sync
+
+On reconnect or when a gap is detected:
+
+```
+GetDifference(sn: local_sn) → Get all updates after local_sn
+```
+
+Response fields:
+
+| Field | Description |
+|-------|-------------|
+| `updates` | Update list (ordered by sn) |
+| `sn` | New sn after applying all updates |
+| `has_more` | More updates remain (continue fetching) |
+| `update_too_long` | Gap too large, full resync required |
+
+### Gap Detection
+
+When receiving real-time pushes via WebSocket, each push carries an `sn`. If the received `sn` does not equal `local_sn + 1`, there is a gap — call `GetDifference` to catch up.
+
+```
+Received sn=5, local sn=3 → Gap! → GetDifference(sn: 3)
+```
+
+## SnUpdate Structure
+
+Each `SnUpdate` contains `sn` and a `oneof update` field with the event payload:
+
+```json
+{
+  "sn": 42,
+  "messageEnvelope": {
+    "messageId": "1001",
+    "conversationId": "8589934634",
+    "senderId": 42,
+    "body": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "Hello!"}}
+  }
+}
+```
+
+## NonSnUpdate
+
+Some real-time events are not assigned an sn and are not persisted:
+
+- Streaming message deltas (StreamContent)
+- Card action answers (CardActionAnswer)
+
+Losing these does not affect data consistency — clients can query the final state via `GetMessage`.
+
+## Agent Sync
+
+Agents typically do not need full sync. Recommended approach:
+
+- **Webhook mode**: Process each event independently, no sn state needed
+- **WebSocket mode**: If guaranteed delivery is required, call `GetDifference` on reconnect to catch up on events missed during disconnection

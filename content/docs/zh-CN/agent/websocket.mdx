@@ -1,0 +1,176 @@
+---
+title: WebSocket 接入
+description: 通过 WebSocket 实时接收 Agent 事件
+---
+
+Agent WebSocket 提供低延迟的实时事件推送，适合需要即时响应或无法暴露公网端点的场景。
+
+## 连接地址
+
+```
+wss://nexus-dev.xsyphon.com/ws/agent
+```
+
+## 协议概览
+
+Agent WebSocket 使用 protojson 序列化的帧协议：
+
+- **上行帧** (`AgentClientFrame`)：Agent → 服务端
+- **下行帧** (`AgentServerFrame`)：服务端 → Agent
+
+连接生命周期：
+
+```
+Agent                          Gateway
+  │                               │
+  │──── AgentAuthRequest ────────►│  (携带 Agent Token)
+  │◄─── GatewayAuthResponse ─────│  (认证结果)
+  │                               │
+  │──── HeartbeatPing ───────────►│  (每 30 秒)
+  │◄─── HeartbeatPong ───────────│
+  │                               │
+  │◄─── AgentEventPush ──────────│  (事件推送)
+  │◄─── AgentEventPush ──────────│
+  │                               │
+```
+
+## 认证
+
+连接建立后，第一个帧必须是认证请求：
+
+```json
+{
+  "requestId": "1",
+  "type": "AGENT_CLIENT_FRAME_TYPE_AUTH_REQUEST",
+  "authRequest": {
+    "token": "nxa_your_token_here"
+  }
+}
+```
+
+服务端响应：
+
+```json
+{
+  "requestId": "1",
+  "type": "AGENT_SERVER_FRAME_TYPE_AUTH_RESPONSE",
+  "authResponse": {
+    "success": true,
+    "userId": 1001
+  }
+}
+```
+
+认证失败时 `success` 为 `false`，连接会被关闭。
+
+## 心跳
+
+认证成功后，Agent 需要每 30 秒发送一次心跳：
+
+```json
+{
+  "requestId": "2",
+  "type": "AGENT_CLIENT_FRAME_TYPE_HEARTBEAT_PING",
+  "heartbeatPing": {}
+}
+```
+
+服务端响应：
+
+```json
+{
+  "requestId": "2",
+  "type": "AGENT_SERVER_FRAME_TYPE_HEARTBEAT_PONG",
+  "heartbeatPong": {
+    "serverTime": "1712000000000"
+  }
+}
+```
+
+超过 90 秒未收到心跳，服务端会断开连接。
+
+## 接收事件
+
+事件通过 `AgentEventPush` 帧推送，内部包含与 Webhook 完全相同的 `WebhookEvent` 结构：
+
+```json
+{
+  "requestId": "0",
+  "type": "AGENT_SERVER_FRAME_TYPE_EVENT_PUSH",
+  "eventPush": {
+    "event": {
+      "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
+      "timestamp": "1712000000000",
+      "relatedUsers": [{"userId": 42, "nickname": "Alice"}],
+      "messageEvent": {
+        "message": {
+          "messageId": "1001",
+          "conversationId": "8589934634",
+          "senderId": 42,
+          "body": {
+            "type": "MESSAGE_TYPE_TEXT",
+            "text": {"text": "Hello!"}
+          },
+          "createdAt": "1712000000000"
+        }
+      }
+    }
+  }
+}
+```
+
+事件类型和字段与 Webhook 完全一致，详见 [Webhook 事件](/docs/agent/webhook)。
+
+## 错误处理
+
+服务端可能推送错误帧：
+
+```json
+{
+  "requestId": "0",
+  "type": "AGENT_SERVER_FRAME_TYPE_ERROR",
+  "error": {
+    "error": {
+      "errorCode": 1001,
+      "errorName": "INVALID_TOKEN"
+    },
+    "fatal": true
+  }
+}
+```
+
+当 `fatal` 为 `true` 时，连接即将关闭，Agent 应进行重连。
+
+## 重连策略
+
+建议使用指数退避重连：
+
+| 重试次数 | 等待时间 |
+|----------|----------|
+| 1 | 1 秒 |
+| 2 | 2 秒 |
+| 3 | 4 秒 |
+| 4 | 8 秒 |
+| 5+ | 30 秒（上限） |
+
+重连后需要重新认证。
+
+## 配置 WebSocket 模式
+
+调用 `SetDeliveryConfig` 切换到 WebSocket 模式：
+
+```bash
+curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_your_token_here" \
+  -d '{"websocket": {}}'
+```
+
+也可以通过 AgentRoot 命令切换：
+
+```text
+/websocket <agent_username>
+```
+
+切换后 Webhook 配置会被清除。两种模式互斥。

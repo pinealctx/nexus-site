@@ -1,0 +1,201 @@
+---
+title: 消息类型
+description: Agent 可以发送和接收的所有消息类型
+---
+
+Nexus AI 支持多种消息类型，Agent 可以发送和接收所有类型。消息通过 `MessageBody` 结构承载，`type` 字段标识类型，`content` 字段携带具体内容。
+
+## 文本消息 (TEXT)
+
+最基础的消息类型，支持富文本实体（@提及、URL、电话号码等）。
+
+```json
+{
+  "clientMessageId": "1",
+  "conversationId": "8589934634",
+  "body": {
+    "type": "MESSAGE_TYPE_TEXT",
+    "text": {
+      "text": "Hello @Alice, check https://example.com",
+      "entities": [
+        {
+          "type": "MESSAGE_ENTITY_TYPE_MENTION",
+          "offset": 6,
+          "length": 6,
+          "mention": {"userId": 42}
+        },
+        {
+          "type": "MESSAGE_ENTITY_TYPE_URL",
+          "offset": 20,
+          "length": 19,
+          "url": {"url": "https://example.com"}
+        }
+      ]
+    }
+  }
+}
+```
+
+文本长度上限 10,000 字符。
+
+## Markdown 消息 (MARKDOWN)
+
+适合 Agent 输出格式化内容。客户端负责渲染。
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_MARKDOWN",
+    "markdown": {
+      "rawMarkdown": "## Analysis Result\n\n- Item A: **passed**\n- Item B: *failed*\n\n```python\nprint('hello')\n```"
+    }
+  }
+}
+```
+
+Markdown 长度上限 20,000 字符。
+
+## 图片消息 (IMAGE)
+
+先通过 `MediaService.UploadFile` 上传图片获取 `file_id`，再发送：
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_IMAGE",
+    "image": {
+      "fileId": "file_abc123",
+      "thumbnailFileId": "file_thumb_abc123",
+      "width": 1920,
+      "height": 1080,
+      "sizeBytes": "2048000",
+      "format": "jpg"
+    }
+  }
+}
+```
+
+## 文件消息 (FILE)
+
+小文件（< 5MB）使用 `UploadFile`，大文件使用分片上传（`InitUpload` → `UploadChunk` → `CompleteUpload`）。
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_FILE",
+    "file": {
+      "fileId": "file_doc123",
+      "filename": "report.pdf",
+      "sizeBytes": "1048576",
+      "mimeType": "application/pdf"
+    }
+  }
+}
+```
+
+## Adaptive Card 消息 (CARD)
+
+交互式卡片，遵循 [Adaptive Cards](https://adaptivecards.io/) 规范。适合表单、选择器、信息展示等场景。
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_CARD",
+    "card": {
+      "cardJson": "{\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"text\":\"Rate this response\",\"weight\":\"bolder\"},{\"type\":\"Input.ChoiceSet\",\"id\":\"rating\",\"choices\":[{\"title\":\"Good\",\"value\":\"good\"},{\"title\":\"Bad\",\"value\":\"bad\"}]}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Submit\"}]}",
+      "fallbackText": "Rate this response: Good / Bad"
+    }
+  }
+}
+```
+
+用户点击 `Action.Submit` 后，Agent 会收到 `CARD_ACTION` 事件。Agent 可以通过 `AnswerCardAction` 返回提示，或通过 `EditMessage` 更新卡片。
+
+卡片 JSON 上限 50 KB。
+
+## 流式消息 (STREAM)
+
+适合 LLM 逐字输出的场景。流程：
+
+1. **发送起始消息**：调用 `SendMessage`，`type` 设为 `MESSAGE_TYPE_STREAM`
+2. **推送增量内容**：调用 `PushStreamDelta` 逐步发送文本片段
+3. **结束流**：调用 `EndStream` 提交最终完整内容
+
+```bash
+# 1. 创建流式消息
+curl -X POST .../api.v1.MessageService/SendMessage \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{
+    "clientMessageId": "100",
+    "conversationId": "8589934634",
+    "body": {"type": "MESSAGE_TYPE_STREAM", "stream": {"phase": "STREAM_PHASE_START", "contentType": "text/markdown"}}
+  }'
+# 返回 {"messageId": "2001", "createdAt": "..."}
+
+# 2. 推送增量
+curl -X POST .../api.v1.MessageService/PushStreamDelta \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "seq": 1, "delta": "Hello, "}'
+
+curl -X POST .../api.v1.MessageService/PushStreamDelta \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "seq": 2, "delta": "world!"}'
+
+# 3. 结束流
+curl -X POST .../api.v1.MessageService/EndStream \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "accumulatedText": "Hello, world!"}'
+```
+
+如果生成过程出错，调用 `ErrorStream` 终止：
+
+```bash
+curl -X POST .../api.v1.MessageService/ErrorStream \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001", "errorMessage": "Generation failed"}'
+```
+
+## 回复消息
+
+任何消息类型都支持引用回复，设置 `replyToMessageId` 即可：
+
+```json
+{
+  "clientMessageId": "2",
+  "conversationId": "8589934634",
+  "replyToMessageId": "1001",
+  "body": {
+    "type": "MESSAGE_TYPE_TEXT",
+    "text": {"text": "This is a reply."}
+  }
+}
+```
+
+## 编辑消息
+
+Agent 可以编辑自己发送的消息（24 小时内），但不能更改消息类型：
+
+```bash
+curl -X POST .../api.v1.MessageService/EditMessage \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{
+    "conversationId": "8589934634",
+    "messageId": "2001",
+    "newBody": {
+      "type": "MESSAGE_TYPE_TEXT",
+      "text": {"text": "Updated content."}
+    }
+  }'
+```
+
+## 撤回消息
+
+Agent 可以撤回自己发送的消息（24 小时内）：
+
+```bash
+curl -X POST .../api.v1.MessageService/RecallMessage \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{"conversationId": "8589934634", "messageId": "2001"}'
+```
+
+撤回后消息内容被替换为 `RecalledContent`，所有参与者可见。

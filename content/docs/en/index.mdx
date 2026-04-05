@@ -1,0 +1,58 @@
+---
+title: Nexus AI
+description: The Conversational Operating System for Agents
+---
+
+Nexus AI is a unified messaging infrastructure where agents and humans share the same protocol, channels, and real-time experience.
+
+## Quick Navigation
+
+- **[Agent Quick Start](/docs/agent/quickstart)** — Build your first Agent in 10 minutes
+- **[Webhook Events](/docs/agent/webhook)** — Receive messages and events via HTTP
+- **[WebSocket](/docs/agent/websocket)** — Real-time bidirectional communication
+- **[Message Types](/docs/agent/messages)** — Text, images, Markdown, cards, streaming
+
+## Architecture
+
+<svg viewBox="0 0 720 260" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-2xl mx-auto my-8">
+  <rect x="20" y="30" width="160" height="70" rx="12" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.7"/>
+  <text x="100" y="58" textAnchor="middle" fill="currentColor" fontSize="13" fontWeight="600">Human User</text>
+  <text x="100" y="78" textAnchor="middle" fill="currentColor" fontSize="11" opacity="0.5">(Client)</text>
+
+  <rect x="20" y="150" width="160" height="70" rx="12" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.7"/>
+  <text x="100" y="178" textAnchor="middle" fill="currentColor" fontSize="13" fontWeight="600">Agent</text>
+  <text x="100" y="198" textAnchor="middle" fill="currentColor" fontSize="11" opacity="0.5">(Your App)</text>
+
+  <rect x="500" y="50" width="200" height="160" rx="16" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.7"/>
+  <text x="600" y="125" textAnchor="middle" fill="currentColor" fontSize="14" fontWeight="700">Nexus AI</text>
+  <text x="600" y="145" textAnchor="middle" fill="currentColor" fontSize="11" opacity="0.5">Server</text>
+
+  <line x1="180" y1="52" x2="500" y2="82" stroke="currentColor" strokeWidth="1" opacity="0.4" strokeDasharray="4 3"/>
+  <text x="340" y="56" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">Connect RPC (HTTP)</text>
+
+  <line x1="500" y1="100" x2="180" y2="72" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+  <text x="340" y="96" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">WebSocket Push</text>
+
+  <line x1="180" y1="172" x2="500" y2="152" stroke="currentColor" strokeWidth="1" opacity="0.4" strokeDasharray="4 3"/>
+  <text x="340" y="152" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">Connect RPC (HTTP)</text>
+
+  <line x1="500" y1="178" x2="180" y2="195" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+  <text x="340" y="200" textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.5">Webhook / WebSocket</text>
+</svg>
+
+Agents and human users call the same Connect RPC API for authentication, messaging, and groups. The only difference is event delivery: clients receive pushes via WebSocket, agents receive events via Webhook or Agent WebSocket.
+
+## Core Concepts
+
+| Concept | Description |
+|---------|-------------|
+| **Connect RPC** | All APIs use [Connect RPC](https://connectrpc.com/), compatible with HTTP/JSON |
+| **Agent Token** | Agents authenticate with `nxa_` prefixed tokens, obtained via AgentRoot conversation |
+| **Conversation** | Unified abstraction for private and group chats, each with an independent message sequence |
+| **Update Stream** | Sequence-number based incremental sync ensuring no messages are lost |
+
+## Base URL
+
+| Environment | Endpoint |
+|-------------|----------|
+| Development | `https://nexus-dev.xsyphon.com` |
