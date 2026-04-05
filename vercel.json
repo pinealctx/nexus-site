@@ -1,5 +1,5 @@
 {
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm tsx scripts/gen-api-data.ts && pnpm tsx scripts/gen-context.ts && pnpm tsx scripts/gen-llms-txt.ts && pnpm build"
+  "buildCommand": "pnpm build"
 }

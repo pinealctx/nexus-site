@@ -15,6 +15,11 @@ const navItems = [
   { href: "/download", labelKey: "download" },
 ] as const;
 
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function Navbar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
@@ -41,7 +46,7 @@ export function Navbar() {
               href={item.href}
               className={cn(
                 "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                pathname === item.href
+                isActive(pathname, item.href)
                   ? "bg-accent text-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
@@ -86,7 +91,7 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-                  pathname === item.href
+                  isActive(pathname, item.href)
                     ? "bg-accent text-foreground"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { RootProvider } from "fumadocs-ui/provider";
 import { source } from "@/lib/source";
+import { i18n } from "@/lib/fumadocs-i18n";
 
 const zhTranslations = {
   search: "搜索",
@@ -30,6 +31,11 @@ export default async function Layout({ children, params }: Props) {
       i18n={{
         locale,
         translations: locale === "zh-CN" ? zhTranslations : undefined,
+      }}
+      search={{
+        options: {
+          api: `/${locale}/docs/search`,
+        },
       }}
     >
       <DocsLayout

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import type { ApiData, ServiceInfo, MethodInfo, MessageInfo, EnumInfo, FieldInfo, ValidationInfo } from "@/lib/api-types";
 import { cn } from "@/lib/utils";
+import { ApiSearchDialog } from "./search-dialog";
 import {
   ChevronRight,
   ChevronDown,
@@ -55,14 +56,26 @@ function Description({ text, className }: { text: string; className?: string }) 
   );
 }
 
-interface ReferenceClientProps {
+interface ApiClientProps {
   apiData: ApiData;
 }
 
-export function ReferenceClient({ apiData }: ReferenceClientProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+export function ApiClient({ apiData }: ApiClientProps) {
+  const [searchOpen, setSearchOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLElement>(null);
+
+  // Ctrl+K / Cmd+K to open search
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   // Sync activeSection from URL hash changes (e.g. clicking jump links in content)
   const syncFromHash = useCallback(() => {
@@ -87,39 +100,24 @@ export function ReferenceClient({ apiData }: ReferenceClientProps) {
     }
   }, [activeSection]);
 
-  const filteredServices = useMemo(() => {
-    if (!searchQuery.trim()) return apiData.services;
-    const q = searchQuery.toLowerCase();
-    return apiData.services
-      .map((svc) => ({
-        ...svc,
-        methods: svc.methods.filter(
-          (m) =>
-            m.name.toLowerCase().includes(q) ||
-            m.httpPath.toLowerCase().includes(q) ||
-            m.description?.toLowerCase().includes(q)
-        ),
-      }))
-      .filter((svc) => svc.methods.length > 0 || svc.name.toLowerCase().includes(q));
-  }, [apiData.services, searchQuery]);
-
   return (
     <div className="mx-auto flex w-full max-w-[1400px] gap-0">
+      <ApiSearchDialog apiData={apiData} open={searchOpen} onOpenChange={setSearchOpen} />
+
       {/* Sidebar */}
       <aside className="hidden w-72 shrink-0 border-r lg:block">
         <div className="sticky top-16 flex max-h-[calc(100vh-4rem)] flex-col">
-          {/* Search */}
+          {/* Search trigger */}
           <div className="border-b p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search endpoints..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border bg-muted/50 py-2 pl-9 pr-3 text-sm outline-none transition-colors focus:border-primary focus:bg-background"
-              />
-            </div>
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="flex w-full items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:bg-background"
+            >
+              <Search className="h-4 w-4" />
+              <span className="flex-1 text-left">Search...</span>
+              <kbd className="rounded border bg-background px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd>
+            </button>
           </div>
 
           {/* Nav */}
@@ -129,7 +127,7 @@ export function ReferenceClient({ apiData }: ReferenceClientProps) {
                 Endpoints
               </span>
             </div>
-            {filteredServices.map((svc) => (
+            {apiData.services.map((svc) => (
               <SidebarService
                 key={svc.fullName}
                 service={svc}
@@ -203,7 +201,7 @@ export function ReferenceClient({ apiData }: ReferenceClientProps) {
 
         {/* Service sections */}
         <div className="divide-y">
-          {filteredServices.map((svc) => (
+          {apiData.services.map((svc) => (
             <ServiceBlock
               key={svc.fullName}
               service={svc}
