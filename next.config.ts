@@ -5,6 +5,8 @@ import { createMDX } from "fumadocs-mdx/next";
 const withNextIntl = createNextIntlPlugin("./lib/i18n.ts");
 const withMDX = createMDX();
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  output: "standalone",
+};
 
 export default withMDX(withNextIntl(nextConfig));

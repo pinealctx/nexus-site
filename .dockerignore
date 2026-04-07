@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.source/
+.git/
+.gitignore
+.env*
+.vercel/
+.idea/
+.vscode/
+coverage/
+*.md
+*.log
