@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-05T06:47:33.285Z",
+  "generatedAt": "2026-04-07T15:32:47.788Z",
   "services": [
     {
       "name": "AgentService",
@@ -196,7 +196,7 @@
           "options": {
             "skipAuth": true,
             "agentOnly": false,
-            "userOnly": false
+            "userOnly": true
           },
           "inputType": "api.v1.RequestVerifyCodeRequest",
           "outputType": "api.v1.RequestVerifyCodeResponse"
@@ -208,7 +208,7 @@
           "options": {
             "skipAuth": true,
             "agentOnly": false,
-            "userOnly": false
+            "userOnly": true
           },
           "inputType": "api.v1.VerifyCodeRequest",
           "outputType": "api.v1.VerifyCodeResponse"
@@ -220,7 +220,7 @@
           "options": {
             "skipAuth": true,
             "agentOnly": false,
-            "userOnly": false
+            "userOnly": true
           },
           "inputType": "api.v1.LoginPasswordRequest",
           "outputType": "api.v1.LoginPasswordResponse"
@@ -232,7 +232,7 @@
           "options": {
             "skipAuth": true,
             "agentOnly": false,
-            "userOnly": false
+            "userOnly": true
           },
           "inputType": "api.v1.RefreshTokenRequest",
           "outputType": "api.v1.RefreshTokenResponse"
@@ -292,7 +292,7 @@
           "options": {
             "skipAuth": true,
             "agentOnly": false,
-            "userOnly": false
+            "userOnly": true
           },
           "inputType": "api.v1.ResetPasswordRequestRequest",
           "outputType": "api.v1.ResetPasswordRequestResponse"
@@ -304,7 +304,7 @@
           "options": {
             "skipAuth": true,
             "agentOnly": false,
-            "userOnly": false
+            "userOnly": true
           },
           "inputType": "api.v1.ResetPasswordVerifyRequest",
           "outputType": "api.v1.ResetPasswordVerifyResponse"
@@ -316,7 +316,7 @@
           "options": {
             "skipAuth": true,
             "agentOnly": false,
-            "userOnly": false
+            "userOnly": true
           },
           "inputType": "api.v1.ResetPasswordConfirmRequest",
           "outputType": "api.v1.ResetPasswordConfirmResponse"
@@ -393,9 +393,9 @@
           "description": "AddContact adds a contact without friend request approval.\nCurrently supports adding public agents and private agents (creator only).\n\nSide effects:\n- Creates bidirectional contact rows in contacts table.\n- Delivers a ContactAddedEvent SnUpdate to the caller's update box (multi-device sync). Clients use this to create the local contact record and the PRIVATE conversation.\n- Increments the agent's user_count in agent_profiles.\n- Delivers a contact.added webhook event to the agent.\n\nError conditions:\n- NOT_FOUND: Target user does not exist.\n- ALREADY_EXISTS: Contact relationship already exists.\n- PERMISSION_DENIED: Private agent, caller is not the creator.\n- FAILED_PRECONDITION: Target is a regular user (use SendFriendRequest).\n- FAILED_PRECONDITION: Agent status is not ACTIVE (error_code 7003).",
           "httpPath": "/api.v1.ContactService/AddContact",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.AddContactRequest",
           "outputType": "api.v1.AddContactResponse"
@@ -544,95 +544,95 @@
     {
       "name": "GroupService",
       "fullName": "api.v1.GroupService",
-      "description": "GroupService handles group lifecycle, membership, and in-group agent\nmanagement. Authenticated via Access Token.\n\nGroup lifecycle:\n- CreateGroup creates a GROUP conversation and adds the creator as owner.\n- DissolveGroup permanently removes the group (owner only).\n\nSystem message integration: All state-changing operations produce GroupContent system messages delivered to the group conversation. See shared/v1/group_event.proto for the full list of event payloads:\n- Member changes: MemberJoinedEvent, MemberLeftEvent, MemberKickedEvent.\n- Setting changes: GroupInfoChangedEvent.\n- Agent changes: AgentAddedEvent, AgentRemovedEvent.",
+      "description": "GroupService handles group lifecycle, membership, and settings.\nAuthenticated via Access Token.\n\nGroup lifecycle:\n- CreateGroup creates a GROUP conversation and adds the creator as owner.\n- DissolveGroup permanently removes the group (owner only).\n\nSystem message integration: All state-changing operations produce GroupContent system messages delivered to the group conversation. See shared/v1/group_event.proto for the full list of event payloads:\n- Member changes: MemberJoinedEvent, MemberLeftEvent, MemberRemovedEvent.\n- Setting changes: GroupInfoChangedEvent.",
       "methods": [
         {
           "name": "CreateGroup",
-          "description": "CreateGroup creates a new group conversation.\n\nSide effects:\n- Creates a GROUP conversation and adds the creator as owner.\n- Delivers a single MemberJoinedEvent containing all initial member IDs.\n\nError conditions:\n- INVALID_ARGUMENT: Name is empty or fewer than 2 member_ids.\n- FAILED_PRECONDITION: After filtering invalid/blocked users, total members (including creator) are fewer than 3.\n- RESOURCE_EXHAUSTED: Total members (including creator) exceed the group member limit (200).",
+          "description": "CreateGroup creates a new group conversation.\n\nSide effects:\n- Creates a GROUP conversation and adds the creator as owner.\n- Delivers a single MemberJoinedEvent containing all initial members.\n\nError conditions:\n- INVALID_ARGUMENT: Name is empty or fewer than 2 member_ids.\n- FAILED_PRECONDITION: After filtering invalid/blocked users, total members (including creator) are fewer than 3.\n- RESOURCE_EXHAUSTED: Total members (including creator) exceed the group member limit (200).",
           "httpPath": "/api.v1.GroupService/CreateGroup",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.CreateGroupRequest",
           "outputType": "api.v1.CreateGroupResponse"
         },
         {
           "name": "DissolveGroup",
-          "description": "DissolveGroup permanently dissolves a group.\n\nSide effects:\n- Marks the group conversation as dissolved; no further messages can be sent.\n- All members are removed from the group.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is not the group owner.",
+          "description": "DissolveGroup permanently dissolves a group.\n\nSide effects:\n- Marks the group as DISSOLVED; no further messages can be sent.\n- Removes all members from the group.\n- Delivers GroupDissolvedEvent SnUpdate to every member's update box.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is already dissolved.\n- PERMISSION_DENIED: Caller is not the group owner.",
           "httpPath": "/api.v1.GroupService/DissolveGroup",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.DissolveGroupRequest",
           "outputType": "api.v1.DissolveGroupResponse"
         },
         {
           "name": "UpdateGroupName",
-          "description": "UpdateGroupName updates the group display name.\n\nSide effects:\n- Delivers GroupInfoChangedEvent (field=\"name\") to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is not the owner.\n- INVALID_ARGUMENT: Name is empty.",
+          "description": "UpdateGroupName updates the group display name.\n\nSide effects:\n- Delivers GroupInfoChangedEvent (field=\"name\") to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not the owner.\n- INVALID_ARGUMENT: Name is empty.",
           "httpPath": "/api.v1.GroupService/UpdateGroupName",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.UpdateGroupNameRequest",
           "outputType": "api.v1.UpdateGroupNameResponse"
         },
         {
           "name": "UpdateGroupAvatar",
-          "description": "UpdateGroupAvatar updates the group avatar.\n\nSide effects:\n- Delivers GroupInfoChangedEvent (field=\"avatar\") to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is not the owner.",
+          "description": "UpdateGroupAvatar updates the group avatar.\n\nSide effects:\n- Delivers GroupInfoChangedEvent (field=\"avatar\") to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not the owner.",
           "httpPath": "/api.v1.GroupService/UpdateGroupAvatar",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.UpdateGroupAvatarRequest",
           "outputType": "api.v1.UpdateGroupAvatarResponse"
         },
         {
           "name": "UpdateGroupDescription",
-          "description": "UpdateGroupDescription updates the group description.\n\nSide effects:\n- Delivers GroupInfoChangedEvent (field=\"description\") to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is not the owner.",
+          "description": "UpdateGroupDescription updates the group description.\n\nSide effects:\n- Delivers GroupInfoChangedEvent (field=\"description\") to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not the owner.",
           "httpPath": "/api.v1.GroupService/UpdateGroupDescription",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.UpdateGroupDescriptionRequest",
           "outputType": "api.v1.UpdateGroupDescriptionResponse"
         },
         {
           "name": "InviteMembers",
-          "description": "InviteMembers invites one or more users to join the group.\n\nSide effects:\n- Adds the invited users as group members.\n- Delivers a single MemberJoinedEvent containing all newly added member IDs.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is not the owner.\n- RESOURCE_EXHAUSTED: Adding these members would exceed the group member limit (100).\n\nSkipped silently (no error):\n- Users who have blocked the inviter (or vice versa).\n- Users who are already group members.",
+          "description": "InviteMembers invites one or more users or agents to join the group.\nThe server auto-detects member type (user vs agent) by account_type.\n\nSide effects:\n- Adds the invited members to the group.\n- Delivers a single MemberJoinedEvent containing all newly added members.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not the owner.\n- RESOURCE_EXHAUSTED: Adding these members would exceed the group member limit or agent limit.\n\nSkipped silently (no error):\n- User IDs that do not exist.\n- Users who have blocked the inviter (or vice versa).\n- Users/agents who are already group members.\n- Agents that are not active.",
           "httpPath": "/api.v1.GroupService/InviteMembers",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.InviteMembersRequest",
           "outputType": "api.v1.InviteMembersResponse"
         },
         {
           "name": "RemoveMember",
-          "description": "RemoveMember removes a member from the group (owner only).\n\nSide effects:\n- Removes the target from the group.\n- Delivers MemberKickedEvent to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group or target member does not exist.\n- PERMISSION_DENIED: Caller is not the owner.",
+          "description": "RemoveMember removes a member (user or agent) from the group (owner only).\n\nSide effects:\n- Removes the target from the group.\n- Delivers MemberRemovedEvent to the group conversation.\n- Delivers RemovedFromGroupEvent SnUpdate to the removed member's update box.\n\nError conditions:\n- NOT_FOUND: Group does not exist, or target is not a member.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not the owner.\n- INVALID_ARGUMENT: Cannot remove the group owner.",
           "httpPath": "/api.v1.GroupService/RemoveMember",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.RemoveMemberRequest",
           "outputType": "api.v1.RemoveMemberResponse"
         },
         {
           "name": "LeaveGroup",
-          "description": "LeaveGroup allows a member to voluntarily leave the group.\nThe group owner cannot leave; use DissolveGroup instead.\n\nSide effects:\n- Removes the caller from the group.\n- Delivers MemberLeftEvent to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is the group owner (must dissolve instead).",
+          "description": "LeaveGroup allows a member to voluntarily leave the group.\nThe group owner cannot leave; use DissolveGroup instead.\n\nSide effects:\n- Removes the caller from the group.\n- Delivers MemberLeftEvent to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group does not exist, or caller is not a member.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is the group owner (must dissolve instead).",
           "httpPath": "/api.v1.GroupService/LeaveGroup",
           "options": {
             "agentOnly": false,
@@ -643,32 +643,8 @@
           "outputType": "api.v1.LeaveGroupResponse"
         },
         {
-          "name": "AddAgent",
-          "description": "AddAgent adds an agent to the group.\n\nSide effects:\n- Adds the agent as a group member with account_type = AGENT.\n- Delivers AgentAddedEvent to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group or agent does not exist.\n- PERMISSION_DENIED: Caller is not the owner.\n- ALREADY_EXISTS: Agent is already in the group.",
-          "httpPath": "/api.v1.GroupService/AddAgent",
-          "options": {
-            "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
-          },
-          "inputType": "api.v1.AddAgentRequest",
-          "outputType": "api.v1.AddAgentResponse"
-        },
-        {
-          "name": "RemoveAgent",
-          "description": "RemoveAgent removes an agent from the group.\n\nSide effects:\n- Removes the agent from the group.\n- Delivers AgentRemovedEvent to the group conversation.\n\nError conditions:\n- NOT_FOUND: Group or agent does not exist, or agent is not in the group.\n- PERMISSION_DENIED: Caller is not the owner.",
-          "httpPath": "/api.v1.GroupService/RemoveAgent",
-          "options": {
-            "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
-          },
-          "inputType": "api.v1.RemoveAgentRequest",
-          "outputType": "api.v1.RemoveAgentResponse"
-        },
-        {
           "name": "GetGroupInfo",
-          "description": "GetGroupInfo returns group details and a partial member preview.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is not a member of the group.",
+          "description": "GetGroupInfo returns group details with all members and their user info.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not a member of the group.",
           "httpPath": "/api.v1.GroupService/GetGroupInfo",
           "options": {
             "agentOnly": false,
@@ -677,18 +653,6 @@
           },
           "inputType": "api.v1.GetGroupInfoRequest",
           "outputType": "api.v1.GetGroupInfoResponse"
-        },
-        {
-          "name": "ListMembers",
-          "description": "ListMembers lists group members with cursor-based pagination.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- PERMISSION_DENIED: Caller is not a member of the group.",
-          "httpPath": "/api.v1.GroupService/ListMembers",
-          "options": {
-            "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
-          },
-          "inputType": "api.v1.ListMembersRequest",
-          "outputType": "api.v1.ListMembersResponse"
         },
         {
           "name": "ListGroups",
@@ -956,9 +920,9 @@
           "description": "ClearBadge clears the push notification badge count for the user.\n\nSide effects:\n- iOS: Sends a silent push with badge=0 to clear the app icon badge.\n- Android: No server-side action needed (client clears locally).\n- Resets the server-side badge cache for this user.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.",
           "httpPath": "/api.v1.PushService/ClearBadge",
           "options": {
+            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": false,
-            "skipAuth": false
+            "userOnly": true
           },
           "inputType": "api.v1.ClearBadgeRequest",
           "outputType": "api.v1.ClearBadgeResponse"
@@ -3435,13 +3399,13 @@
     "shared.v1.MemberInfo": {
       "name": "MemberInfo",
       "fullName": "shared.v1.MemberInfo",
-      "description": "MemberInfo represents a group member.",
+      "description": "MemberInfo represents a group member (lightweight).\nUser details (nickname, avatar, etc.) are provided separately via\nthe users list in GetGroupInfoResponse or related_users in push events.",
       "fields": [
         {
-          "name": "user",
-          "jsonName": "user",
-          "type": "shared.v1.UserInfo",
-          "description": "Member user info (user_id, username, nickname, avatar_url, account_type).\naccount_type distinguishes human users from agents.",
+          "name": "user_id",
+          "jsonName": "userId",
+          "type": "int32",
+          "description": "Member user ID.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -3811,10 +3775,19 @@
       "description": "GroupContent carries structured group event data as the body of a\nsystem message (MessageType = GROUP) delivered to a GROUP conversation.\nEach event type has its own strongly-typed payload.\n\nThe oneof field implicitly identifies the event type, so no separate\nenum is needed. Clients and agents switch on the oneof case to handle\nthe appropriate in-chat system notification.",
       "fields": [
         {
+          "name": "group_id",
+          "jsonName": "groupId",
+          "type": "int32",
+          "description": "Group ID this event belongs to, allowing update consumers to\nidentify the group without deriving it from conversation_id.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
           "name": "member_joined",
           "jsonName": "memberJoined",
           "type": "shared.v1.MemberJoinedEvent",
-          "description": "A member joined the group.",
+          "description": "Members joined the group (user or agent).",
           "optional": false,
           "repeated": false,
           "oneofGroup": "event",
@@ -3831,10 +3804,10 @@
           "sensitive": false
         },
         {
-          "name": "member_kicked",
-          "jsonName": "memberKicked",
-          "type": "shared.v1.MemberKickedEvent",
-          "description": "A member was kicked from the group.",
+          "name": "member_removed",
+          "jsonName": "memberRemoved",
+          "type": "shared.v1.MemberRemovedEvent",
+          "description": "A member was removed from the group by the owner.",
           "optional": false,
           "repeated": false,
           "oneofGroup": "event",
@@ -3849,48 +3822,28 @@
           "repeated": false,
           "oneofGroup": "event",
           "sensitive": false
-        },
-        {
-          "name": "agent_added",
-          "jsonName": "agentAdded",
-          "type": "shared.v1.AgentAddedEvent",
-          "description": "An agent was added to the group.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "event",
-          "sensitive": false
-        },
-        {
-          "name": "agent_removed",
-          "jsonName": "agentRemoved",
-          "type": "shared.v1.AgentRemovedEvent",
-          "description": "An agent was removed from the group.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "event",
-          "sensitive": false
         }
       ]
     },
     "shared.v1.MemberJoinedEvent": {
       "name": "MemberJoinedEvent",
       "fullName": "shared.v1.MemberJoinedEvent",
-      "description": "MemberJoinedEvent is produced when users join a group. Supports batch\njoins: group creation and multi-invite produce a single event containing\nall user IDs, so clients render one \"A, B, C joined\" message instead of\nmultiple individual messages.\nDelivered as a system message to the group conversation.",
+      "description": "MemberJoinedEvent is produced when members (users or agents) join a\ngroup. Supports batch joins: group creation and multi-invite produce\na single event containing all member info, so clients render one\n\"A, B, C joined\" message instead of multiple individual messages.\nDelivered as a system message to the group conversation.",
       "fields": [
         {
-          "name": "user_ids",
-          "jsonName": "userIds",
-          "type": "int32",
-          "description": "User IDs of all members who joined in this batch.",
+          "name": "members",
+          "jsonName": "members",
+          "type": "shared.v1.MemberInfo",
+          "description": "Members who joined in this batch.",
           "optional": false,
           "repeated": true,
           "sensitive": false
         },
         {
-          "name": "inviter_id",
-          "jsonName": "inviterId",
-          "type": "int32",
-          "description": "User ID of the inviter (0 for group creation).",
+          "name": "inviter",
+          "jsonName": "inviter",
+          "type": "shared.v1.MemberInfo",
+          "description": "The inviter who added these members (absent for group creation).",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -3900,38 +3853,38 @@
     "shared.v1.MemberLeftEvent": {
       "name": "MemberLeftEvent",
       "fullName": "shared.v1.MemberLeftEvent",
-      "description": "MemberLeftEvent is produced when a user voluntarily leaves a group.\nDelivered as a system message to the group conversation.",
+      "description": "MemberLeftEvent is produced when a member voluntarily leaves a group.\nDelivered as a system message to the group conversation.",
       "fields": [
         {
-          "name": "user_id",
-          "jsonName": "userId",
-          "type": "int32",
-          "description": "User ID of the member who left.",
+          "name": "member",
+          "jsonName": "member",
+          "type": "shared.v1.MemberInfo",
+          "description": "The member who left.",
           "optional": false,
           "repeated": false,
           "sensitive": false
         }
       ]
     },
-    "shared.v1.MemberKickedEvent": {
-      "name": "MemberKickedEvent",
-      "fullName": "shared.v1.MemberKickedEvent",
-      "description": "MemberKickedEvent is produced when a member is removed by an admin/owner.\nDual delivery:\n- GROUP conversation: visible to all remaining members.\n- Kicked user's update box: via KickedFromGroupEvent SnUpdate (the user is no longer in the group).",
+    "shared.v1.MemberRemovedEvent": {
+      "name": "MemberRemovedEvent",
+      "fullName": "shared.v1.MemberRemovedEvent",
+      "description": "MemberRemovedEvent is produced when a member (user or agent) is removed\nby the group owner. Unified event replacing the old MemberKickedEvent,\nAgentRemovedEvent, KickedFromGroupEvent, and RemovedFromGroupEvent.\n\nDual delivery:\n- GROUP conversation: visible to all remaining members.\n- Removed member's update box: via RemovedFromGroupEvent SnUpdate (the member is no longer in the group).",
       "fields": [
         {
-          "name": "user_id",
-          "jsonName": "userId",
-          "type": "int32",
-          "description": "User ID of the kicked member.",
+          "name": "member",
+          "jsonName": "member",
+          "type": "shared.v1.MemberInfo",
+          "description": "The member who was removed.",
           "optional": false,
           "repeated": false,
           "sensitive": false
         },
         {
-          "name": "operator_id",
-          "jsonName": "operatorId",
-          "type": "int32",
-          "description": "User ID of the admin/owner who performed the kick.",
+          "name": "operator",
+          "jsonName": "operator",
+          "type": "shared.v1.MemberInfo",
+          "description": "The owner who performed the removal.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -3944,10 +3897,10 @@
       "description": "GroupInfoChangedEvent is produced when group metadata is updated\n(name, avatar, description, or other settings). Delivered as a system\nmessage to the group conversation. Clients obtain the latest values\nfrom related_groups in the push event.",
       "fields": [
         {
-          "name": "operator_id",
-          "jsonName": "operatorId",
-          "type": "int32",
-          "description": "User ID of the operator who made the change.",
+          "name": "operator",
+          "jsonName": "operator",
+          "type": "shared.v1.MemberInfo",
+          "description": "The operator who made the change.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -3957,56 +3910,6 @@
           "jsonName": "field",
           "type": "string",
           "description": "Changed field identifier (e.g. \"name\", \"avatar\", \"description\").",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.AgentAddedEvent": {
-      "name": "AgentAddedEvent",
-      "fullName": "shared.v1.AgentAddedEvent",
-      "description": "AgentAddedEvent is produced when an agent is added to a group.\nDelivered as a system message to the group conversation.",
-      "fields": [
-        {
-          "name": "agent_id",
-          "jsonName": "agentId",
-          "type": "int32",
-          "description": "Agent user ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "operator_id",
-          "jsonName": "operatorId",
-          "type": "int32",
-          "description": "User ID of the operator who added the agent.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.AgentRemovedEvent": {
-      "name": "AgentRemovedEvent",
-      "fullName": "shared.v1.AgentRemovedEvent",
-      "description": "AgentRemovedEvent is produced when an agent is removed from a group.\nDual delivery:\n- GROUP conversation: visible to all remaining members.\n- Removed agent's update box: via RemovedFromGroupEvent SnUpdate (the agent is no longer in the group).",
-      "fields": [
-        {
-          "name": "agent_id",
-          "jsonName": "agentId",
-          "type": "int32",
-          "description": "Agent user ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "operator_id",
-          "jsonName": "operatorId",
-          "type": "int32",
-          "description": "User ID of the operator who removed the agent.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -5003,10 +4906,10 @@
           "sensitive": false
         },
         {
-          "name": "kicked_from_group",
-          "jsonName": "kickedFromGroup",
-          "type": "shared.v1.KickedFromGroupEvent",
-          "description": "The user was kicked from a group by an admin/owner.",
+          "name": "removed_from_group",
+          "jsonName": "removedFromGroup",
+          "type": "shared.v1.RemovedFromGroupEvent",
+          "description": "A member (user or agent) was removed from a group by the owner.",
           "optional": false,
           "repeated": false,
           "oneofGroup": "update",
@@ -5016,17 +4919,7 @@
           "name": "group_dissolved",
           "jsonName": "groupDissolved",
           "type": "shared.v1.GroupDissolvedEvent",
-          "description": "A group was dissolved by its owner.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "update",
-          "sensitive": false
-        },
-        {
-          "name": "removed_from_group",
-          "jsonName": "removedFromGroup",
-          "type": "shared.v1.RemovedFromGroupEvent",
-          "description": "An agent was removed from a group.",
+          "description": "Field 15 was KickedFromGroupEvent (removed, unified into RemovedFromGroupEvent).\nA group was dissolved by its owner.",
           "optional": false,
           "repeated": false,
           "oneofGroup": "update",
@@ -5477,41 +5370,16 @@
         }
       ]
     },
-    "shared.v1.KickedFromGroupEvent": {
-      "name": "KickedFromGroupEvent",
-      "fullName": "shared.v1.KickedFromGroupEvent",
-      "description": "KickedFromGroupEvent is delivered as an SnUpdate to the kicked user's\nupdate box when they are removed from a group by an admin/owner.",
-      "fields": [
-        {
-          "name": "group_id",
-          "jsonName": "groupId",
-          "type": "int32",
-          "description": "Group ID the user was kicked from.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "operator_id",
-          "jsonName": "operatorId",
-          "type": "int32",
-          "description": "User ID of the operator who performed the kick.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
     "shared.v1.RemovedFromGroupEvent": {
       "name": "RemovedFromGroupEvent",
       "fullName": "shared.v1.RemovedFromGroupEvent",
-      "description": "RemovedFromGroupEvent is delivered to the removed agent's update box\nwhen the agent is removed from a group.",
+      "description": "RemovedFromGroupEvent is delivered as an SnUpdate to the removed\nmember's (user or agent) update box when they are removed from a\ngroup by the owner. Unified event for both user kicks and agent removals.",
       "fields": [
         {
           "name": "group_id",
           "jsonName": "groupId",
           "type": "int32",
-          "description": "Group ID the agent was removed from.",
+          "description": "Group ID the member was removed from.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -5520,7 +5388,7 @@
           "name": "operator_id",
           "jsonName": "operatorId",
           "type": "int32",
-          "description": "User ID of the operator who removed the agent.",
+          "description": "User ID of the operator who performed the removal.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -6013,7 +5881,7 @@
     "api.v1.InviteMembersRequest": {
       "name": "InviteMembersRequest",
       "fullName": "api.v1.InviteMembersRequest",
-      "description": "InviteMembersRequest invites users to the group.",
+      "description": "InviteMembersRequest invites users or agents to the group.\nThe server auto-detects member type by looking up account_type.",
       "fields": [
         {
           "name": "group_id",
@@ -6031,7 +5899,7 @@
           "name": "member_ids",
           "jsonName": "memberIds",
           "type": "int32",
-          "description": "User IDs to invite. Server enforces max group size of 100.",
+          "description": "User IDs to invite (can include both users and agents).\nServer enforces max group size and max agent count.",
           "optional": false,
           "repeated": true,
           "sensitive": false,
@@ -6050,7 +5918,7 @@
     "api.v1.RemoveMemberRequest": {
       "name": "RemoveMemberRequest",
       "fullName": "api.v1.RemoveMemberRequest",
-      "description": "RemoveMemberRequest removes a member from the group.",
+      "description": "RemoveMemberRequest removes a member (user or agent) from the group.",
       "fields": [
         {
           "name": "group_id",
@@ -6068,7 +5936,7 @@
           "name": "target_id",
           "jsonName": "targetId",
           "type": "int32",
-          "description": "Target member user ID.",
+          "description": "Target member user ID (can be a user or agent).",
           "optional": false,
           "repeated": false,
           "sensitive": false,
@@ -6109,80 +5977,6 @@
       "description": "LeaveGroupResponse is returned after leaving a group.",
       "fields": []
     },
-    "api.v1.AddAgentRequest": {
-      "name": "AddAgentRequest",
-      "fullName": "api.v1.AddAgentRequest",
-      "description": "AddAgentRequest adds an agent to the group.",
-      "fields": [
-        {
-          "name": "group_id",
-          "jsonName": "groupId",
-          "type": "int32",
-          "description": "Group ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        },
-        {
-          "name": "agent_id",
-          "jsonName": "agentId",
-          "type": "int32",
-          "description": "Agent user ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        }
-      ]
-    },
-    "api.v1.AddAgentResponse": {
-      "name": "AddAgentResponse",
-      "fullName": "api.v1.AddAgentResponse",
-      "description": "AddAgentResponse is returned after adding an agent.",
-      "fields": []
-    },
-    "api.v1.RemoveAgentRequest": {
-      "name": "RemoveAgentRequest",
-      "fullName": "api.v1.RemoveAgentRequest",
-      "description": "RemoveAgentRequest removes an agent from the group.",
-      "fields": [
-        {
-          "name": "group_id",
-          "jsonName": "groupId",
-          "type": "int32",
-          "description": "Group ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        },
-        {
-          "name": "agent_id",
-          "jsonName": "agentId",
-          "type": "int32",
-          "description": "Agent user ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        }
-      ]
-    },
-    "api.v1.RemoveAgentResponse": {
-      "name": "RemoveAgentResponse",
-      "fullName": "api.v1.RemoveAgentResponse",
-      "description": "RemoveAgentResponse is returned after removing an agent.",
-      "fields": []
-    },
     "api.v1.GetGroupInfoRequest": {
       "name": "GetGroupInfoRequest",
       "fullName": "api.v1.GetGroupInfoRequest",
@@ -6205,7 +5999,7 @@
     "api.v1.GetGroupInfoResponse": {
       "name": "GetGroupInfoResponse",
       "fullName": "api.v1.GetGroupInfoResponse",
-      "description": "GetGroupInfoResponse contains the group details.",
+      "description": "GetGroupInfoResponse contains the group details with all members.",
       "fields": [
         {
           "name": "group",
@@ -6220,76 +6014,18 @@
           "name": "members",
           "jsonName": "members",
           "type": "shared.v1.MemberInfo",
-          "description": "Group members (partial preview, use ListMembers for full list).",
-          "optional": false,
-          "repeated": true,
-          "sensitive": false
-        }
-      ]
-    },
-    "api.v1.ListMembersRequest": {
-      "name": "ListMembersRequest",
-      "fullName": "api.v1.ListMembersRequest",
-      "description": "ListMembersRequest lists group members with cursor-based pagination.",
-      "fields": [
-        {
-          "name": "group_id",
-          "jsonName": "groupId",
-          "type": "int32",
-          "description": "Group ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        },
-        {
-          "name": "after_id",
-          "jsonName": "afterId",
-          "type": "int32",
-          "description": "Pagination anchor: only return members with user_id > after_id.\nOmit for the first page.",
-          "optional": true,
-          "repeated": false,
-          "oneofGroup": "_after_id",
-          "sensitive": false
-        },
-        {
-          "name": "limit",
-          "jsonName": "limit",
-          "type": "int32",
-          "description": "Maximum number of items to return (default: 50, max: 200).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gte": 0,
-            "lte": 200
-          }
-        }
-      ]
-    },
-    "api.v1.ListMembersResponse": {
-      "name": "ListMembersResponse",
-      "fullName": "api.v1.ListMembersResponse",
-      "description": "ListMembersResponse contains the member list.",
-      "fields": [
-        {
-          "name": "members",
-          "jsonName": "members",
-          "type": "shared.v1.MemberInfo",
-          "description": "Group members.",
+          "description": "All group members (lightweight: user_id + role + joined_at).",
           "optional": false,
           "repeated": true,
           "sensitive": false
         },
         {
-          "name": "has_more",
-          "jsonName": "hasMore",
-          "type": "bool",
-          "description": "Whether there are more members beyond this page.",
+          "name": "users",
+          "jsonName": "users",
+          "type": "shared.v1.UserInfo",
+          "description": "User info for all members, keyed by user_id. Clients join\nmembers[i].user_id with this list for display.",
           "optional": false,
-          "repeated": false,
+          "repeated": true,
           "sensitive": false
         }
       ]

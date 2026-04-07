@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-04T15:02:54.833Z",
+  "generatedAt": "2026-04-07T15:32:48.456Z",
   "api": {
     "baseUrl": "https://nexus-dev.xsyphon.com",
     "services": [
@@ -10,7 +10,7 @@
           {
             "name": "ListFeaturedAgents",
             "path": "/api.v1.AgentService/ListFeaturedAgents",
-            "description": "",
+            "description": "ListFeaturedAgents returns a batch of recommended agents for the",
             "auth": "access_token",
             "requestType": "ListFeaturedAgentsRequest",
             "responseType": "ListFeaturedAgentsResponse"
@@ -18,7 +18,7 @@
           {
             "name": "GetAgentDetail",
             "path": "/api.v1.AgentService/GetAgentDetail",
-            "description": "",
+            "description": "GetAgentDetail returns detailed info for a specific agent.",
             "auth": "access_token",
             "requestType": "GetAgentDetailRequest",
             "responseType": "GetAgentDetailResponse"
@@ -26,7 +26,7 @@
           {
             "name": "GetSelfAgent",
             "path": "/api.v1.AgentService/GetSelfAgent",
-            "description": "",
+            "description": "GetSelfAgent returns the current agent's profile.",
             "auth": "agent_token",
             "requestType": "GetSelfAgentRequest",
             "responseType": "GetSelfAgentResponse"
@@ -34,7 +34,7 @@
           {
             "name": "UpdateSelfAgent",
             "path": "/api.v1.AgentService/UpdateSelfAgent",
-            "description": "",
+            "description": "UpdateSelfAgent updates the current agent's profile fields.",
             "auth": "agent_token",
             "requestType": "UpdateSelfAgentRequest",
             "responseType": "UpdateSelfAgentResponse"
@@ -42,7 +42,7 @@
           {
             "name": "DeleteSelfAgent",
             "path": "/api.v1.AgentService/DeleteSelfAgent",
-            "description": "",
+            "description": "DeleteSelfAgent permanently deletes the current agent.",
             "auth": "agent_token",
             "requestType": "DeleteSelfAgentRequest",
             "responseType": "DeleteSelfAgentResponse"
@@ -50,7 +50,7 @@
           {
             "name": "RevokeSelfToken",
             "path": "/api.v1.AgentService/RevokeSelfToken",
-            "description": "",
+            "description": "RevokeSelfToken revokes the current agent token and issues a new one.",
             "auth": "agent_token",
             "requestType": "RevokeSelfTokenRequest",
             "responseType": "RevokeSelfTokenResponse"
@@ -58,7 +58,7 @@
           {
             "name": "SetDeliveryConfig",
             "path": "/api.v1.AgentService/SetDeliveryConfig",
-            "description": "",
+            "description": "SetDeliveryConfig configures the agent's event delivery mode.",
             "auth": "agent_token",
             "requestType": "SetDeliveryConfigRequest",
             "responseType": "SetDeliveryConfigResponse"
@@ -71,7 +71,7 @@
           {
             "name": "GetProfile",
             "path": "/api.v1.UserService/GetProfile",
-            "description": "",
+            "description": "GetProfile returns the current user profile.",
             "auth": "access_token",
             "requestType": "GetProfileRequest",
             "responseType": "GetProfileResponse"
@@ -79,7 +79,7 @@
           {
             "name": "UpdateProfile",
             "path": "/api.v1.UserService/UpdateProfile",
-            "description": "",
+            "description": "UpdateProfile updates the current user profile fields.",
             "auth": "user_token",
             "requestType": "UpdateProfileRequest",
             "responseType": "UpdateProfileResponse"
@@ -87,7 +87,7 @@
           {
             "name": "ListDevices",
             "path": "/api.v1.UserService/ListDevices",
-            "description": "",
+            "description": "ListDevices returns all active device sessions.",
             "auth": "user_token",
             "requestType": "ListDevicesRequest",
             "responseType": "ListDevicesResponse"
@@ -95,7 +95,7 @@
           {
             "name": "RemoveDevice",
             "path": "/api.v1.UserService/RemoveDevice",
-            "description": "",
+            "description": "RemoveDevice removes a specific device session.",
             "auth": "user_token",
             "requestType": "RemoveDeviceRequest",
             "responseType": "RemoveDeviceResponse"
@@ -103,7 +103,7 @@
           {
             "name": "SetUsername",
             "path": "/api.v1.UserService/SetUsername",
-            "description": "",
+            "description": "SetUsername sets the username for the current user (first-time only).",
             "auth": "user_token",
             "requestType": "SetUsernameRequest",
             "responseType": "SetUsernameResponse"
@@ -111,7 +111,7 @@
           {
             "name": "ResolveUsername",
             "path": "/api.v1.UserService/ResolveUsername",
-            "description": "",
+            "description": "ResolveUsername resolves a username to public user info.",
             "auth": "access_token",
             "requestType": "ResolveUsernameRequest",
             "responseType": "ResolveUsernameResponse"
@@ -119,7 +119,7 @@
           {
             "name": "BatchGetUserInfo",
             "path": "/api.v1.UserService/BatchGetUserInfo",
-            "description": "",
+            "description": "BatchGetUserInfo returns public user info for a batch of user IDs.",
             "auth": "access_token",
             "requestType": "BatchGetUserInfoRequest",
             "responseType": "BatchGetUserInfoResponse"
@@ -132,7 +132,7 @@
           {
             "name": "RequestVerifyCode",
             "path": "/api.v1.AuthService/RequestVerifyCode",
-            "description": "",
+            "description": "RequestVerifyCode sends a verification code to the given identity.",
             "auth": "none",
             "requestType": "RequestVerifyCodeRequest",
             "responseType": "RequestVerifyCodeResponse"
@@ -140,7 +140,7 @@
           {
             "name": "VerifyCode",
             "path": "/api.v1.AuthService/VerifyCode",
-            "description": "",
+            "description": "VerifyCode validates the code and returns auth tokens.",
             "auth": "none",
             "requestType": "VerifyCodeRequest",
             "responseType": "VerifyCodeResponse"
@@ -148,7 +148,7 @@
           {
             "name": "LoginPassword",
             "path": "/api.v1.AuthService/LoginPassword",
-            "description": "",
+            "description": "LoginPassword authenticates with password credentials.",
             "auth": "none",
             "requestType": "LoginPasswordRequest",
             "responseType": "LoginPasswordResponse"
@@ -156,7 +156,7 @@
           {
             "name": "RefreshToken",
             "path": "/api.v1.AuthService/RefreshToken",
-            "description": "",
+            "description": "RefreshToken exchanges a refresh token for a new access token.",
             "auth": "none",
             "requestType": "RefreshTokenRequest",
             "responseType": "RefreshTokenResponse"
@@ -164,7 +164,7 @@
           {
             "name": "Logout",
             "path": "/api.v1.AuthService/Logout",
-            "description": "",
+            "description": "Logout signs out the current device session.",
             "auth": "user_token",
             "requestType": "LogoutRequest",
             "responseType": "LogoutResponse"
@@ -172,7 +172,7 @@
           {
             "name": "LogoutAll",
             "path": "/api.v1.AuthService/LogoutAll",
-            "description": "",
+            "description": "LogoutAll signs out all device sessions for the user.",
             "auth": "user_token",
             "requestType": "LogoutAllRequest",
             "responseType": "LogoutAllResponse"
@@ -180,7 +180,7 @@
           {
             "name": "SetupPassword",
             "path": "/api.v1.AuthService/SetupPassword",
-            "description": "",
+            "description": "SetupPassword sets a password for a passwordless account.",
             "auth": "user_token",
             "requestType": "SetupPasswordRequest",
             "responseType": "SetupPasswordResponse"
@@ -188,7 +188,7 @@
           {
             "name": "ChangePassword",
             "path": "/api.v1.AuthService/ChangePassword",
-            "description": "",
+            "description": "ChangePassword changes the current password.",
             "auth": "user_token",
             "requestType": "ChangePasswordRequest",
             "responseType": "ChangePasswordResponse"
@@ -196,7 +196,7 @@
           {
             "name": "ResetPasswordRequest",
             "path": "/api.v1.AuthService/ResetPasswordRequest",
-            "description": "",
+            "description": "ResetPasswordRequest initiates a password reset flow (step 1 of 2).",
             "auth": "none",
             "requestType": "ResetPasswordRequestRequest",
             "responseType": "ResetPasswordRequestResponse"
@@ -204,7 +204,7 @@
           {
             "name": "ResetPasswordVerify",
             "path": "/api.v1.AuthService/ResetPasswordVerify",
-            "description": "",
+            "description": "ResetPasswordVerify validates the reset verification code (step 2 of 2a).",
             "auth": "none",
             "requestType": "ResetPasswordVerifyRequest",
             "responseType": "ResetPasswordVerifyResponse"
@@ -212,7 +212,7 @@
           {
             "name": "ResetPasswordConfirm",
             "path": "/api.v1.AuthService/ResetPasswordConfirm",
-            "description": "",
+            "description": "ResetPasswordConfirm sets the new password using a reset_token (step 2 of 2b).",
             "auth": "none",
             "requestType": "ResetPasswordConfirmRequest",
             "responseType": "ResetPasswordConfirmResponse"
@@ -220,7 +220,7 @@
           {
             "name": "GetClientConfig",
             "path": "/api.v1.AuthService/GetClientConfig",
-            "description": "",
+            "description": "GetClientConfig returns client-facing configuration such as gateway",
             "auth": "none",
             "requestType": "GetClientConfigRequest",
             "responseType": "GetClientConfigResponse"
@@ -233,7 +233,7 @@
           {
             "name": "SendFriendRequest",
             "path": "/api.v1.ContactService/SendFriendRequest",
-            "description": "",
+            "description": "SendFriendRequest sends a friend request to a target user.",
             "auth": "user_token",
             "requestType": "SendFriendRequestRequest",
             "responseType": "SendFriendRequestResponse"
@@ -241,7 +241,7 @@
           {
             "name": "ListPendingRequests",
             "path": "/api.v1.ContactService/ListPendingRequests",
-            "description": "",
+            "description": "ListPendingRequests lists pending incoming friend requests for the",
             "auth": "access_token",
             "requestType": "ListPendingRequestsRequest",
             "responseType": "ListPendingRequestsResponse"
@@ -249,7 +249,7 @@
           {
             "name": "AcceptFriendRequest",
             "path": "/api.v1.ContactService/AcceptFriendRequest",
-            "description": "",
+            "description": "AcceptFriendRequest accepts a pending friend request.",
             "auth": "user_token",
             "requestType": "AcceptFriendRequestRequest",
             "responseType": "AcceptFriendRequestResponse"
@@ -257,7 +257,7 @@
           {
             "name": "RejectFriendRequest",
             "path": "/api.v1.ContactService/RejectFriendRequest",
-            "description": "",
+            "description": "RejectFriendRequest rejects a pending friend request.",
             "auth": "user_token",
             "requestType": "RejectFriendRequestRequest",
             "responseType": "RejectFriendRequestResponse"
@@ -265,15 +265,15 @@
           {
             "name": "AddContact",
             "path": "/api.v1.ContactService/AddContact",
-            "description": "",
-            "auth": "access_token",
+            "description": "AddContact adds a contact without friend request approval.",
+            "auth": "user_token",
             "requestType": "AddContactRequest",
             "responseType": "AddContactResponse"
           },
           {
             "name": "ListContacts",
             "path": "/api.v1.ContactService/ListContacts",
-            "description": "",
+            "description": "ListContacts returns the current user's contact list.",
             "auth": "access_token",
             "requestType": "ListContactsRequest",
             "responseType": "ListContactsResponse"
@@ -281,7 +281,7 @@
           {
             "name": "DeleteContact",
             "path": "/api.v1.ContactService/DeleteContact",
-            "description": "",
+            "description": "DeleteContact removes a contact from the current user's contact list.",
             "auth": "access_token",
             "requestType": "DeleteContactRequest",
             "responseType": "DeleteContactResponse"
@@ -289,7 +289,7 @@
           {
             "name": "UpdateContactAlias",
             "path": "/api.v1.ContactService/UpdateContactAlias",
-            "description": "",
+            "description": "UpdateContactAlias sets or clears a custom alias for a contact.",
             "auth": "access_token",
             "requestType": "UpdateContactAliasRequest",
             "responseType": "UpdateContactAliasResponse"
@@ -297,7 +297,7 @@
           {
             "name": "SearchUsers",
             "path": "/api.v1.ContactService/SearchUsers",
-            "description": "",
+            "description": "SearchUsers searches for users and/or agents across the platform.",
             "auth": "access_token",
             "requestType": "SearchUsersRequest",
             "responseType": "SearchUsersResponse"
@@ -305,7 +305,7 @@
           {
             "name": "BlockUser",
             "path": "/api.v1.ContactService/BlockUser",
-            "description": "",
+            "description": "BlockUser blocks a user.",
             "auth": "access_token",
             "requestType": "BlockUserRequest",
             "responseType": "BlockUserResponse"
@@ -313,7 +313,7 @@
           {
             "name": "UnblockUser",
             "path": "/api.v1.ContactService/UnblockUser",
-            "description": "",
+            "description": "UnblockUser unblocks a previously blocked user.",
             "auth": "access_token",
             "requestType": "UnblockUserRequest",
             "responseType": "UnblockUserResponse"
@@ -321,7 +321,7 @@
           {
             "name": "ListBlocked",
             "path": "/api.v1.ContactService/ListBlocked",
-            "description": "",
+            "description": "ListBlocked lists all blocked users for the current user.",
             "auth": "access_token",
             "requestType": "ListBlockedRequest",
             "responseType": "ListBlockedResponse"
@@ -334,7 +334,7 @@
           {
             "name": "GetConversation",
             "path": "/api.v1.ConversationService/GetConversation",
-            "description": "",
+            "description": "GetConversation returns a single conversation detail by ID.",
             "auth": "access_token",
             "requestType": "GetConversationRequest",
             "responseType": "GetConversationResponse"
@@ -342,7 +342,7 @@
           {
             "name": "ListConversations",
             "path": "/api.v1.ConversationService/ListConversations",
-            "description": "",
+            "description": "ListConversations returns conversations ordered by last_message_time descending,",
             "auth": "access_token",
             "requestType": "ListConversationsRequest",
             "responseType": "ListConversationsResponse"
@@ -350,7 +350,7 @@
           {
             "name": "UpdateConversationAction",
             "path": "/api.v1.ConversationService/UpdateConversationAction",
-            "description": "",
+            "description": "UpdateConversationAction performs a unified conversation action.",
             "auth": "access_token",
             "requestType": "UpdateConversationActionRequest",
             "responseType": "UpdateConversationActionResponse"
@@ -358,7 +358,7 @@
           {
             "name": "MarkAsRead",
             "path": "/api.v1.ConversationService/MarkAsRead",
-            "description": "",
+            "description": "MarkAsRead updates the current user's read position in a conversation.",
             "auth": "access_token",
             "requestType": "MarkAsReadRequest",
             "responseType": "MarkAsReadResponse"
@@ -371,103 +371,79 @@
           {
             "name": "CreateGroup",
             "path": "/api.v1.GroupService/CreateGroup",
-            "description": "",
-            "auth": "access_token",
+            "description": "CreateGroup creates a new group conversation.",
+            "auth": "user_token",
             "requestType": "CreateGroupRequest",
             "responseType": "CreateGroupResponse"
           },
           {
             "name": "DissolveGroup",
             "path": "/api.v1.GroupService/DissolveGroup",
-            "description": "",
-            "auth": "access_token",
+            "description": "DissolveGroup permanently dissolves a group.",
+            "auth": "user_token",
             "requestType": "DissolveGroupRequest",
             "responseType": "DissolveGroupResponse"
           },
           {
             "name": "UpdateGroupName",
             "path": "/api.v1.GroupService/UpdateGroupName",
-            "description": "",
-            "auth": "access_token",
+            "description": "UpdateGroupName updates the group display name.",
+            "auth": "user_token",
             "requestType": "UpdateGroupNameRequest",
             "responseType": "UpdateGroupNameResponse"
           },
           {
             "name": "UpdateGroupAvatar",
             "path": "/api.v1.GroupService/UpdateGroupAvatar",
-            "description": "",
-            "auth": "access_token",
+            "description": "UpdateGroupAvatar updates the group avatar.",
+            "auth": "user_token",
             "requestType": "UpdateGroupAvatarRequest",
             "responseType": "UpdateGroupAvatarResponse"
           },
           {
             "name": "UpdateGroupDescription",
             "path": "/api.v1.GroupService/UpdateGroupDescription",
-            "description": "",
-            "auth": "access_token",
+            "description": "UpdateGroupDescription updates the group description.",
+            "auth": "user_token",
             "requestType": "UpdateGroupDescriptionRequest",
             "responseType": "UpdateGroupDescriptionResponse"
           },
           {
             "name": "InviteMembers",
             "path": "/api.v1.GroupService/InviteMembers",
-            "description": "",
-            "auth": "access_token",
+            "description": "InviteMembers invites one or more users or agents to join the group.",
+            "auth": "user_token",
             "requestType": "InviteMembersRequest",
             "responseType": "InviteMembersResponse"
           },
           {
             "name": "RemoveMember",
             "path": "/api.v1.GroupService/RemoveMember",
-            "description": "",
-            "auth": "access_token",
+            "description": "RemoveMember removes a member (user or agent) from the group (owner only).",
+            "auth": "user_token",
             "requestType": "RemoveMemberRequest",
             "responseType": "RemoveMemberResponse"
           },
           {
             "name": "LeaveGroup",
             "path": "/api.v1.GroupService/LeaveGroup",
-            "description": "",
+            "description": "LeaveGroup allows a member to voluntarily leave the group.",
             "auth": "access_token",
             "requestType": "LeaveGroupRequest",
             "responseType": "LeaveGroupResponse"
           },
           {
-            "name": "AddAgent",
-            "path": "/api.v1.GroupService/AddAgent",
-            "description": "",
-            "auth": "access_token",
-            "requestType": "AddAgentRequest",
-            "responseType": "AddAgentResponse"
-          },
-          {
-            "name": "RemoveAgent",
-            "path": "/api.v1.GroupService/RemoveAgent",
-            "description": "",
-            "auth": "access_token",
-            "requestType": "RemoveAgentRequest",
-            "responseType": "RemoveAgentResponse"
-          },
-          {
             "name": "GetGroupInfo",
             "path": "/api.v1.GroupService/GetGroupInfo",
-            "description": "",
+            "description": "GetGroupInfo returns group details with all members and their user info.",
             "auth": "access_token",
             "requestType": "GetGroupInfoRequest",
             "responseType": "GetGroupInfoResponse"
           },
           {
-            "name": "ListMembers",
-            "path": "/api.v1.GroupService/ListMembers",
-            "description": "",
-            "auth": "access_token",
-            "requestType": "ListMembersRequest",
-            "responseType": "ListMembersResponse"
-          },
-          {
             "name": "ListGroups",
             "path": "/api.v1.GroupService/ListGroups",
-            "description": "",
+            "description": "ListGroups returns the current user's joined groups with cursor-based",
             "auth": "access_token",
             "requestType": "ListGroupsRequest",
             "responseType": "ListGroupsResponse"
@@ -480,7 +456,7 @@
           {
             "name": "UploadFile",
             "path": "/api.v1.MediaService/UploadFile",
-            "description": "",
+            "description": "UploadFile uploads a complete file in a single request.",
             "auth": "access_token",
             "requestType": "UploadFileRequest",
             "responseType": "UploadFileResponse"
@@ -488,7 +464,7 @@
           {
             "name": "InitUpload",
             "path": "/api.v1.MediaService/InitUpload",
-            "description": "",
+            "description": "InitUpload initializes a resumable chunked upload session.",
             "auth": "access_token",
             "requestType": "InitUploadRequest",
             "responseType": "InitUploadResponse"
@@ -496,7 +472,7 @@
           {
             "name": "UploadChunk",
             "path": "/api.v1.MediaService/UploadChunk",
-            "description": "",
+            "description": "UploadChunk uploads a file chunk to an active session.",
             "auth": "access_token",
             "requestType": "UploadChunkRequest",
             "responseType": "UploadChunkResponse"
@@ -504,7 +480,7 @@
           {
             "name": "CompleteUpload",
             "path": "/api.v1.MediaService/CompleteUpload",
-            "description": "",
+            "description": "CompleteUpload finalizes the chunked upload and returns file metadata.",
             "auth": "access_token",
             "requestType": "CompleteUploadRequest",
             "responseType": "CompleteUploadResponse"
@@ -512,7 +488,7 @@
           {
             "name": "GetDownloadURL",
             "path": "/api.v1.MediaService/GetDownloadURL",
-            "description": "",
+            "description": "GetDownloadURL returns a time-limited signed download URL for a",
             "auth": "access_token",
             "requestType": "GetDownloadURLRequest",
             "responseType": "GetDownloadURLResponse"
@@ -525,7 +501,7 @@
           {
             "name": "SendMessage",
             "path": "/api.v1.MessageService/SendMessage",
-            "description": "",
+            "description": "SendMessage sends a message to a conversation.",
             "auth": "access_token",
             "requestType": "SendMessageRequest",
             "responseType": "SendMessageResponse"
@@ -533,7 +509,7 @@
           {
             "name": "EditMessage",
             "path": "/api.v1.MessageService/EditMessage",
-            "description": "",
+            "description": "EditMessage edits a previously sent message.",
             "auth": "access_token",
             "requestType": "EditMessageRequest",
             "responseType": "EditMessageResponse"
@@ -541,7 +517,7 @@
           {
             "name": "DeleteMessages",
             "path": "/api.v1.MessageService/DeleteMessages",
-            "description": "",
+            "description": "DeleteMessages deletes messages by ID list for the current user only",
             "auth": "access_token",
             "requestType": "DeleteMessagesRequest",
             "responseType": "DeleteMessagesResponse"
@@ -549,7 +525,7 @@
           {
             "name": "DeleteHistory",
             "path": "/api.v1.MessageService/DeleteHistory",
-            "description": "",
+            "description": "DeleteHistory deletes all messages up to a given message ID for the",
             "auth": "access_token",
             "requestType": "DeleteHistoryRequest",
             "responseType": "DeleteHistoryResponse"
@@ -557,7 +533,7 @@
           {
             "name": "RecallMessage",
             "path": "/api.v1.MessageService/RecallMessage",
-            "description": "",
+            "description": "RecallMessage recalls a sent message (visible to all participants).",
             "auth": "access_token",
             "requestType": "RecallMessageRequest",
             "responseType": "RecallMessageResponse"
@@ -565,7 +541,7 @@
           {
             "name": "GetMessage",
             "path": "/api.v1.MessageService/GetMessage",
-            "description": "",
+            "description": "GetMessage returns a single message by ID.",
             "auth": "access_token",
             "requestType": "GetMessageRequest",
             "responseType": "GetMessageResponse"
@@ -573,7 +549,7 @@
           {
             "name": "GetMessageHistory",
             "path": "/api.v1.MessageService/GetMessageHistory",
-            "description": "",
+            "description": "GetMessageHistory returns message history with ID-based cursor",
             "auth": "access_token",
             "requestType": "GetMessageHistoryRequest",
             "responseType": "GetMessageHistoryResponse"
@@ -581,7 +557,7 @@
           {
             "name": "SubmitCardAction",
             "path": "/api.v1.MessageService/SubmitCardAction",
-            "description": "",
+            "description": "SubmitCardAction reports an Adaptive Card Action.Submit to the",
             "auth": "access_token",
             "requestType": "SubmitCardActionRequest",
             "responseType": "SubmitCardActionResponse"
@@ -589,7 +565,7 @@
           {
             "name": "PushStreamDelta",
             "path": "/api.v1.MessageService/PushStreamDelta",
-            "description": "",
+            "description": "PushStreamDelta pushes an incremental delta to a streaming message.",
             "auth": "agent_token",
             "requestType": "PushStreamDeltaRequest",
             "responseType": "PushStreamDeltaResponse"
@@ -597,7 +573,7 @@
           {
             "name": "EndStream",
             "path": "/api.v1.MessageService/EndStream",
-            "description": "",
+            "description": "EndStream finalizes a streaming message with the accumulated content.",
             "auth": "agent_token",
             "requestType": "EndStreamRequest",
             "responseType": "EndStreamResponse"
@@ -605,7 +581,7 @@
           {
             "name": "ErrorStream",
             "path": "/api.v1.MessageService/ErrorStream",
-            "description": "",
+            "description": "ErrorStream terminates a streaming message with an error.",
             "auth": "agent_token",
             "requestType": "ErrorStreamRequest",
             "responseType": "ErrorStreamResponse"
@@ -613,7 +589,7 @@
           {
             "name": "AnswerCardAction",
             "path": "/api.v1.MessageService/AnswerCardAction",
-            "description": "",
+            "description": "AnswerCardAction responds to a card action submission.",
             "auth": "agent_token",
             "requestType": "AnswerCardActionRequest",
             "responseType": "AnswerCardActionResponse"
@@ -626,7 +602,7 @@
           {
             "name": "RegisterToken",
             "path": "/api.v1.PushService/RegisterToken",
-            "description": "",
+            "description": "RegisterToken registers a push notification token for the current device.",
             "auth": "user_token",
             "requestType": "RegisterTokenRequest",
             "responseType": "RegisterTokenResponse"
@@ -634,7 +610,7 @@
           {
             "name": "UnregisterToken",
             "path": "/api.v1.PushService/UnregisterToken",
-            "description": "",
+            "description": "UnregisterToken removes the push token for a device.",
             "auth": "user_token",
             "requestType": "UnregisterTokenRequest",
             "responseType": "UnregisterTokenResponse"
@@ -642,8 +618,8 @@
           {
             "name": "ClearBadge",
             "path": "/api.v1.PushService/ClearBadge",
-            "description": "",
-            "auth": "access_token",
+            "description": "ClearBadge clears the push notification badge count for the user.",
+            "auth": "user_token",
             "requestType": "ClearBadgeRequest",
             "responseType": "ClearBadgeResponse"
           }
@@ -655,7 +631,7 @@
           {
             "name": "GetDifference",
             "path": "/api.v1.SyncService/GetDifference",
-            "description": "",
+            "description": "GetDifference returns updates since the client's last known sn.",
             "auth": "user_token",
             "requestType": "GetDifferenceRequest",
             "responseType": "GetDifferenceResponse"
@@ -663,7 +639,7 @@
           {
             "name": "GetCurrentState",
             "path": "/api.v1.SyncService/GetCurrentState",
-            "description": "",
+            "description": "GetCurrentState returns the server's latest sn. Used during the",
             "auth": "user_token",
             "requestType": "GetCurrentStateRequest",
             "responseType": "GetCurrentStateResponse"
@@ -674,11 +650,39 @@
   },
   "docsIndex": [
     {
+      "title": "消息类型",
+      "path": "/docs/agent/messages"
+    },
+    {
       "title": "Agent 快速上手",
       "path": "/docs/agent/quickstart"
     },
     {
-      "title": "文档首页",
+      "title": "Webhook 事件",
+      "path": "/docs/agent/webhook"
+    },
+    {
+      "title": "WebSocket 接入",
+      "path": "/docs/agent/websocket"
+    },
+    {
+      "title": "认证",
+      "path": "/docs/concepts/authentication"
+    },
+    {
+      "title": "会话模型",
+      "path": "/docs/concepts/conversations"
+    },
+    {
+      "title": "消息系统",
+      "path": "/docs/concepts/message-system"
+    },
+    {
+      "title": "同步机制",
+      "path": "/docs/concepts/sync"
+    },
+    {
+      "title": "Nexus AI",
       "path": "/docs"
     }
   ]

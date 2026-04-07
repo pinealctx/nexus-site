@@ -19,7 +19,7 @@
 - [会话模型](/docs/concepts/conversations)
 - [消息系统](/docs/concepts/message-system)
 - [同步机制](/docs/concepts/sync)
-- [Nexus AI 文档](/docs)
+- [Nexus AI](/docs)
 
 ## API Services
 
@@ -84,10 +84,7 @@
 - POST /api.v1.GroupService/InviteMembers
 - POST /api.v1.GroupService/RemoveMember
 - POST /api.v1.GroupService/LeaveGroup
-- POST /api.v1.GroupService/AddAgent
-- POST /api.v1.GroupService/RemoveAgent
 - POST /api.v1.GroupService/GetGroupInfo
-- POST /api.v1.GroupService/ListMembers
 - POST /api.v1.GroupService/ListGroups
 
 ### MediaService
