@@ -21,7 +21,7 @@ export function LocaleSwitcher() {
       <select
         value={locale}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none rounded-md border bg-background py-1.5 pl-8 pr-7 text-sm font-medium transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="appearance-none rounded-md border bg-background py-1.5 pl-8 pr-7 text-[13px] font-medium transition-colors duration-150 hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
         aria-label={t("label")}
       >
         {locales.map((loc) => (

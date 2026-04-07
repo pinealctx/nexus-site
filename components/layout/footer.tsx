@@ -6,41 +6,37 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t bg-muted/30">
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-background">
-                <span className="text-xs font-bold">N</span>
+    <footer className="border-t border-border/50">
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-background">
+                <span className="text-[10px] font-bold">N</span>
               </div>
-              <span className="text-base font-bold">Nexus AI</span>
+              <span className="text-sm font-semibold tracking-tight">Nexus AI</span>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <span className="hidden text-[13px] text-muted-foreground md:inline">
               {t("tagline")}
-            </p>
+            </span>
           </div>
 
-          {/* Links */}
-          <nav className="flex gap-8 text-sm">
-            <Link href="/docs" className="text-muted-foreground transition-colors hover:text-foreground">
+          <nav className="flex items-center gap-6 text-[13px]">
+            <Link href="/docs" className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none">
               {t("docs")}
             </Link>
-            <Link href="/api" className="text-muted-foreground transition-colors hover:text-foreground">
+            <Link href="/api" className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none">
               {t("api")}
             </Link>
-            <Link href="/download" className="text-muted-foreground transition-colors hover:text-foreground">
+            <Link href="/download" className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none">
               {t("download")}
             </Link>
           </nav>
         </div>
 
-        <div className="mt-8 border-t pt-6">
-          <p className="text-center text-xs text-muted-foreground">
-            {t("copyright", { year })}
-          </p>
-        </div>
+        <p className="mt-6 text-[11px] text-muted-foreground/60">
+          {t("copyright", { year })}
+        </p>
       </div>
     </footer>
   );
