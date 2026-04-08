@@ -23,10 +23,10 @@ export function FieldsTable({ fields, messages, enums }: Props) {
           </tr>
         </thead>
         <tbody>
-          {grouped.map((item, idx) => {
+          {grouped.map((item) => {
             if (item.kind === "oneof-header") {
               return (
-                <tr key={`oneof-${item.name}-${idx}`} className="border-b bg-amber-50/50">
+                <tr key={`oneof-${item.name}`} className="border-b bg-amber-50/50">
                   <td colSpan={3} className="px-4 py-1.5 text-xs font-medium text-amber-700">
                     oneof <code className="rounded bg-amber-100 px-1.5 py-0.5">{item.name}</code>
                   </td>

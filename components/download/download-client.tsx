@@ -200,8 +200,8 @@ function NotesSection({ t, notes }: { t: T; notes: string[] }) {
       <SectionHeader icon={<FileText className="h-4 w-4" />} title={t("release_notes")} />
       {notes.length > 0 ? (
         <ul className="mt-4 space-y-1.5">
-          {notes.map((note, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+          {notes.map((note) => (
+            <li key={note} className="flex items-start gap-2.5 text-sm text-muted-foreground">
               <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/30" />
               <span>{note}</span>
             </li>

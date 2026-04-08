@@ -40,7 +40,7 @@ function Description({ text, className }: { text: string; className?: string }) 
   const blocks = text.split("\n\n");
   return (
     <div className={cn("space-y-2 break-words [overflow-wrap:anywhere]", className)}>
-      {blocks.map((block, i) => {
+      {blocks.map((block) => {
         const lines = block.split("\n");
         const listItems = lines.filter((l) => /^[-*] /.test(l));
         if (listItems.length > 0) {
@@ -50,11 +50,11 @@ function Description({ text, className }: { text: string; className?: string }) 
             .join(" ")
             .trim();
           return (
-            <div key={i} className="break-words [overflow-wrap:anywhere]">
+            <div key={block} className="break-words [overflow-wrap:anywhere]">
               {nonList && <p className="break-words [overflow-wrap:anywhere]">{nonList}</p>}
               <ul className="mt-1 list-inside list-disc space-y-0.5 pl-1 [overflow-wrap:anywhere]">
-                {listItems.map((item, j) => (
-                  <li key={j} className="break-words [overflow-wrap:anywhere]">
+                {listItems.map((item) => (
+                  <li key={item} className="break-words [overflow-wrap:anywhere]">
                     {item.replace(/^[-*] /, "")}
                   </li>
                 ))}
@@ -64,7 +64,7 @@ function Description({ text, className }: { text: string; className?: string }) 
         }
         // Plain paragraph — join continuation lines
         return (
-          <p key={i} className="break-words [overflow-wrap:anywhere]">
+          <p key={block} className="break-words [overflow-wrap:anywhere]">
             {lines.join(" ").trim()}
           </p>
         );
@@ -528,10 +528,10 @@ function FieldsList({
 
   return (
     <div className={cn("mt-3 w-full min-w-0 divide-y rounded-lg border", depth > 0 && "ml-4 mt-2")}>
-      {grouped.map((item, idx) => {
+      {grouped.map((item) => {
         if (item.kind === "oneof-header") {
           return (
-            <div key={`oneof-${item.name}-${idx}`} className="bg-amber-50/80 px-4 py-2 dark:bg-amber-950/20">
+            <div key={`oneof-${item.name}`} className="bg-amber-50/80 px-4 py-2 dark:bg-amber-950/20">
               <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
                 oneof{" "}
                 <code className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono dark:bg-amber-900/40">
