@@ -7,7 +7,7 @@
  * and buf.validate constraints.
  *
  * Prerequisites:
- *   cd ../nexus-ai/proto && buf build --path api/v1 --path shared/v1 -o ../../nexus-site/public/api-data/descriptor.json
+ *   cd ../nexus-proto/proto && buf build --path api/v1 --path shared/v1 -o ../../nexus-site/public/api-data/descriptor.json
  *
  * Usage: pnpm tsx scripts/gen-api-data.ts
  */

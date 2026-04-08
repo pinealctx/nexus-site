@@ -16,7 +16,7 @@ pnpm lint             # ESLint via next lint
 pnpm vitest           # Run tests
 
 # Code generation (requires buf CLI and sibling nexus-ai repo)
-pnpm gen:proto        # Build protobuf descriptor from ../nexus-ai/proto → public/api-data/descriptor.json
+pnpm gen:proto        # Build protobuf descriptor from ../nexus-proto/proto → public/api-data/descriptor.json
 pnpm gen:api-data     # Parse descriptor → public/api-data/api.json
 pnpm gen:context      # Generate public/nexus-context.json for AI assistants
 pnpm gen:llms         # Generate public/llms.txt for LLM consumption
@@ -109,7 +109,7 @@ content/docs/
 
 Scripts in `scripts/` run via `tsx`:
 
-1. **`gen:proto`** — `buf build` in `../nexus-ai/proto` → `public/api-data/descriptor.json`
+1. **`gen:proto`** — `buf build` in `../nexus-proto/proto` → `public/api-data/descriptor.json`
 2. **`gen:api-data.ts`** — Parses descriptor → `public/api-data/api.json` (services, methods, messages, enums with source comments)
 3. **`gen:context.ts`** — API summary + docs index → `public/nexus-context.json`
 4. **`gen:llms-txt.ts`** — Site structure → `public/llms.txt`
