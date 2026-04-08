@@ -4,6 +4,7 @@ env:
   variables:
     ECR_REPO: nexus-site
     CONTAINER_NAME: site
+    S3_BUCKET: ""            # shared bucket, same as cli/client pipelines
 
 phases:
   pre_build:
@@ -12,6 +13,13 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO
       - docker run -v $CODEBUILD_SRC_DIR:/path public.ecr.aws/b2j5x6d3/gitleaks:latest git -v --config /path/.gitleaks.toml --log-opts "-n 1" /path
+
+      # Pull release fragments from S3 and merge into latest-releases.json
+      - echo "Fetching release fragments from S3..."
+      - mkdir -p releases
+      - aws s3 cp "s3://${S3_BUCKET}/releases/cli.json" releases/cli.json || echo "WARN - cli.json not found"
+      - aws s3 cp "s3://${S3_BUCKET}/releases/client.json" releases/client.json || echo "WARN - client.json not found"
+      - npx tsx scripts/merge-releases.ts
 
   build:
     commands:
