@@ -1,0 +1,48 @@
+version: '3'
+
+tasks:
+  # ─── Development ───────────────────────────────────────────
+
+  dev:
+    desc: Start Next.js dev server
+    cmds:
+      - pnpm dev
+
+  # ─── Build ─────────────────────────────────────────────────
+
+  build:
+    desc: Build for production
+    cmds:
+      - pnpm build
+
+  # ─── Code Generation ───────────────────────────────────────
+
+  generate:
+    desc: Generate API data, context, and LLMs text
+    cmds:
+      - pnpm gen
+
+  # ─── Lint ──────────────────────────────────────────────────
+
+  lint:
+    desc: Run Next.js lint
+    cmds:
+      - pnpm lint
+
+  # ─── Test ──────────────────────────────────────────────────
+
+  test:
+    desc: Run tests
+    cmds:
+      - pnpm vitest --run
+
+  # ─── Clean ─────────────────────────────────────────────────
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - cmd: rm -rf .next out
+        platforms: [linux, darwin]
+      - cmd: Remove-Item -Recurse -Force .next, out -ErrorAction SilentlyContinue
+        platforms: [windows]
+        shell: powershell
