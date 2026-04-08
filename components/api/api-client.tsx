@@ -31,7 +31,7 @@ function isSchemaMessage(name: string): boolean {
 function Description({ text, className }: { text: string; className?: string }) {
   const blocks = text.split("\n\n");
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-2 break-words [overflow-wrap:anywhere]", className)}>
       {blocks.map((block, i) => {
         const lines = block.split("\n");
         const listItems = lines.filter((l) => /^[-*] /.test(l));
@@ -39,18 +39,18 @@ function Description({ text, className }: { text: string; className?: string }) 
           // Mixed block: render non-list lines as text, list lines as <ul>
           const nonList = lines.filter((l) => !/^[-*] /.test(l)).join(" ").trim();
           return (
-            <div key={i}>
-              {nonList && <p>{nonList}</p>}
-              <ul className="mt-1 list-inside list-disc space-y-0.5 pl-1">
+            <div key={i} className="break-words [overflow-wrap:anywhere]">
+              {nonList && <p className="break-words [overflow-wrap:anywhere]">{nonList}</p>}
+              <ul className="mt-1 list-inside list-disc space-y-0.5 pl-1 [overflow-wrap:anywhere]">
                 {listItems.map((item, j) => (
-                  <li key={j}>{item.replace(/^[-*] /, "")}</li>
+                  <li key={j} className="break-words [overflow-wrap:anywhere]">{item.replace(/^[-*] /, "")}</li>
                 ))}
               </ul>
             </div>
           );
         }
         // Plain paragraph — join continuation lines
-        return <p key={i}>{lines.join(" ").trim()}</p>;
+        return <p key={i} className="break-words [overflow-wrap:anywhere]">{lines.join(" ").trim()}</p>;
       })}
     </div>
   );
@@ -187,15 +187,20 @@ export function ApiClient({ apiData }: ApiClientProps) {
       {/* Main content */}
       <main className="min-w-0 flex-1">
         {/* Header */}
-        <div className="border-b bg-muted/30 px-8 py-10">
+        <div className="border-b bg-muted/30 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight">API Reference</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Connect RPC API — {apiData.services.length} services,{" "}
             {apiData.services.reduce((n, s) => n + s.methods.length, 0)} endpoints
           </p>
-          <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-            <span>Base URL: <code className="rounded bg-muted px-1.5 py-0.5 font-mono">https://nexus-dev.xsyphon.com</code></span>
-            <span>Protocol: <code className="rounded bg-muted px-1.5 py-0.5 font-mono">Connect RPC</code></span>
+          <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <span className="min-w-0">
+              Base URL:{" "}
+              <code className="break-all rounded bg-muted px-1.5 py-0.5 font-mono">https://api.nexus-dev.xsyphon.com</code>
+            </span>
+            <span>
+              Protocol: <code className="rounded bg-muted px-1.5 py-0.5 font-mono">Connect RPC</code>
+            </span>
           </div>
         </div>
 
@@ -320,8 +325,8 @@ function ServiceBlock({
 }) {
   return (
     <section id={service.name} className="scroll-mt-20">
-      <div className="border-b bg-muted/20 px-8 py-5">
-        <div className="flex items-center gap-3">
+      <div className="border-b bg-muted/20 px-4 py-5 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-lg font-bold">{service.name}</h2>
           <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
             {service.methods.length} endpoints
@@ -363,10 +368,10 @@ function EndpointBlock({
   const outputMsg = messages[method.outputType];
 
   return (
-    <div id={`${serviceName}-${method.name}`} className="scroll-mt-20">
-      <div className="grid gap-0 xl:grid-cols-2">
+    <div id={`${serviceName}-${method.name}`} className="min-w-0 scroll-mt-20">
+      <div className="grid min-w-0 gap-0 xl:grid-cols-2">
         {/* Left: documentation */}
-        <div className="border-r px-8 py-6">
+        <div className="min-w-0 px-4 py-6 sm:px-6 lg:px-8 xl:border-r">
           {/* Title + badges */}
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-base font-semibold">{method.name}</h3>
@@ -399,7 +404,7 @@ function EndpointBlock({
         </div>
 
         {/* Right: code example */}
-        <div className="bg-muted/30 px-8 py-6">
+        <div className="min-w-0 bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
           <EndpointExample method={method} inputMsg={inputMsg} />
         </div>
       </div>
@@ -417,7 +422,7 @@ function EndpointExample({ method, inputMsg }: { method: MethodInfo; inputMsg?: 
       ? generateExampleBody(inputMsg.fields)
       : {};
     const bodyStr = JSON.stringify(body, null, 2);
-    return `curl -X POST https://nexus-dev.xsyphon.com${method.httpPath} \\
+    return `curl -X POST https://api.nexus-dev.xsyphon.com${method.httpPath} \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer <token>" \\
   -d '${bodyStr}'`;
@@ -430,14 +435,14 @@ function EndpointExample({ method, inputMsg }: { method: MethodInfo; inputMsg?: 
   }
 
   return (
-    <div className="rounded-lg border bg-muted/50">
+    <div className="min-w-0 rounded-lg border bg-muted/50">
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-4 py-2">
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between gap-3 border-b px-4 py-2">
+        <div className="flex min-w-0 items-center gap-2">
           <span className="rounded bg-emerald-500/15 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
             POST
           </span>
-          <code className="text-xs text-muted-foreground">{method.httpPath}</code>
+          <code className="min-w-0 break-all text-xs text-muted-foreground">{method.httpPath}</code>
         </div>
         <button
           type="button"
@@ -449,8 +454,8 @@ function EndpointExample({ method, inputMsg }: { method: MethodInfo; inputMsg?: 
         </button>
       </div>
       {/* Body */}
-      <pre className="overflow-x-auto p-4 text-xs leading-relaxed text-foreground/80">
-        <code>{curlExample}</code>
+      <pre className="overflow-x-auto whitespace-pre-wrap break-words p-4 text-xs leading-relaxed text-foreground/80 sm:whitespace-pre">
+        <code className="break-all">{curlExample}</code>
       </pre>
     </div>
   );
@@ -503,7 +508,7 @@ function FieldsList({
   const grouped = groupByOneof(fields);
 
   return (
-    <div className={cn("mt-3 divide-y rounded-lg border", depth > 0 && "ml-4 mt-2")}>
+    <div className={cn("mt-3 w-full min-w-0 divide-y rounded-lg border", depth > 0 && "ml-4 mt-2")}>
       {grouped.map((item, idx) => {
         if (item.kind === "oneof-header") {
           return (
@@ -551,15 +556,15 @@ function FieldRow({
     <div className="group">
       <div
         className={cn(
-          "flex items-start gap-3 px-4 py-3 transition-colors",
+          "flex flex-col gap-2 px-4 py-3 transition-colors sm:flex-row sm:items-start sm:gap-3",
           isExpandable && "cursor-pointer hover:bg-muted/50"
         )}
         onClick={isExpandable ? () => setExpanded(!expanded) : undefined}
       >
         {/* Field name + meta */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <code className="text-sm font-medium">{f.jsonName}</code>
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="break-all text-sm font-medium">{f.jsonName}</code>
             {!f.optional && !f.oneofGroup && (
               <span className="text-[10px] font-semibold uppercase text-red-500">required</span>
             )}
@@ -581,16 +586,16 @@ function FieldRow({
         </div>
 
         {/* Type */}
-        <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
+        <div className="min-w-0 flex max-w-full flex-wrap items-center gap-1.5 self-start sm:pt-0.5">
           {isExpandable ? (
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex min-w-0 max-w-full items-center gap-1">
               <button
                 type="button"
-                className="inline-flex items-center gap-1 rounded border px-2 py-0.5 font-mono text-xs text-primary transition-colors hover:bg-muted"
+                className="inline-flex min-w-0 max-w-full items-center gap-1 rounded border px-2 py-0.5 font-mono text-xs text-primary transition-colors hover:bg-muted"
               >
-                {nestedEnum ? <Hash className="h-3 w-3" /> : <Braces className="h-3 w-3" />}
-                {shortType}
-                <ChevronRight className={cn("h-3 w-3 transition-transform", expanded && "rotate-90")} />
+                {nestedEnum ? <Hash className="h-3 w-3 shrink-0" /> : <Braces className="h-3 w-3 shrink-0" />}
+                <span className="break-all text-left">{shortType}</span>
+                <ChevronRight className={cn("h-3 w-3 shrink-0 transition-transform", expanded && "rotate-90")} />
               </button>
               {hasSchemaAnchor && (
                 <a
@@ -604,7 +609,7 @@ function FieldRow({
               )}
             </span>
           ) : (
-            <span className="font-mono text-xs text-muted-foreground">{shortType}</span>
+            <span className="break-all font-mono text-xs text-muted-foreground">{shortType}</span>
           )}
         </div>
       </div>
@@ -636,11 +641,11 @@ function MessageSchema({
   enums: Record<string, EnumInfo>;
 }) {
   return (
-    <div id={`schema-${message.name}`} className="scroll-mt-20 px-8 py-6">
-      <div className="flex items-center gap-2">
+    <div id={`schema-${message.name}`} className="scroll-mt-20 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center gap-2">
         <Braces className="h-4 w-4 text-primary" />
         <h3 className="font-mono text-sm font-semibold">{message.name}</h3>
-        <code className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{message.fullName}</code>
+        <code className="break-all rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{message.fullName}</code>
       </div>
       {message.description && (
         <Description text={message.description} className="mt-2 text-sm text-muted-foreground" />
@@ -654,11 +659,11 @@ function MessageSchema({
 
 function EnumSchema({ enumInfo }: { enumInfo: EnumInfo }) {
   return (
-    <div id={`enum-${enumInfo.name}`} className="scroll-mt-20 px-8 py-6">
-      <div className="flex items-center gap-2">
+    <div id={`enum-${enumInfo.name}`} className="scroll-mt-20 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center gap-2">
         <Hash className="h-4 w-4 text-purple-500" />
         <h3 className="font-mono text-sm font-semibold">{enumInfo.name}</h3>
-        <code className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{enumInfo.fullName}</code>
+        <code className="break-all rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{enumInfo.fullName}</code>
       </div>
       {enumInfo.description && (
         <Description text={enumInfo.description} className="mt-2 text-sm text-muted-foreground" />
@@ -670,8 +675,8 @@ function EnumSchema({ enumInfo }: { enumInfo: EnumInfo }) {
 
 function EnumValues({ enumInfo }: { enumInfo: EnumInfo }) {
   return (
-    <div className="mt-3 overflow-hidden rounded-lg border">
-      <table className="w-full text-sm">
+    <div className="mt-3 overflow-x-auto rounded-lg border">
+      <table className="w-full min-w-[420px] text-sm">
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Value</th>
@@ -709,7 +714,7 @@ function SchemaLink({ name, fullName }: { name: string; fullName: string }) {
   return (
     <a
       href={`#schema-${name}`}
-      className="mb-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+      className="mb-1 inline-flex max-w-full flex-wrap items-center gap-1 break-all text-xs text-primary hover:underline"
     >
       <Braces className="h-3 w-3" />
       {fullName}

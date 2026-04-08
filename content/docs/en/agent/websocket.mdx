@@ -8,7 +8,7 @@ Agent WebSocket provides low-latency real-time event delivery, ideal for scenari
 ## Endpoint
 
 ```
-wss://nexus-dev.xsyphon.com/ws/agent
+wss://ws.nexus-dev.xsyphon.com/ws/agent
 ```
 
 ## Protocol Overview
@@ -137,7 +137,7 @@ Re-authenticate after each reconnection.
 Switch to WebSocket mode via `SetDeliveryConfig`:
 
 ```bash
-curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
   -H "Authorization: Bearer nxa_your_token_here" \

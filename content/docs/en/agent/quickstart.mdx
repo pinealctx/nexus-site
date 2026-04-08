@@ -8,7 +8,7 @@ This guide walks you through creating an Agent that receives messages and replie
 ## Prerequisites
 
 - A Nexus AI user account (to interact with AgentRoot)
-- Access to the Nexus AI API gateway (test environment: `https://nexus-dev.xsyphon.com`)
+- Access to the Nexus AI API gateway (test environment: `https://api.nexus-dev.xsyphon.com`)
 - A publicly accessible HTTPS endpoint (for Webhook), or ability to run a persistent process (for WebSocket)
 
 ## Step 1: Create an Agent via AgentRoot
@@ -48,7 +48,7 @@ If you lose the Token, reset it (the old Token is invalidated immediately):
 Call `GetSelfAgent` to confirm your Agent identity:
 
 ```bash
-curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/GetSelfAgent \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/GetSelfAgent \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
   -H "Authorization: Bearer nxa_your_token_here" \
@@ -72,7 +72,7 @@ Configure via AgentRoot command:
 Or via API:
 
 ```bash
-curl -X POST https://nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
   -H "Authorization: Bearer nxa_your_token_here" \
@@ -132,7 +132,7 @@ Nexus AI sends JSON-serialized `WebhookEvent` payloads:
 Use the `SendMessage` API:
 
 ```bash
-curl -X POST https://nexus-dev.xsyphon.com/api.v1.MessageService/SendMessage \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.MessageService/SendMessage \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
   -H "Authorization: Bearer nxa_your_token_here" \
@@ -169,7 +169,7 @@ app = Flask(__name__)
 
 AGENT_TOKEN = "nxa_your_token_here"
 WEBHOOK_SECRET = "your_webhook_secret"
-API_BASE = "https://nexus-dev.xsyphon.com"
+API_BASE = "https://api.nexus-dev.xsyphon.com"
 msg_counter = 0
 
 def verify_signature(body: bytes, timestamp: str, signature: str) -> bool:

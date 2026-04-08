@@ -55,7 +55,7 @@ const apiData: ApiData = JSON.parse(readFileSync(apiDataPath, "utf-8"));
 
 // Build API summary
 const apiSummary = {
-  baseUrl: "https://nexus-dev.xsyphon.com",
+  baseUrl: "https://api.nexus-dev.xsyphon.com",
   services: apiData.services.map((svc) => ({
     name: svc.name,
     methods: svc.methods.map((m) => {
