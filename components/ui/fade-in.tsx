@@ -1,14 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
-export function FadeIn({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function FadeIn({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -30,7 +24,7 @@ export function FadeIn({
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(el);

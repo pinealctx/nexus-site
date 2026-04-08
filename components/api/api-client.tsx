@@ -1,24 +1,32 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import type { ApiData, ServiceInfo, MethodInfo, MessageInfo, EnumInfo, FieldInfo, ValidationInfo } from "@/lib/api-types";
+import {
+  ArrowRight,
+  Bot,
+  Braces,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  ExternalLink,
+  Hash,
+  List,
+  Search,
+  Shield,
+  User,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type {
+  ApiData,
+  EnumInfo,
+  FieldInfo,
+  MessageInfo,
+  MethodInfo,
+  ServiceInfo,
+  ValidationInfo,
+} from "@/lib/api-types";
 import { cn } from "@/lib/utils";
 import { ApiSearchDialog } from "./search-dialog";
-import {
-  ChevronRight,
-  ChevronDown,
-  Search,
-  Copy,
-  Check,
-  Hash,
-  ArrowRight,
-  Shield,
-  Bot,
-  User,
-  Braces,
-  List,
-  ExternalLink,
-} from "lucide-react";
 
 // ─── Main Client Component ──────────────────────────────────
 
@@ -37,20 +45,29 @@ function Description({ text, className }: { text: string; className?: string }) 
         const listItems = lines.filter((l) => /^[-*] /.test(l));
         if (listItems.length > 0) {
           // Mixed block: render non-list lines as text, list lines as <ul>
-          const nonList = lines.filter((l) => !/^[-*] /.test(l)).join(" ").trim();
+          const nonList = lines
+            .filter((l) => !/^[-*] /.test(l))
+            .join(" ")
+            .trim();
           return (
             <div key={i} className="break-words [overflow-wrap:anywhere]">
               {nonList && <p className="break-words [overflow-wrap:anywhere]">{nonList}</p>}
               <ul className="mt-1 list-inside list-disc space-y-0.5 pl-1 [overflow-wrap:anywhere]">
                 {listItems.map((item, j) => (
-                  <li key={j} className="break-words [overflow-wrap:anywhere]">{item.replace(/^[-*] /, "")}</li>
+                  <li key={j} className="break-words [overflow-wrap:anywhere]">
+                    {item.replace(/^[-*] /, "")}
+                  </li>
                 ))}
               </ul>
             </div>
           );
         }
         // Plain paragraph — join continuation lines
-        return <p key={i} className="break-words [overflow-wrap:anywhere]">{lines.join(" ").trim()}</p>;
+        return (
+          <p key={i} className="break-words [overflow-wrap:anywhere]">
+            {lines.join(" ").trim()}
+          </p>
+        );
       })}
     </div>
   );
@@ -154,7 +171,7 @@ export function ApiClient({ apiData }: ApiClientProps) {
                         "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors",
                         activeSection === `schema-${m.name}`
                           ? "bg-primary/10 font-medium text-primary"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground",
                       )}
                     >
                       <Braces className="h-3 w-3 shrink-0 text-primary" />
@@ -171,7 +188,7 @@ export function ApiClient({ apiData }: ApiClientProps) {
                       "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors",
                       activeSection === `enum-${e.name}`
                         ? "bg-primary/10 font-medium text-primary"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}
                   >
                     <Hash className="h-3 w-3 shrink-0 text-purple-500" />
@@ -196,7 +213,9 @@ export function ApiClient({ apiData }: ApiClientProps) {
           <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <span className="min-w-0">
               Base URL:{" "}
-              <code className="break-all rounded bg-muted px-1.5 py-0.5 font-mono">https://api.nexus-dev.xsyphon.com</code>
+              <code className="break-all rounded bg-muted px-1.5 py-0.5 font-mono">
+                https://api.nexus-dev.xsyphon.com
+              </code>
             </span>
             <span>
               Protocol: <code className="rounded bg-muted px-1.5 py-0.5 font-mono">Connect RPC</code>
@@ -207,12 +226,7 @@ export function ApiClient({ apiData }: ApiClientProps) {
         {/* Service sections */}
         <div className="divide-y">
           {apiData.services.map((svc) => (
-            <ServiceBlock
-              key={svc.fullName}
-              service={svc}
-              messages={apiData.messages}
-              enums={apiData.enums}
-            />
+            <ServiceBlock key={svc.fullName} service={svc} messages={apiData.messages} enums={apiData.enums} />
           ))}
         </div>
 
@@ -220,9 +234,7 @@ export function ApiClient({ apiData }: ApiClientProps) {
         <div className="border-t">
           <div className="border-b bg-muted/30 px-8 py-6">
             <h2 className="text-xl font-bold tracking-tight">Schemas</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Message types and enumerations used across the API
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Message types and enumerations used across the API</p>
           </div>
 
           {/* Referenced messages */}
@@ -288,7 +300,7 @@ function SidebarService({
                   "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors",
                   activeSection === id
                     ? "bg-primary/10 font-medium text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
                 <MethodBadge method={m} />
@@ -303,12 +315,9 @@ function SidebarService({
 }
 
 function MethodBadge({ method }: { method: MethodInfo }) {
-  if (method.options.agentOnly)
-    return <Bot className="h-3 w-3 shrink-0 text-orange-500" />;
-  if (method.options.skipAuth)
-    return <Shield className="h-3 w-3 shrink-0 text-emerald-500" />;
-  if (method.options.userOnly)
-    return <User className="h-3 w-3 shrink-0 text-blue-500" />;
+  if (method.options.agentOnly) return <Bot className="h-3 w-3 shrink-0 text-orange-500" />;
+  if (method.options.skipAuth) return <Shield className="h-3 w-3 shrink-0 text-emerald-500" />;
+  if (method.options.userOnly) return <User className="h-3 w-3 shrink-0 text-blue-500" />;
   return <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />;
 }
 
@@ -418,9 +427,7 @@ function EndpointExample({ method, inputMsg }: { method: MethodInfo; inputMsg?: 
   const [copied, setCopied] = useState(false);
 
   const curlExample = useMemo(() => {
-    const body = inputMsg && inputMsg.fields.length > 0
-      ? generateExampleBody(inputMsg.fields)
-      : {};
+    const body = inputMsg && inputMsg.fields.length > 0 ? generateExampleBody(inputMsg.fields) : {};
     const bodyStr = JSON.stringify(body, null, 2);
     return `curl -X POST https://api.nexus-dev.xsyphon.com${method.httpPath} \\
   -H "Content-Type: application/json" \\
@@ -478,14 +485,26 @@ function generateExampleBody(fields: FieldInfo[]): Record<string, unknown> {
 function getExampleValue(f: FieldInfo): unknown {
   const t = f.type.split(".").pop() || f.type;
   switch (f.type) {
-    case "string": return f.validation?.minLen ? "a".repeat(f.validation.minLen) : "string";
-    case "int32": case "int64": case "uint32": case "uint64":
-    case "sint32": case "sint64": case "fixed32": case "fixed64":
-    case "sfixed32": case "sfixed64":
+    case "string":
+      return f.validation?.minLen ? "a".repeat(f.validation.minLen) : "string";
+    case "int32":
+    case "int64":
+    case "uint32":
+    case "uint64":
+    case "sint32":
+    case "sint64":
+    case "fixed32":
+    case "fixed64":
+    case "sfixed32":
+    case "sfixed64":
       return f.validation?.gt ?? f.validation?.gte ?? 0;
-    case "float": case "double": return 0.0;
-    case "bool": return false;
-    case "bytes": return "";
+    case "float":
+    case "double":
+      return 0.0;
+    case "bool":
+      return false;
+    case "bytes":
+      return "";
     default:
       if (t.endsWith("Type") || t.endsWith("Status") || t.endsWith("Role")) return 0;
       return {};
@@ -514,20 +533,15 @@ function FieldsList({
           return (
             <div key={`oneof-${item.name}-${idx}`} className="bg-amber-50/80 px-4 py-2 dark:bg-amber-950/20">
               <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
-                oneof <code className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono dark:bg-amber-900/40">{item.name}</code>
+                oneof{" "}
+                <code className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono dark:bg-amber-900/40">
+                  {item.name}
+                </code>
               </span>
             </div>
           );
         }
-        return (
-          <FieldRow
-            key={item.field.name}
-            field={item.field}
-            messages={messages}
-            enums={enums}
-            depth={depth}
-          />
-        );
+        return <FieldRow key={item.field.name} field={item.field} messages={messages} enums={enums} depth={depth} />;
       })}
     </div>
   );
@@ -554,12 +568,25 @@ function FieldRow({
 
   return (
     <div className="group">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: role is conditionally applied when expandable */}
       <div
         className={cn(
           "flex flex-col gap-2 px-4 py-3 transition-colors sm:flex-row sm:items-start sm:gap-3",
-          isExpandable && "cursor-pointer hover:bg-muted/50"
+          isExpandable && "cursor-pointer hover:bg-muted/50",
         )}
+        role={isExpandable ? "button" : undefined}
+        tabIndex={isExpandable ? 0 : undefined}
         onClick={isExpandable ? () => setExpanded(!expanded) : undefined}
+        onKeyDown={
+          isExpandable
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setExpanded(!expanded);
+                }
+              }
+            : undefined
+        }
       >
         {/* Field name + meta */}
         <div className="min-w-0 flex-1">
@@ -645,11 +672,11 @@ function MessageSchema({
       <div className="flex flex-wrap items-center gap-2">
         <Braces className="h-4 w-4 text-primary" />
         <h3 className="font-mono text-sm font-semibold">{message.name}</h3>
-        <code className="break-all rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{message.fullName}</code>
+        <code className="break-all rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+          {message.fullName}
+        </code>
       </div>
-      {message.description && (
-        <Description text={message.description} className="mt-2 text-sm text-muted-foreground" />
-      )}
+      {message.description && <Description text={message.description} className="mt-2 text-sm text-muted-foreground" />}
       <FieldsList fields={message.fields} messages={messages} enums={enums} />
     </div>
   );
@@ -663,7 +690,9 @@ function EnumSchema({ enumInfo }: { enumInfo: EnumInfo }) {
       <div className="flex flex-wrap items-center gap-2">
         <Hash className="h-4 w-4 text-purple-500" />
         <h3 className="font-mono text-sm font-semibold">{enumInfo.name}</h3>
-        <code className="break-all rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{enumInfo.fullName}</code>
+        <code className="break-all rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+          {enumInfo.fullName}
+        </code>
       </div>
       {enumInfo.description && (
         <Description text={enumInfo.description} className="mt-2 text-sm text-muted-foreground" />
@@ -705,9 +734,7 @@ function EnumValues({ enumInfo }: { enumInfo: EnumInfo }) {
 // ─── Shared UI ──────────────────────────────────────────────
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{children}</h4>
-  );
+  return <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{children}</h4>;
 }
 
 function SchemaLink({ name, fullName }: { name: string; fullName: string }) {
@@ -724,14 +751,28 @@ function SchemaLink({ name, fullName }: { name: string; fullName: string }) {
 
 function OptionTag({ type }: { type: "agentOnly" | "userOnly" | "skipAuth" }) {
   const cfg = {
-    agentOnly: { label: "Agent Only", icon: Bot, cls: "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-300" },
-    userOnly: { label: "User Only", icon: User, cls: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300" },
-    skipAuth: { label: "No Auth", icon: Shield, cls: "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/50 dark:text-green-300" },
+    agentOnly: {
+      label: "Agent Only",
+      icon: Bot,
+      cls: "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-300",
+    },
+    userOnly: {
+      label: "User Only",
+      icon: User,
+      cls: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300",
+    },
+    skipAuth: {
+      label: "No Auth",
+      icon: Shield,
+      cls: "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/50 dark:text-green-300",
+    },
   }[type];
   const Icon = cfg.icon;
 
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium", cfg.cls)}>
+    <span
+      className={cn("inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium", cfg.cls)}
+    >
       <Icon className="h-3 w-3" />
       {cfg.label}
     </span>
@@ -752,7 +793,10 @@ function ValidationBadges({ v }: { v: ValidationInfo }) {
   return (
     <div className="mt-1.5 flex flex-wrap gap-1">
       {parts.map((p) => (
-        <span key={p} className="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+        <span
+          key={p}
+          className="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"
+        >
           {p}
         </span>
       ))}
@@ -762,9 +806,7 @@ function ValidationBadges({ v }: { v: ValidationInfo }) {
 
 // ─── Helpers ────────────────────────────────────────────────
 
-type GroupedItem =
-  | { kind: "oneof-header"; name: string }
-  | { kind: "field"; field: FieldInfo };
+type GroupedItem = { kind: "oneof-header"; name: string } | { kind: "field"; field: FieldInfo };
 
 function groupByOneof(fields: FieldInfo[]): GroupedItem[] {
   const result: GroupedItem[] = [];

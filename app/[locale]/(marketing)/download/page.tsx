@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { DownloadClient } from "@/components/download/download-client";
 
 export interface ReleaseData {

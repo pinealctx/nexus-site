@@ -1,9 +1,4 @@
 {
   "title": "Agent Development",
-  "pages": [
-    "quickstart",
-    "webhook",
-    "websocket",
-    "messages"
-  ]
+  "pages": ["quickstart", "webhook", "websocket", "messages"]
 }

@@ -1,11 +1,9 @@
-import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, it } from "vitest";
 import type { ApiData } from "../api-types";
 
-const apiData: ApiData = JSON.parse(
-  readFileSync(join(__dirname, "../../public/api-data/api.json"), "utf-8")
-);
+const apiData: ApiData = JSON.parse(readFileSync(join(__dirname, "../../public/api-data/api.json"), "utf-8"));
 
 describe("API data integrity (CP-5)", () => {
   it("has services", () => {

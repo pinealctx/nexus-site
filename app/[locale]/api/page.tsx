@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
-import type { ApiData } from "@/lib/api-types";
-import { Footer } from "@/components/layout";
 import { ApiClient } from "@/components/api/api-client";
+import { Footer } from "@/components/layout";
+import type { ApiData } from "@/lib/api-types";
 
 export const metadata: Metadata = {
   title: "API",

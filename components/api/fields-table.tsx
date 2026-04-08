@@ -1,4 +1,4 @@
-import type { FieldInfo, MessageInfo, EnumInfo, ValidationInfo } from "@/lib/api-types";
+import type { EnumInfo, FieldInfo, MessageInfo, ValidationInfo } from "@/lib/api-types";
 import { OptionBadge } from "./option-badge";
 
 interface Props {
@@ -17,7 +17,9 @@ export function FieldsTable({ fields, messages, enums }: Props) {
           <tr className="border-b bg-muted/50 text-left">
             <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Field</th>
             <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</th>
-            <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
+            <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Description
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -37,24 +39,15 @@ export function FieldsTable({ fields, messages, enums }: Props) {
                 <td className="px-4 py-2.5">
                   <div className="flex items-center gap-1.5">
                     <code className="text-xs font-medium">{f.jsonName}</code>
-                    {f.optional && (
-                      <span className="text-[10px] text-muted-foreground">optional</span>
-                    )}
+                    {f.optional && <span className="text-[10px] text-muted-foreground">optional</span>}
                     {f.repeated && (
                       <span className="rounded bg-blue-100 px-1 text-[10px] font-medium text-blue-700">array</span>
                     )}
-                    {f.sensitive && (
-                      <OptionBadge type="sensitive" />
-                    )}
+                    {f.sensitive && <OptionBadge type="sensitive" />}
                   </div>
                 </td>
                 <td className="px-4 py-2.5">
-                  <TypeDisplay
-                    type={f.type}
-                    repeated={f.repeated}
-                    messages={messages}
-                    enums={enums}
-                  />
+                  <TypeDisplay type={f.type} repeated={f.repeated} messages={messages} enums={enums} />
                   {f.validation && <ValidationDisplay v={f.validation} />}
                 </td>
                 <td className="px-4 py-2.5 text-xs text-muted-foreground">{f.description}</td>
@@ -67,9 +60,7 @@ export function FieldsTable({ fields, messages, enums }: Props) {
   );
 }
 
-type GroupedItem =
-  | { kind: "oneof-header"; name: string }
-  | { kind: "field"; field: FieldInfo };
+type GroupedItem = { kind: "oneof-header"; name: string } | { kind: "field"; field: FieldInfo };
 
 function groupByOneof(fields: FieldInfo[]): GroupedItem[] {
   const result: GroupedItem[] = [];
@@ -89,7 +80,7 @@ function groupByOneof(fields: FieldInfo[]): GroupedItem[] {
 
 function TypeDisplay({
   type,
-  repeated,
+  repeated: _repeated,
   messages,
   enums,
 }: {
@@ -127,7 +118,5 @@ function ValidationDisplay({ v }: { v: ValidationInfo }) {
 
   if (parts.length === 0) return null;
 
-  return (
-    <span className="ml-1 text-xs text-muted-foreground">[{parts.join(", ")}]</span>
-  );
+  return <span className="ml-1 text-xs text-muted-foreground">[{parts.join(", ")}]</span>;
 }

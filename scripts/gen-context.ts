@@ -7,7 +7,7 @@
  * Usage: pnpm tsx scripts/gen-context.ts
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 interface ApiData {
@@ -89,7 +89,9 @@ function scanDocs(dir: string): { title: string; path: string }[] {
         const content = readFileSync(full, "utf-8");
         const titleMatch = content.match(/^title:\s*(.+)$/m);
         const title = titleMatch ? titleMatch[1].trim() : entry.replace(".mdx", "");
-        const rel = relative(docsDir, full).replace(/\\/g, "/").replace(/\.mdx$/, "");
+        const rel = relative(docsDir, full)
+          .replace(/\\/g, "/")
+          .replace(/\.mdx$/, "");
         const urlPath = rel === "index" ? "/docs" : `/docs/${rel}`;
         results.push({ title, path: urlPath });
       }

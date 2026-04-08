@@ -14,7 +14,7 @@
 
 /// <reference types="node" />
 
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 // ── Output types ──
@@ -82,7 +82,7 @@ interface EnumInfo {
 }
 
 // ── JSON Descriptor types (from buf build JSON output) ──
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: descriptor options are untyped
 type AnyOptions = Record<string, any>;
 
 interface DescriptorFile {
@@ -200,7 +200,10 @@ function normalizeComment(raw: string): string {
   }
 
   // Collapse runs of 3+ newlines into 2, then trim
-  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return out
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function buildCommentMap(locations: SourceLocation[]): Map<string, string> {
@@ -258,11 +261,7 @@ function extractSensitive(options?: AnyOptions): boolean {
 }
 
 // ── Parse a field descriptor ──
-function parseField(
-  fd: DescriptorField,
-  oneofNames: string[],
-  comment: string,
-): FieldInfo {
+function parseField(fd: DescriptorField, oneofNames: string[], comment: string): FieldInfo {
   const typeName = fd.typeName ? fd.typeName.replace(/^\./, "") : "";
   const simpleType = fd.type ? TYPE_MAP[fd.type] || fd.type : "unknown";
 

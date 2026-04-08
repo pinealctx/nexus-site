@@ -26,9 +26,9 @@ repos:
   # ── TypeScript / Next.js ──────────────────────────────────────
   - repo: local
     hooks:
-      - id: eslint
-        name: eslint
+      - id: biome
+        name: biome check
         entry: pnpm lint
         language: system
         pass_filenames: false
-        files: \.(ts|tsx)$
+        files: \.(ts|tsx|js|jsx|json)$

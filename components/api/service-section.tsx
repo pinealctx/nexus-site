@@ -1,4 +1,4 @@
-import type { ServiceInfo, MessageInfo, EnumInfo } from "@/lib/api-types";
+import type { EnumInfo, MessageInfo, ServiceInfo } from "@/lib/api-types";
 import { MethodDetail } from "./method-detail";
 
 interface Props {

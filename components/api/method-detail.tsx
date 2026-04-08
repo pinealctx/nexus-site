@@ -1,6 +1,6 @@
-import type { MethodInfo, MessageInfo, EnumInfo } from "@/lib/api-types";
-import { OptionBadge } from "./option-badge";
+import type { EnumInfo, MessageInfo, MethodInfo } from "@/lib/api-types";
 import { FieldsTable } from "./fields-table";
+import { OptionBadge } from "./option-badge";
 
 interface Props {
   serviceName: string;

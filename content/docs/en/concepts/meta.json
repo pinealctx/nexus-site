@@ -1,9 +1,4 @@
 {
   "title": "Core Concepts",
-  "pages": [
-    "authentication",
-    "conversations",
-    "message-system",
-    "sync"
-  ]
+  "pages": ["authentication", "conversations", "message-system", "sync"]
 }

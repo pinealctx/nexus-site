@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useTheme } from "next-themes";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
+import { useState } from "react";
 import { Link, usePathname } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "./locale-switcher";
-import { Menu, X, Sun, Moon } from "lucide-react";
 
 const navItems = [
   { href: "/", labelKey: "home" },
@@ -50,14 +50,10 @@ export function Navbar() {
                 href={item.href}
                 className={cn(
                   "relative rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors duration-150",
-                  isActive(pathname, item.href)
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                  isActive(pathname, item.href) ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {isActive(pathname, item.href) && (
-                  <span className="absolute inset-0 rounded-md bg-foreground/6" />
-                )}
+                {isActive(pathname, item.href) && <span className="absolute inset-0 rounded-md bg-foreground/6" />}
                 <span className="relative">{t(item.labelKey)}</span>
               </Link>
             ))}
@@ -101,7 +97,7 @@ export function Navbar() {
                   "rounded-md px-3 py-2 text-[13px] font-medium transition-colors",
                   isActive(pathname, item.href)
                     ? "bg-foreground/6 text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {t(item.labelKey)}

@@ -1,9 +1,9 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import type { ServiceInfo } from "@/lib/api-types";
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
 
 interface Props {
   services: ServiceInfo[];
@@ -35,7 +35,7 @@ export function ServiceSidebar({ services }: Props) {
               <ChevronRight
                 className={cn(
                   "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
-                  expanded.has(svc.fullName) && "rotate-90"
+                  expanded.has(svc.fullName) && "rotate-90",
                 )}
               />
               <a href={`#${svc.name}`} className="truncate">
@@ -54,7 +54,7 @@ export function ServiceSidebar({ services }: Props) {
                           ? "text-orange-600 hover:bg-orange-50"
                           : m.options.skipAuth
                             ? "text-emerald-600 hover:bg-emerald-50"
-                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground",
                       )}
                     >
                       {m.name}

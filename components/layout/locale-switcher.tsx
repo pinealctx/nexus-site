@@ -1,9 +1,9 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter, usePathname } from "@/lib/navigation";
-import { locales, type Locale } from "@/lib/i18n-config";
 import { Languages } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { type Locale, locales } from "@/lib/i18n-config";
+import { usePathname, useRouter } from "@/lib/navigation";
 
 export function LocaleSwitcher() {
   const t = useTranslations("locale_switcher");
@@ -30,7 +30,14 @@ export function LocaleSwitcher() {
           </option>
         ))}
       </select>
-      <svg className="pointer-events-none absolute right-2 h-3.5 w-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        className="pointer-events-none absolute right-2 h-3.5 w-3.5 text-muted-foreground"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        role="presentation"
+      >
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     </div>

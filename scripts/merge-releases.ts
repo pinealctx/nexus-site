@@ -13,8 +13,8 @@
  * Usage: tsx scripts/merge-releases.ts
  */
 
-import { readFileSync, writeFileSync, existsSync } from "fs";
-import { resolve } from "path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 interface Asset {
   platform: string;
@@ -90,7 +90,7 @@ function main() {
     cli: cli?.assets ?? existing.cli ?? [],
   };
 
-  writeFileSync(OUT, JSON.stringify(merged, null, 2) + "\n");
+  writeFileSync(OUT, `${JSON.stringify(merged, null, 2)}\n`);
   console.log(`Merged releases → ${OUT} (v${merged.version})`);
 }
 

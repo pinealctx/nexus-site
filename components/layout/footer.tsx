@@ -16,27 +16,32 @@ export function Footer() {
               </div>
               <span className="text-sm font-semibold tracking-tight">Nexus AI</span>
             </div>
-            <span className="hidden text-[13px] text-muted-foreground md:inline">
-              {t("tagline")}
-            </span>
+            <span className="hidden text-[13px] text-muted-foreground md:inline">{t("tagline")}</span>
           </div>
 
           <nav className="flex items-center gap-6 text-[13px]">
-            <Link href="/docs" className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none">
+            <Link
+              href="/docs"
+              className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none"
+            >
               {t("docs")}
             </Link>
-            <Link href="/api" className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none">
+            <Link
+              href="/api"
+              className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none"
+            >
               {t("api")}
             </Link>
-            <Link href="/download" className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none">
+            <Link
+              href="/download"
+              className="text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none"
+            >
               {t("download")}
             </Link>
           </nav>
         </div>
 
-        <p className="mt-6 text-[11px] text-muted-foreground/60">
-          {t("copyright", { year })}
-        </p>
+        <p className="mt-6 text-[11px] text-muted-foreground/60">{t("copyright", { year })}</p>
       </div>
     </footer>
   );

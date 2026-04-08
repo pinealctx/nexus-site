@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import zhCN from "../../messages/zh-CN.json";
 
 function flattenKeys(obj: Record<string, unknown>, prefix = ""): string[] {

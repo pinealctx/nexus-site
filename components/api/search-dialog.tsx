@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { ArrowRight, Braces, Hash, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ApiData } from "@/lib/api-types";
-import { Search, ArrowRight, Braces, Hash, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SearchResult {
   type: "method" | "schema" | "enum";
@@ -66,10 +66,11 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
       (item) =>
         item.label.toLowerCase().includes(q) ||
         item.description?.toLowerCase().includes(q) ||
-        item.service?.toLowerCase().includes(q)
+        item.service?.toLowerCase().includes(q),
     );
   }, [allItems, query]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset index on every query change is intentional
   useEffect(() => {
     setSelectedIndex(0);
   }, [query]);
@@ -91,7 +92,7 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
         window.history.replaceState(null, "", `#${anchor}`);
       }
     },
-    [onOpenChange]
+    [onOpenChange],
   );
 
   const handleKeyDown = useCallback(
@@ -109,7 +110,7 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
         onOpenChange(false);
       }
     },
-    [results, selectedIndex, navigate, onOpenChange]
+    [results, selectedIndex, navigate, onOpenChange],
   );
 
   // Scroll selected item into view
@@ -135,7 +136,17 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => onOpenChange(false)} />
+      {/* biome-ignore lint/a11y/useSemanticElements: backdrop overlay needs absolute positioning not possible with button */}
+      <div
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+        role="button"
+        tabIndex={-1}
+        onClick={() => onOpenChange(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") onOpenChange(false);
+        }}
+        aria-label="Close search"
+      />
 
       {/* Dialog */}
       <div className="relative w-full max-w-lg rounded-xl border bg-background shadow-2xl">
@@ -174,15 +185,13 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
                   "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                   i === selectedIndex
                     ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
                 )}
               >
                 {iconForType(item.type)}
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-medium">{item.label}</div>
-                  {item.description && (
-                    <div className="truncate text-xs text-muted-foreground">{item.description}</div>
-                  )}
+                  {item.description && <div className="truncate text-xs text-muted-foreground">{item.description}</div>}
                 </div>
                 {item.service && (
                   <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
@@ -196,9 +205,15 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
 
         {/* Footer */}
         <div className="flex items-center gap-4 border-t px-4 py-2 text-[10px] text-muted-foreground">
-          <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono">↑↓</kbd> Navigate</span>
-          <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono">↵</kbd> Open</span>
-          <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono">Esc</kbd> Close</span>
+          <span>
+            <kbd className="rounded border bg-muted px-1 py-0.5 font-mono">↑↓</kbd> Navigate
+          </span>
+          <span>
+            <kbd className="rounded border bg-muted px-1 py-0.5 font-mono">↵</kbd> Open
+          </span>
+          <span>
+            <kbd className="rounded border bg-muted px-1 py-0.5 font-mono">Esc</kbd> Close
+          </span>
         </div>
       </div>
     </div>

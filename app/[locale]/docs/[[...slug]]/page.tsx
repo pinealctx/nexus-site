@@ -1,12 +1,7 @@
-import { source } from "@/lib/source";
-import {
-  DocsPage,
-  DocsBody,
-  DocsTitle,
-  DocsDescription,
-} from "fumadocs-ui/page";
-import { notFound } from "next/navigation";
 import defaultMdxComponents from "fumadocs-ui/mdx";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page";
+import { notFound } from "next/navigation";
+import { source } from "@/lib/source";
 
 interface Props {
   params: Promise<{ locale: string; slug?: string[] }>;
@@ -17,7 +12,7 @@ export default async function Page({ params }: Props) {
   const page = source.getPage(slug, locale);
   if (!page) notFound();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: fumadocs page data type is not exported
   const data = page.data as any;
   const Content = data.body;
 

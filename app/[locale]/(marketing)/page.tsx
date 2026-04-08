@@ -1,9 +1,9 @@
+import { ArrowRight, Bot, ChevronRight, Globe, Users, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/lib/navigation";
-import { Bot, Zap, Globe, Users, ArrowRight, ChevronRight } from "lucide-react";
 import { FadeIn } from "@/components/ui/fade-in";
+import { Link } from "@/lib/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home");
@@ -29,8 +29,7 @@ export default function Home() {
         <div
           className="absolute inset-0 -z-10"
           style={{
-            backgroundImage:
-              "radial-gradient(circle, oklch(0.5 0 0 / 0.15) 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(circle, oklch(0.5 0 0 / 0.15) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
           }}
         />
@@ -96,12 +95,8 @@ export default function Home() {
       <section className="border-t px-6 py-24 md:py-32">
         <div className="mx-auto max-w-6xl">
           <FadeIn className="mb-16 max-w-xl">
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
-              {t("features_title")}
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-              {t("features_subtitle")}
-            </p>
+            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("features_title")}</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">{t("features_subtitle")}</p>
           </FadeIn>
 
           {/* Bento grid  */}
@@ -135,15 +130,7 @@ export default function Home() {
   );
 }
 
-function FeatureCell({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
+function FeatureCell({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="group bg-background p-8 transition-all duration-200 ease-out hover:bg-accent/50 md:p-10">
       <div className="mb-4 text-muted-foreground transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:text-foreground">

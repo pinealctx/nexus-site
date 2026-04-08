@@ -1,8 +1,7 @@
-import type { ReactNode } from "react";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { RootProvider } from "fumadocs-ui/provider";
+import type { ReactNode } from "react";
 import { source } from "@/lib/source";
-import { i18n } from "@/lib/fumadocs-i18n";
 
 const zhTranslations = {
   search: "搜索",

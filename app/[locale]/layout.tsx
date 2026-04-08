@@ -1,12 +1,12 @@
-import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { Inter } from "next/font/google";
-import { locales } from "@/lib/i18n-config";
-import { ThemeProvider } from "@/components/theme-provider";
+import { notFound } from "next/navigation";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import type { ReactNode } from "react";
 import { Navbar } from "@/components/layout";
+import { ThemeProvider } from "@/components/theme-provider";
+import { locales } from "@/lib/i18n-config";
 import "../globals.css";
 
 const inter = Inter({

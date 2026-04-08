@@ -1,19 +1,9 @@
 "use client";
 
+import { Apple, ChevronRight, Cpu, Download, FileText, Monitor, Shield, Smartphone, Terminal } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
 import { detectPlatform, type PlatformInfo } from "@/lib/platform";
-import {
-  Download,
-  Monitor,
-  Smartphone,
-  Apple,
-  Cpu,
-  Terminal,
-  ChevronRight,
-  FileText,
-  Shield,
-} from "lucide-react";
 
 interface ReleaseAsset {
   platform: string;
@@ -72,13 +62,13 @@ export function DownloadClient({ data }: { data: ReleaseData }) {
 
   const matchedClient = detected
     ? data.client.find(
-        (r) => r.platform === detected.platform && (r.arch === detected.arch || detected.arch === "universal")
+        (r) => r.platform === detected.platform && (r.arch === detected.arch || detected.arch === "universal"),
       ) || data.client.find((r) => r.platform === detected.platform)
     : null;
   const otherClients = data.client.filter((r) => r !== matchedClient);
   const matchedCli = detected
     ? data.cli.find(
-        (r) => r.platform === detected.platform && (r.arch === detected.arch || detected.arch === "universal")
+        (r) => r.platform === detected.platform && (r.arch === detected.arch || detected.arch === "universal"),
       ) || data.cli.find((r) => r.platform === detected.platform)
     : null;
 
@@ -94,12 +84,7 @@ export function DownloadClient({ data }: { data: ReleaseData }) {
         <p className="mt-2 text-sm text-muted-foreground md:text-base">{t("subtitle")}</p>
       </section>
 
-      <ClientSection
-        t={t}
-        data={data}
-        matchedClient={matchedClient}
-        otherClients={otherClients}
-      />
+      <ClientSection t={t} data={data} matchedClient={matchedClient} otherClients={otherClients} />
 
       <CliSection t={t} data={data} matchedCli={matchedCli} />
 
@@ -114,7 +99,17 @@ export function DownloadClient({ data }: { data: ReleaseData }) {
 
 type T = ReturnType<typeof useTranslations<"download">>;
 
-function ClientSection({ t, data, matchedClient, otherClients }: { t: T; data: ReleaseData; matchedClient: ReleaseAsset | null | undefined; otherClients: ReleaseAsset[] }) {
+function ClientSection({
+  t,
+  data,
+  matchedClient,
+  otherClients,
+}: {
+  t: T;
+  data: ReleaseData;
+  matchedClient: ReleaseAsset | null | undefined;
+  otherClients: ReleaseAsset[];
+}) {
   return (
     <section className="mx-auto w-full max-w-4xl px-6 pb-12">
       <SectionHeader icon={<Monitor className="h-4 w-4" />} title={t("client_section")} desc={t("client_desc")} />
@@ -127,10 +122,14 @@ function ClientSection({ t, data, matchedClient, otherClients }: { t: T; data: R
                 className="group inline-flex items-center gap-3 rounded-xl bg-foreground px-8 py-3.5 text-base font-medium text-background transition-colors duration-150 hover:bg-foreground/85"
               >
                 {PLATFORM_ICONS[matchedClient.platform] || <Download className="h-4 w-4" />}
-                {t("download_for", { platform: `${PLATFORM_LABELS[matchedClient.platform] || matchedClient.platform} (${matchedClient.arch})` })}
+                {t("download_for", {
+                  platform: `${PLATFORM_LABELS[matchedClient.platform] || matchedClient.platform} (${matchedClient.arch})`,
+                })}
               </a>
               <div className="flex gap-4 text-xs text-muted-foreground">
-                <span>{t("version")}: {data.version}</span>
+                <span>
+                  {t("version")}: {data.version}
+                </span>
                 {matchedClient.size_bytes > 0 && <span>{formatSize(matchedClient.size_bytes)}</span>}
               </div>
             </>
@@ -150,7 +149,9 @@ function ClientSection({ t, data, matchedClient, otherClients }: { t: T; data: R
       </div>
       {otherClients.length > 0 && (
         <div className="mt-10">
-          <h3 className="mb-3 text-center text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">{t("other_platforms")}</h3>
+          <h3 className="mb-3 text-center text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">
+            {t("other_platforms")}
+          </h3>
           <div className="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-3">
             {otherClients.map((r) => (
               <AssetCard key={`${r.platform}-${r.arch}`} asset={r} />
@@ -174,15 +175,19 @@ function CliSection({ t, data, matchedCli }: { t: T; data: ReleaseData; matchedC
               className="inline-flex items-center gap-2 rounded-lg border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent"
             >
               {PLATFORM_ICONS[matchedCli.platform] || <Terminal className="h-4 w-4" />}
-              {t("download_for", { platform: `${PLATFORM_LABELS[matchedCli.platform] || matchedCli.platform} (${matchedCli.arch})` })}
+              {t("download_for", {
+                platform: `${PLATFORM_LABELS[matchedCli.platform] || matchedCli.platform} (${matchedCli.arch})`,
+              })}
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
             </a>
           </div>
         )}
         <div className="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2">
-          {data.cli.filter((r) => r !== matchedCli).map((r) => (
-            <AssetCard key={`cli-${r.platform}-${r.arch}`} asset={r} />
-          ))}
+          {data.cli
+            .filter((r) => r !== matchedCli)
+            .map((r) => (
+              <AssetCard key={`cli-${r.platform}-${r.arch}`} asset={r} />
+            ))}
         </div>
       </div>
     </section>
@@ -214,9 +219,24 @@ function RequirementsSection({ t }: { t: T }) {
     <section className="mx-auto w-full max-w-4xl border-t px-6 py-12">
       <SectionHeader icon={<Shield className="h-4 w-4" />} title={t("requirements")} />
       <div className="mt-4 grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-3">
-        <ReqCard icon={<Apple className="h-3.5 w-3.5" />} label="macOS" req={t("req_macos")} hint={t("install_hint_macos")} />
-        <ReqCard icon={<Monitor className="h-3.5 w-3.5" />} label="Windows" req={t("req_windows")} hint={t("install_hint_windows")} />
-        <ReqCard icon={<Cpu className="h-3.5 w-3.5" />} label="Linux" req={t("req_linux")} hint={t("install_hint_linux")} />
+        <ReqCard
+          icon={<Apple className="h-3.5 w-3.5" />}
+          label="macOS"
+          req={t("req_macos")}
+          hint={t("install_hint_macos")}
+        />
+        <ReqCard
+          icon={<Monitor className="h-3.5 w-3.5" />}
+          label="Windows"
+          req={t("req_windows")}
+          hint={t("install_hint_windows")}
+        />
+        <ReqCard
+          icon={<Cpu className="h-3.5 w-3.5" />}
+          label="Linux"
+          req={t("req_linux")}
+          hint={t("install_hint_linux")}
+        />
         <ReqCard icon={<Smartphone className="h-3.5 w-3.5" />} label="iOS" req={t("req_ios")} />
         <ReqCard icon={<Smartphone className="h-3.5 w-3.5" />} label="Android" req={t("req_android")} />
       </div>
@@ -253,8 +273,13 @@ function AssetCard({ asset }: { asset: ReleaseAsset }) {
     );
   }
   return (
-    <a href={asset.download_url} className="flex items-center gap-3 bg-background p-4 text-sm transition-colors hover:bg-accent/50">
-      <span className="text-muted-foreground">{PLATFORM_ICONS[asset.platform] || <Download className="h-4 w-4" />}</span>
+    <a
+      href={asset.download_url}
+      className="flex items-center gap-3 bg-background p-4 text-sm transition-colors hover:bg-accent/50"
+    >
+      <span className="text-muted-foreground">
+        {PLATFORM_ICONS[asset.platform] || <Download className="h-4 w-4" />}
+      </span>
       <div className="flex-1">
         <span className="font-medium">{PLATFORM_LABELS[asset.platform] || asset.platform}</span>
         <span className="ml-1.5 text-muted-foreground/60">({asset.arch})</span>
