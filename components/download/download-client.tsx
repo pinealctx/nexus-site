@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { detectPlatform, type PlatformInfo } from "@/lib/platform";
 import {
   Download,
@@ -53,8 +53,8 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString(undefined, {
+function formatDate(dateStr: string, locale: string): string {
+  return new Date(dateStr).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -63,6 +63,7 @@ function formatDate(dateStr: string): string {
 
 export function DownloadClient({ data }: { data: ReleaseData }) {
   const t = useTranslations("download");
+  const locale = useLocale();
   const [detected, setDetected] = useState<PlatformInfo | null>(null);
 
   useEffect(() => {
@@ -87,7 +88,7 @@ export function DownloadClient({ data }: { data: ReleaseData }) {
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-[13px] text-muted-foreground">
           v{data.version}
           <span className="text-muted-foreground/40">·</span>
-          <span className="text-xs">{formatDate(data.release_date)}</span>
+          <span className="text-xs">{formatDate(data.release_date, locale)}</span>
         </div>
         <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{t("title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground md:text-base">{t("subtitle")}</p>
