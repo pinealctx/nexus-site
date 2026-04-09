@@ -54,6 +54,30 @@
   --color-fd-muted-foreground: oklch(0.55 0.01 270);
 }
 
+/* Make the default visible docs sidebar use the same single floating card feel as the hover-expanded sidebar. */
+#nd-sidebar[data-collapsed="false"] {
+  inset-inline-start: calc(var(--spacing) * 2);
+  top: calc(var(--fd-banner-height) + var(--fd-nav-height) + 0.5rem);
+  bottom: 0.5rem;
+  width: calc(var(--fd-sidebar-width) + 1rem);
+  padding: 0.5rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--color-fd-border) 72%, transparent);
+  border-radius: calc(var(--radius) * 1.4);
+  border-inline-end-color: color-mix(in oklab, var(--color-fd-border) 72%, transparent);
+  background: var(--color-fd-card);
+  box-shadow: 0 12px 32px color-mix(in oklab, var(--foreground) 5%, transparent);
+}
+
+#nd-sidebar[data-collapsed="false"] > * {
+  width: var(--fd-sidebar-width);
+}
+
+.dark #nd-sidebar[data-collapsed="false"] {
+  border-color: color-mix(in oklab, var(--color-fd-border) 88%, transparent);
+  box-shadow: 0 14px 36px color-mix(in oklab, black 22%, transparent);
+}
+
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: var(--font-sans);

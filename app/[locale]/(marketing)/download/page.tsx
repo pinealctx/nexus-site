@@ -4,14 +4,6 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { DownloadClient } from "@/components/download/download-client";
 
-export interface ReleaseData {
-  version: string;
-  release_date: string;
-  release_notes: string[];
-  client: ReleaseAsset[];
-  cli: ReleaseAsset[];
-}
-
 export interface ReleaseAsset {
   platform: string;
   arch: string;
@@ -21,9 +13,19 @@ export interface ReleaseAsset {
   size_bytes: number;
 }
 
-function loadReleases(): ReleaseData {
-  const filePath = join(process.cwd(), "public", "latest-releases.json");
-  return JSON.parse(readFileSync(filePath, "utf-8"));
+export interface ProductRelease {
+  version: string;
+  release_date: string;
+  assets: ReleaseAsset[];
+}
+
+function loadRelease(filename: string): ProductRelease {
+  const filePath = join(process.cwd(), "public", "releases", filename);
+  try {
+    return JSON.parse(readFileSync(filePath, "utf-8"));
+  } catch {
+    return { version: "0.0.0", release_date: "", assets: [] };
+  }
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -35,6 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function DownloadPage() {
-  const data = loadReleases();
-  return <DownloadClient data={data} />;
+  const desktop = loadRelease("desktop.json");
+  const cli = loadRelease("cli.json");
+  return <DownloadClient desktop={desktop} cli={cli} />;
 }

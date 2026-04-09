@@ -42,7 +42,7 @@ export default async function Layout({ children, params }: Props) {
         nav={{ enabled: false }}
         themeSwitch={{ enabled: false }}
         sidebar={{ footer: null }}
-        containerProps={{ style: { "--fd-nav-height": "4rem" } as React.CSSProperties }}
+        containerProps={{ style: { "--fd-nav-height": "3.5rem" } as React.CSSProperties }}
       >
         {children}
       </DocsLayout>

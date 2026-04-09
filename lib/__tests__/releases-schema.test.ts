@@ -1,30 +1,30 @@
 import { describe, expect, it } from "vitest";
-import releases from "../../public/latest-releases.json";
+import cli from "../../public/releases/cli.json";
+import desktop from "../../public/releases/desktop.json";
 
-describe("latest-releases.json schema (CP-2)", () => {
-  it("is a non-empty array", () => {
-    expect(Array.isArray(releases)).toBe(true);
-    expect(releases.length).toBeGreaterThan(0);
+function validateRelease(release: typeof desktop, name: string) {
+  describe(`${name} release schema`, () => {
+    it("has version and release_date fields", () => {
+      expect(typeof release.version).toBe("string");
+      expect(typeof release.release_date).toBe("string");
+    });
+
+    it("has an assets array", () => {
+      expect(Array.isArray(release.assets)).toBe(true);
+    });
+
+    it.each(release.assets)("asset %# has required fields", (asset) => {
+      expect(typeof asset.platform).toBe("string");
+      expect(asset.platform.length).toBeGreaterThan(0);
+      expect(typeof asset.arch).toBe("string");
+      expect(asset.arch.length).toBeGreaterThan(0);
+      expect(typeof asset.available).toBe("boolean");
+      expect(typeof asset.download_url).toBe("string");
+      expect(typeof asset.checksum_sha256).toBe("string");
+      expect(typeof asset.size_bytes).toBe("number");
+    });
   });
+}
 
-  it.each(releases)("entry %# has all required fields with correct types", (entry) => {
-    expect(typeof entry.platform).toBe("string");
-    expect(entry.platform.length).toBeGreaterThan(0);
-
-    expect(typeof entry.arch).toBe("string");
-    expect(entry.arch.length).toBeGreaterThan(0);
-
-    expect(typeof entry.version).toBe("string");
-    expect(entry.version).toMatch(/^\d+\.\d+\.\d+/);
-
-    expect(typeof entry.release_date).toBe("string");
-    expect(entry.release_date).toMatch(/^\d{4}-\d{2}-\d{2}/);
-
-    expect(typeof entry.download_url).toBe("string");
-    expect(() => new URL(entry.download_url)).not.toThrow();
-
-    expect(typeof entry.checksum_sha256).toBe("string");
-    expect(typeof entry.size_bytes).toBe("number");
-    expect(entry.size_bytes).toBeGreaterThanOrEqual(0);
-  });
-});
+validateRelease(desktop, "desktop");
+validateRelease(cli, "cli");

@@ -1,37 +1,48 @@
 version: 0.2
 
 env:
+  shell: bash
   variables:
     ECR_REPO: nexus-site
     CONTAINER_NAME: site
-    S3_BUCKET: ""            # shared bucket, same as cli/client pipelines
+    S3_BUCKET: ""            # shared bucket, same as cli/desktop pipelines
 
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO
-      - docker run -v $CODEBUILD_SRC_DIR:/path public.ecr.aws/b2j5x6d3/gitleaks:latest git -v --config /path/.gitleaks.toml --log-opts "-n 1" /path
-
-      # Pull release fragments from S3 and merge into latest-releases.json
-      - echo "Fetching release fragments from S3..."
-      - mkdir -p releases
-      - aws s3 cp "s3://${S3_BUCKET}/releases/cli.json" releases/cli.json || echo "WARN - cli.json not found"
-      - aws s3 cp "s3://${S3_BUCKET}/releases/client.json" releases/client.json || echo "WARN - client.json not found"
-      - npx tsx scripts/merge-releases.ts
+      - echo "=== Pre-build ==="
+      - |
+        echo "Logging in to Amazon ECR ..."
+        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+        REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO
+        echo "ECR repository: $REPOSITORY_URI"
+      - |
+        echo "Running gitleaks ..."
+        docker run -v $CODEBUILD_SRC_DIR:/path public.ecr.aws/b2j5x6d3/gitleaks:latest git -v --config /path/.gitleaks.toml --log-opts "-n 1" /path
+        echo "Gitleaks passed."
+      - |
+        echo "Fetching release data from S3 ..."
+        mkdir -p public/releases
+        aws s3 cp "s3://${S3_BUCKET}/releases/cli.json" public/releases/cli.json && echo "  cli.json OK" || echo "  WARN: cli.json not found, using local fallback"
+        aws s3 cp "s3://${S3_BUCKET}/releases/desktop.json" public/releases/desktop.json && echo "  desktop.json OK" || echo "  WARN: desktop.json not found, using local fallback"
 
   build:
     commands:
-      - echo Building Docker image...
-      - docker build -t $REPOSITORY_URI:latest .
+      - |
+        echo "=== Build started on $(date) ==="
+        echo "Building Docker image ..."
+        docker build -t $REPOSITORY_URI:latest .
+        echo "=== Build finished on $(date) ==="
 
   post_build:
     commands:
-      - echo Pushing Docker image...
-      - docker push $REPOSITORY_URI:latest
-      - echo Writing image definitions file...
-      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:latest > imagedefinitions.json
+      - |
+        echo "=== Post-build ==="
+        echo "Pushing Docker image ..."
+        docker push $REPOSITORY_URI:latest
+        echo "Writing image definitions file ..."
+        printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:latest > imagedefinitions.json
+        echo "=== Post-build finished ==="
 
 artifacts:
   files: imagedefinitions.json
