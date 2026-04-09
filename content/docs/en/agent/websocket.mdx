@@ -8,29 +8,29 @@ Agent WebSocket provides low-latency real-time event delivery, ideal for scenari
 ## Endpoint
 
 ```
-wss://ws.nexus-dev.xsyphon.com/ws/agent
+wss://ws.nexus-dev.xsyphon.com/ws
 ```
 
 ## Protocol Overview
 
-Agent WebSocket uses protojson-serialized frames:
+Agent WebSocket uses the same protojson-serialized frame protocol as regular users:
 
-- **Upstream** (`AgentClientFrame`): Agent → Server
-- **Downstream** (`AgentServerFrame`): Server → Agent
+- **Upstream** (`ClientFrame`): Agent → Server
+- **Downstream** (`ServerFrame`): Server → Agent
 
 Connection lifecycle:
 
 ```
 Agent                          Gateway
   │                               │
-  │──── AgentAuthRequest ────────►│  (Agent Token)
+  │──── AuthRequest ─────────────►│  (Agent Token)
   │◄─── GatewayAuthResponse ─────│  (Auth result)
   │                               │
   │──── HeartbeatPing ───────────►│  (Every 30s)
   │◄─── HeartbeatPong ───────────│
   │                               │
-  │◄─── AgentEventPush ──────────│  (Event delivery)
-  │◄─── AgentEventPush ──────────│
+  │◄─── Update ──────────────────│  (Event delivery)
+  │◄─── Update ──────────────────│
   │                               │
 ```
 
@@ -41,7 +41,7 @@ The first frame after connection must be an auth request:
 ```json
 {
   "requestId": "1",
-  "type": "AGENT_CLIENT_FRAME_TYPE_AUTH_REQUEST",
+  "type": "CLIENT_FRAME_TYPE_AUTH_REQUEST",
   "authRequest": {"token": "nxa_your_token_here"}
 }
 ```
@@ -51,12 +51,12 @@ Server response:
 ```json
 {
   "requestId": "1",
-  "type": "AGENT_SERVER_FRAME_TYPE_AUTH_RESPONSE",
+  "type": "SERVER_FRAME_TYPE_AUTH_RESPONSE",
   "authResponse": {"success": true, "userId": 1001}
 }
 ```
 
-On failure, `success` is `false` and the connection is closed.
+On failure, `success` is `false` with an `error` field containing `errorCode` and `errorName`, and the connection is closed.
 
 ## Heartbeat
 
@@ -65,7 +65,7 @@ Send a heartbeat every 30 seconds after authentication:
 ```json
 {
   "requestId": "2",
-  "type": "AGENT_CLIENT_FRAME_TYPE_HEARTBEAT_PING",
+  "type": "CLIENT_FRAME_TYPE_HEARTBEAT_PING",
   "heartbeatPing": {}
 }
 ```
@@ -74,30 +74,30 @@ The server disconnects after 90 seconds without a heartbeat.
 
 ## Receiving Events
 
-Events arrive as `AgentEventPush` frames containing the same `WebhookEvent` structure used by Webhook:
+Events arrive as `ServerFrame` messages with `type: SERVER_FRAME_TYPE_UPDATE` containing an `Update` payload. The `Update` uses the same format as Webhook — sequenced updates in `snUpdate`, non-sequenced in `nonSnUpdate`, with related entity info in `users` and `groups`:
 
 ```json
 {
   "requestId": "0",
-  "type": "AGENT_SERVER_FRAME_TYPE_EVENT_PUSH",
-  "eventPush": {
-    "event": {
-      "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
-      "timestamp": "1712000000000",
-      "relatedUsers": [{"userId": 42, "nickname": "Alice"}],
-      "messageEvent": {
-        "message": {
-          "messageId": "1001",
-          "conversationId": "8589934634",
-          "senderId": 42,
-          "body": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "Hello!"}},
-          "createdAt": "1712000000000"
-        }
+  "type": "SERVER_FRAME_TYPE_UPDATE",
+  "update": {
+    "users": [{"userId": 42, "nickname": "Alice"}],
+    "groups": [],
+    "snUpdate": {
+      "sn": 1,
+      "messageEnvelope": {
+        "messageId": "1001",
+        "conversationId": "8589934634",
+        "senderId": 42,
+        "body": {"type": "MESSAGE_TYPE_TEXT", "text": {"text": "Hello!"}},
+        "createdAt": "1712000000000"
       }
     }
   }
 }
 ```
+
+Updates are sequenced — each `snUpdate` carries a monotonically increasing `sn`. Your agent can detect gaps by comparing the received `sn` with the last seen value and pull missed updates via `GetUpdates`.
 
 Event types and fields are identical to Webhook. See [Webhook Events](/docs/agent/webhook) for details.
 
@@ -108,7 +108,7 @@ The server may push error frames:
 ```json
 {
   "requestId": "0",
-  "type": "AGENT_SERVER_FRAME_TYPE_ERROR",
+  "type": "SERVER_FRAME_TYPE_ERROR",
   "error": {
     "error": {"errorCode": 1001, "errorName": "INVALID_TOKEN"},
     "fatal": true

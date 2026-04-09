@@ -87,13 +87,11 @@ Best for low-latency scenarios or when you cannot expose a public endpoint. See 
 
 ## Step 4: Handle Webhook Events
 
-Nexus AI sends JSON-serialized `WebhookEvent` payloads:
+Nexus AI sends JSON-serialized `Update` payloads:
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
-  "timestamp": "1712000000000",
-  "relatedUsers": [
+  "users": [
     {
       "userId": 42,
       "username": "alice",
@@ -102,8 +100,10 @@ Nexus AI sends JSON-serialized `WebhookEvent` payloads:
       "accountType": "ACCOUNT_TYPE_USER"
     }
   ],
-  "messageEvent": {
-    "message": {
+  "groups": [],
+  "snUpdate": {
+    "sn": 1,
+    "messageEnvelope": {
       "messageId": "1001",
       "conversationId": "8589934634",
       "senderId": 42,
@@ -121,11 +121,11 @@ Nexus AI sends JSON-serialized `WebhookEvent` payloads:
 
 | Event Type | Description |
 |------------|-------------|
-| `MESSAGE` | New message (covers text, images, group events, and all other message types) |
-| `CARD_ACTION` | User clicked an Adaptive Card Action.Submit button |
-| `CONTACT_ADDED` | User added the Agent as a contact |
-| `REMOVED_FROM_GROUP` | Agent was removed from a group |
-| `GROUP_DISSOLVED` | A group the Agent belongs to was dissolved |
+| `MESSAGE` | `snUpdate.messageEnvelope` — New message (covers text, images, group events, and all other message types) |
+| `CARD_ACTION` | `nonSnUpdate.cardAction` — User clicked an Adaptive Card Action.Submit button |
+| `CONTACT_ADDED` | `snUpdate.contactAdded` — User added the Agent as a contact |
+| `REMOVED_FROM_GROUP` | `snUpdate.removedFromGroup` — Agent was removed from a group |
+| `GROUP_DISSOLVED` | `snUpdate.groupDissolved` — A group the Agent belongs to was dissolved |
 
 ## Step 5: Reply to Messages
 
@@ -192,10 +192,13 @@ def webhook():
         return jsonify({"error": "invalid signature"}), 401
 
     event = request.json
-    event_type = event.get("eventType", "")
 
-    if event_type == "WEBHOOK_EVENT_TYPE_MESSAGE":
-        msg = event["messageEvent"]["message"]
+    # Handle new messages (snUpdate with messageEnvelope)
+    sn_update = event.get("snUpdate")
+    non_sn_update = event.get("nonSnUpdate")
+
+    if sn_update and "messageEnvelope" in sn_update:
+        msg = sn_update["messageEnvelope"]
         body = msg.get("body", {})
         if body.get("type") != "MESSAGE_TYPE_TEXT":
             return jsonify({"ok": True})
@@ -235,7 +238,6 @@ Every Webhook request includes signature headers:
 |--------|-------------|
 | `X-Nexus-Signature` | `sha256=<hex>` (HMAC-SHA256 signature) |
 | `X-Nexus-Timestamp` | Request timestamp (Unix seconds) |
-| `X-Nexus-Event-Type` | Event type |
 
 Verification:
 

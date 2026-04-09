@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-08T06:02:35.432Z",
+  "generatedAt": "2026-04-09T08:23:06.685Z",
   "services": [
     {
       "name": "AgentService",
@@ -112,7 +112,7 @@
         },
         {
           "name": "UpdateProfile",
-          "description": "UpdateProfile updates the current user profile fields.\n\nSide effects:\n- If avatar_url changes, the old avatar is not deleted (clients may still cache it). The new URL is propagated to all conversations via denormalized user info.\n- Delivers a UserProfileUpdatedEvent as an SnUpdate to the user's own update box only (for multi-device sync). Contacts refresh cached profile data on demand.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- INVALID_ARGUMENT: Nickname exceeds 64 characters or signature exceeds 200 characters.",
+          "description": "UpdateProfile updates the current user profile fields.\n\nSide effects:\n- If avatar_url changes, the old avatar is not deleted (clients may still cache it).\n- Delivers a UserProfileUpdatedEvent as an SnUpdate to the user's own update stream only (for multi-device sync). Contacts refresh cached profile data on demand.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- INVALID_ARGUMENT: Nickname exceeds 64 characters or signature exceeds 200 characters.",
           "httpPath": "/api.v1.UserService/UpdateProfile",
           "options": {
             "skipAuth": false,
@@ -148,7 +148,7 @@
         },
         {
           "name": "SetUsername",
-          "description": "SetUsername sets the username for the current user (first-time only).\n\nSide effects:\n- Sets the username globally (unique constraint enforced).\n- The username becomes resolvable via ResolveUsername.\n- Delivers a UsernameChangedEvent as an SnUpdate to the user's own update box only (multi-device sync).\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- FAILED_PRECONDITION: User already has a custom username set.\n- ALREADY_EXISTS: Username is already taken.\n- INVALID_ARGUMENT: Username does not match the required format (3-32 chars, lowercase alphanumeric and underscores only).",
+          "description": "SetUsername sets the username for the current user (first-time only).\n\nSide effects:\n- Sets the username globally (unique constraint enforced).\n- The username becomes resolvable via ResolveUsername.\n- Delivers a UsernameChangedEvent as an SnUpdate to the user's own update stream only (multi-device sync).\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- FAILED_PRECONDITION: User already has a custom username set.\n- ALREADY_EXISTS: Username is already taken.\n- INVALID_ARGUMENT: Username does not match the required format (3-32 chars, lowercase alphanumeric and underscores only).",
           "httpPath": "/api.v1.UserService/SetUsername",
           "options": {
             "skipAuth": false,
@@ -263,7 +263,7 @@
         },
         {
           "name": "SetupPassword",
-          "description": "SetupPassword sets a password for a passwordless account.\n\nSide effects:\n- Stores the hashed password for the user account.\n- Enables password-based login for this account.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- FAILED_PRECONDITION: Account already has a password set.\n- INVALID_ARGUMENT: Password does not meet complexity requirements.",
+          "description": "SetupPassword sets a password for a passwordless account.\n\nSide effects:\n- Stores the password securely for the user account.\n- Enables password-based login for this account.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- FAILED_PRECONDITION: Account already has a password set.\n- INVALID_ARGUMENT: Password does not meet complexity requirements.",
           "httpPath": "/api.v1.AuthService/SetupPassword",
           "options": {
             "skipAuth": false,
@@ -275,7 +275,7 @@
         },
         {
           "name": "ChangePassword",
-          "description": "ChangePassword changes the current password.\n\nSide effects:\n- Updates the stored password hash.\n- Revokes all other device sessions (forces re-login).\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- INVALID_ARGUMENT: New password does not meet complexity requirements.\n- UNAUTHENTICATED: Old password is incorrect.\n- FAILED_PRECONDITION: Account does not have a password set.",
+          "description": "ChangePassword changes the current password.\n\nSide effects:\n- Updates the stored password.\n- Revokes all other device sessions (forces re-login).\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- INVALID_ARGUMENT: New password does not meet complexity requirements.\n- UNAUTHENTICATED: Old password is incorrect.\n- FAILED_PRECONDITION: Account does not have a password set.",
           "httpPath": "/api.v1.AuthService/ChangePassword",
           "options": {
             "skipAuth": false,
@@ -311,7 +311,7 @@
         },
         {
           "name": "ResetPasswordConfirm",
-          "description": "ResetPasswordConfirm sets the new password using a reset_token (step 2 of 2b).\n\nSide effects:\n- Updates the stored password hash.\n- Revokes all existing device sessions (forces re-login).\n- Invalidates the reset_token (single-use).\n\nError conditions:\n- INVALID_ARGUMENT: New password does not meet complexity requirements.\n- NOT_FOUND: reset_token does not exist, has expired, or was already used.",
+          "description": "ResetPasswordConfirm sets the new password using a reset_token (step 2 of 2b).\n\nSide effects:\n- Updates the stored password.\n- Revokes all existing device sessions (forces re-login).\n- Invalidates the reset_token (single-use).\n\nError conditions:\n- INVALID_ARGUMENT: New password does not meet complexity requirements.\n- NOT_FOUND: reset_token does not exist, has expired, or was already used.",
           "httpPath": "/api.v1.AuthService/ResetPasswordConfirm",
           "options": {
             "skipAuth": true,
@@ -338,11 +338,11 @@
     {
       "name": "ContactService",
       "fullName": "api.v1.ContactService",
-      "description": "ContactService handles friend requests, contact management, and blocklist.\nAuthenticated via Access Token.\n\nUpdate box integration:\nAll state-changing operations in this service produce SnUpdate entries\ndelivered to the relevant users' update boxes. This ensures clients\ncan reliably sync contact state changes via the SyncService.GetDifference\nmechanism.\n\nSee shared.v1 (in shared/v1/updates.proto) for the full list of\ncontact-related event payloads.",
+      "description": "ContactService handles friend requests, contact management, and blocklist.\nAuthenticated via Access Token.\n\nupdate stream integration:\nAll state-changing operations in this service produce SnUpdate entries\ndelivered to the relevant users' update stream. This ensures clients\ncan reliably sync contact state changes via the SyncService.GetDifference\nmechanism.\n\nSee shared.v1 (in shared/v1/updates.proto) for the full list of\ncontact-related event payloads.",
       "methods": [
         {
           "name": "SendFriendRequest",
-          "description": "SendFriendRequest sends a friend request to a target user.\n\nSide effects:\n- Creates a pending friend request record.\n- Delivers a FriendRequestReceivedEvent to the target user's update box, containing the requester's info and greeting.\n- If the target user is online, the update is pushed in real-time via the long connection.\n\nError conditions:\n- ALREADY_EXISTS: A pending request already exists between the two users.\n- NOT_FOUND: Target user does not exist.\n- PERMISSION_DENIED: Either user has blocked the other.\n- FAILED_PRECONDITION: Users are already contacts.",
+          "description": "SendFriendRequest sends a friend request to a target user.\n\nSide effects:\n- Creates a pending friend request record.\n- Delivers a FriendRequestReceivedEvent to the target user's update stream, containing the requester's info and greeting.\n- If the target user is online, the update is pushed in real-time via the long connection.\n\nError conditions:\n- ALREADY_EXISTS: A pending request already exists between the two users.\n- NOT_FOUND: Target user does not exist.\n- PERMISSION_DENIED: Either user has blocked the other.\n- FAILED_PRECONDITION: Users are already contacts.",
           "httpPath": "/api.v1.ContactService/SendFriendRequest",
           "options": {
             "skipAuth": false,
@@ -366,7 +366,7 @@
         },
         {
           "name": "AcceptFriendRequest",
-          "description": "AcceptFriendRequest accepts a pending friend request.\n\nSide effects:\n- Updates the request status from PENDING to ACCEPTED.\n- Creates a mutual contact relationship between both users.\n- Delivers a FriendRequestAcceptedEvent to both parties' update boxes, containing each other's brief info.\n- The SnUpdate delivery triggers creation of a PRIVATE conversation if one does not already exist.\n\nError conditions:\n- NOT_FOUND: Request does not exist.\n- FAILED_PRECONDITION: Request has already been handled (ACCEPTED/REJECTED).",
+          "description": "AcceptFriendRequest accepts a pending friend request.\n\nSide effects:\n- Updates the request status from PENDING to ACCEPTED.\n- Creates a mutual contact relationship between both users.\n- Delivers a FriendRequestAcceptedEvent to both parties' update stream, containing each other's brief info.\n- A PRIVATE conversation is created if one does not already exist.\n\nError conditions:\n- NOT_FOUND: Request does not exist.\n- FAILED_PRECONDITION: Request has already been handled (ACCEPTED/REJECTED).",
           "httpPath": "/api.v1.ContactService/AcceptFriendRequest",
           "options": {
             "skipAuth": false,
@@ -378,7 +378,7 @@
         },
         {
           "name": "RejectFriendRequest",
-          "description": "RejectFriendRequest rejects a pending friend request.\n\nSide effects:\n- Updates the request status from PENDING to REJECTED.\n- Delivers a FriendRequestRejectedEvent to the requester's update box.\n\nError conditions:\n- NOT_FOUND: Request does not exist.\n- FAILED_PRECONDITION: Request has already been handled (ACCEPTED/REJECTED).",
+          "description": "RejectFriendRequest rejects a pending friend request.\n\nSide effects:\n- Updates the request status from PENDING to REJECTED.\n- Delivers a FriendRequestRejectedEvent to the requester's update stream.\n\nError conditions:\n- NOT_FOUND: Request does not exist.\n- FAILED_PRECONDITION: Request has already been handled (ACCEPTED/REJECTED).",
           "httpPath": "/api.v1.ContactService/RejectFriendRequest",
           "options": {
             "skipAuth": false,
@@ -390,7 +390,7 @@
         },
         {
           "name": "AddContact",
-          "description": "AddContact adds a contact without friend request approval.\nCurrently supports adding public agents and private agents (creator only).\n\nSide effects:\n- Creates bidirectional contact rows in contacts table.\n- Delivers a ContactAddedEvent SnUpdate to the caller's update box (multi-device sync). Clients use this to create the local contact record and the PRIVATE conversation.\n- Increments the agent's user_count in agent_profiles.\n- Delivers a contact.added webhook event to the agent.\n\nError conditions:\n- NOT_FOUND: Target user does not exist.\n- ALREADY_EXISTS: Contact relationship already exists.\n- PERMISSION_DENIED: Private agent, caller is not the creator.\n- FAILED_PRECONDITION: Target is a regular user (use SendFriendRequest).\n- FAILED_PRECONDITION: Agent status is not ACTIVE (error_code 7003).",
+          "description": "AddContact adds a contact without friend request approval.\nCurrently supports adding public agents and private agents (creator only).\n\nSide effects:\n- Creates bidirectional contact relationships.\n- Delivers a ContactAddedEvent SnUpdate to the caller's update stream (multi-device sync). Clients use this to create the local contact record and the PRIVATE conversation.\n- Delivers a contact.added webhook event to the agent.\n\nError conditions:\n- NOT_FOUND: Target user does not exist.\n- ALREADY_EXISTS: Contact relationship already exists.\n- PERMISSION_DENIED: Private agent, caller is not the creator.\n- FAILED_PRECONDITION: Target is a regular user (use SendFriendRequest).\n- FAILED_PRECONDITION: Agent status is not ACTIVE (error_code 7003).",
           "httpPath": "/api.v1.ContactService/AddContact",
           "options": {
             "skipAuth": false,
@@ -414,7 +414,7 @@
         },
         {
           "name": "DeleteContact",
-          "description": "DeleteContact removes a contact from the current user's contact list.\nThis is a single-sided operation: only the caller's contact record\nis removed. The other party's contact list is not affected.\n\nSide effects:\n- Delivers a ContactDeletedEvent to the caller's own update box (multi-device sync). The other party is not notified.\n- The private conversation is NOT deleted; it remains accessible but new messages cannot be sent until re-friended.\n\nError conditions:\n- NOT_FOUND: Contact relationship does not exist.",
+          "description": "DeleteContact removes a contact from the current user's contact list.\nThis is a single-sided operation: only the caller's contact record\nis removed. The other party's contact list is not affected.\n\nSide effects:\n- Delivers a ContactDeletedEvent to the caller's own update stream (multi-device sync). The other party is not notified.\n- The private conversation is NOT deleted; it remains accessible but new messages cannot be sent until re-friended.\n\nError conditions:\n- NOT_FOUND: Contact relationship does not exist.",
           "httpPath": "/api.v1.ContactService/DeleteContact",
           "options": {
             "agentOnly": false,
@@ -450,7 +450,7 @@
         },
         {
           "name": "BlockUser",
-          "description": "BlockUser blocks a user.\n\nSide effects:\n- If the blocked user is a contact, the contact relationship is removed (equivalent to DeleteContact + block).\n- Delivers a UserBlockToggledEvent (is_blocked=true) to the blocker's own update box (for multi-device sync). The blocked user is NOT notified.\n- Any pending friend requests between the two users are cancelled.\n- The blocked user can no longer send messages or friend requests to the blocker. The blocker also cannot send messages to the blocked user.\n\nError conditions:\n- ALREADY_EXISTS: User is already blocked.\n- NOT_FOUND: Target user does not exist.",
+          "description": "BlockUser blocks a user.\n\nSide effects:\n- If the blocked user is a contact, the contact relationship is removed (equivalent to DeleteContact + block).\n- Delivers a UserBlockToggledEvent (is_blocked=true) to the blocker's own update stream (for multi-device sync). The blocked user is NOT notified.\n- Any pending friend requests between the two users are cancelled.\n- The blocked user can no longer send messages or friend requests to the blocker. The blocker also cannot send messages to the blocked user.\n\nError conditions:\n- ALREADY_EXISTS: User is already blocked.\n- NOT_FOUND: Target user does not exist.",
           "httpPath": "/api.v1.ContactService/BlockUser",
           "options": {
             "agentOnly": false,
@@ -462,7 +462,7 @@
         },
         {
           "name": "UnblockUser",
-          "description": "UnblockUser unblocks a previously blocked user.\n\nSide effects:\n- Delivers a UserBlockToggledEvent (is_blocked=false) to the unblocker's own update box (for multi-device sync). The unblocked user is NOT notified.\n- Unblocking does NOT restore the contact relationship; the user must send a new friend request.\n\nError conditions:\n- NOT_FOUND: User is not in the blocklist.",
+          "description": "UnblockUser unblocks a previously blocked user.\n\nSide effects:\n- Delivers a UserBlockToggledEvent (is_blocked=false) to the unblocker's own update stream (for multi-device sync). The unblocked user is NOT notified.\n- Unblocking does NOT restore the contact relationship; the user must send a new friend request.\n\nError conditions:\n- NOT_FOUND: User is not in the blocklist.",
           "httpPath": "/api.v1.ContactService/UnblockUser",
           "options": {
             "agentOnly": false,
@@ -489,7 +489,7 @@
     {
       "name": "ConversationService",
       "fullName": "api.v1.ConversationService",
-      "description": "ConversationService handles conversation list retrieval, actions, and\nread-state management. Authenticated via Access Token.\n\nConversation lifecycle:\n- PRIVATE conversations are created implicitly when a friend request is accepted (via ContactService.AcceptFriendRequest), or when a user adds an agent as a contact (via ContactService.AddContact).\n- GROUP conversations are created via GroupService.CreateGroup.\n\nConversation list model:\n- Conversations are paginated by the `last_message_time` field descending.\n- Responses include denormalized related_users to avoid extra round-trips for rendering the conversation list UI.",
+      "description": "ConversationService handles conversation list retrieval, actions, and\nread-state management. Authenticated via Access Token.\n\nConversation lifecycle:\n- PRIVATE conversations are created implicitly when a friend request is accepted (via ContactService.AcceptFriendRequest), or when a user adds an agent as a contact (via ContactService.AddContact).\n- GROUP conversations are created via GroupService.CreateGroup.\n\nConversation list model:\n- Conversations are paginated by the `last_message_time` field descending.\n- Responses include related_users to avoid extra round-trips for rendering the conversation list UI.",
       "methods": [
         {
           "name": "GetConversation",
@@ -505,7 +505,7 @@
         },
         {
           "name": "ListConversations",
-          "description": "ListConversations returns conversations ordered by last_message_time descending,\nwith cursor-based pagination.\n\nThis is also the entry point for reconnection sync: after\nauthentication, clients pull the full conversation list, compare each\nconversation's last_message_id with their local value, and call\nMessageService.GetMessageHistory for conversations with a gap.\n\nNote: Deleted conversations that have been auto-restored (due to a new\nincoming message) will appear in the results normally, since the server\nclears the is_deleted flag upon message arrival.",
+          "description": "ListConversations returns conversations ordered by last_message_time descending,\nwith cursor-based pagination.\n\nThis is also the entry point for reconnection sync: after\nauthentication, clients pull the full conversation list, compare each\nconversation's last_message_id with their local value, and call\nMessageService.GetMessageHistory for conversations with a gap.\n\nNote: Deleted conversations that have been auto-restored (due to a new\nincoming message) will appear in the results normally.",
           "httpPath": "/api.v1.ConversationService/ListConversations",
           "options": {
             "agentOnly": false,
@@ -517,7 +517,7 @@
         },
         {
           "name": "UpdateConversationAction",
-          "description": "UpdateConversationAction performs a unified conversation action.\n\nSupported actions:\n- MUTE: Mute conversation notifications.\n- UNMUTE: Restore conversation notifications.\n- DELETE: Soft-delete the conversation from the user's list.\n\nDELETE behavior:\n- Sets is_deleted flag for the current user only (per-user soft-delete).\n- If clear_messages is true, also clears the user's local message history for this conversation (server-side per-user clear).\n- The conversation is automatically restored (is_deleted cleared) when a new message arrives in the conversation. There is no explicit RESTORE action; restoration is implicit and server-driven.\n- Online clients: receive the new message via long-connection push and should re-add the conversation to their list.\n- Offline clients: the next ListConversations call naturally returns the restored conversation since is_deleted has been cleared.\n- If a client receives a message for an unknown conversation_id, it should call GetConversation to fetch the full conversation info.\n\nSide effects:\n- Delivers a ConversationActionEvent to the current user's update box for multi-device sync. Other devices consume this event to keep conversation list state consistent.",
+          "description": "UpdateConversationAction performs a unified conversation action.\n\nSupported actions:\n- MUTE: Mute conversation notifications.\n- UNMUTE: Restore conversation notifications.\n- DELETE: Soft-delete the conversation from the user's list.\n\nAccess control:\n- Permission is checked against the underlying relationship (contact for PRIVATE, group membership for GROUP).\n- If no per-user conversation state exists yet, it is created automatically.\n\nDELETE behavior:\n- Sets is_deleted flag for the current user only (per-user soft-delete).\n- If clear_messages is true, also clears the user's local message history for this conversation (server-side per-user clear).\n- The conversation is automatically restored (is_deleted cleared) when a new message arrives in the conversation. There is no explicit RESTORE action; restoration is implicit and server-driven.\n- Online clients: receive the new message via long-connection push and should re-add the conversation to their list.\n- Offline clients: the next ListConversations call naturally returns the restored conversation since is_deleted has been cleared.\n- If a client receives a message for an unknown conversation_id, it should call GetConversation to fetch the full conversation info.\n\nSide effects:\n- Delivers a ConversationActionEvent to the current user's update stream for multi-device sync. Other devices consume this event to keep conversation list state consistent.",
           "httpPath": "/api.v1.ConversationService/UpdateConversationAction",
           "options": {
             "agentOnly": false,
@@ -529,7 +529,7 @@
         },
         {
           "name": "MarkAsRead",
-          "description": "MarkAsRead updates the current user's read position in a conversation.\n\nSide effects:\n- Updates last_read_message_id in the conversation membership.\n- Produces a ReadReceiptEvent SnUpdate to the caller's own update box (multi-device sync only; the peer is not notified).\n- The server does NOT maintain unread_count. Clients calculate it locally: unread = last_message_id - last_read_message_id.",
+          "description": "MarkAsRead updates the current user's read position in a conversation.\n\nAccess control:\n- Same as UpdateConversationAction: checks underlying relationship, auto-creates per-user conversation state if needed.\n\nSide effects:\n- Updates last_read_message_id in the conversation membership.\n- Produces a ReadReceiptEvent SnUpdate to the caller's own update stream (multi-device sync only; the peer is not notified).\n- The server does NOT maintain unread_count. Clients calculate it locally: unread = last_message_id - last_read_message_id.",
           "httpPath": "/api.v1.ConversationService/MarkAsRead",
           "options": {
             "agentOnly": false,
@@ -560,7 +560,7 @@
         },
         {
           "name": "DissolveGroup",
-          "description": "DissolveGroup permanently dissolves a group.\n\nSide effects:\n- Marks the group as DISSOLVED; no further messages can be sent.\n- Removes all members from the group.\n- Delivers GroupDissolvedEvent SnUpdate to every member's update box.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is already dissolved.\n- PERMISSION_DENIED: Caller is not the group owner.",
+          "description": "DissolveGroup permanently dissolves a group.\n\nSide effects:\n- Marks the group as DISSOLVED; no further messages can be sent.\n- Removes all members from the group.\n- Delivers GroupDissolvedEvent SnUpdate to every member's update stream.\n\nError conditions:\n- NOT_FOUND: Group does not exist.\n- FAILED_PRECONDITION: Group is already dissolved.\n- PERMISSION_DENIED: Caller is not the group owner.",
           "httpPath": "/api.v1.GroupService/DissolveGroup",
           "options": {
             "skipAuth": false,
@@ -620,7 +620,7 @@
         },
         {
           "name": "RemoveMember",
-          "description": "RemoveMember removes a member (user or agent) from the group (owner only).\n\nSide effects:\n- Removes the target from the group.\n- Delivers MemberRemovedEvent to the group conversation.\n- Delivers RemovedFromGroupEvent SnUpdate to the removed member's update box.\n\nError conditions:\n- NOT_FOUND: Group does not exist, or target is not a member.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not the owner.\n- INVALID_ARGUMENT: Cannot remove the group owner.",
+          "description": "RemoveMember removes a member (user or agent) from the group (owner only).\n\nSide effects:\n- Removes the target from the group.\n- Delivers MemberRemovedEvent to the group conversation.\n- Delivers RemovedFromGroupEvent SnUpdate to the removed member's update stream.\n\nError conditions:\n- NOT_FOUND: Group does not exist, or target is not a member.\n- FAILED_PRECONDITION: Group is dissolved.\n- PERMISSION_DENIED: Caller is not the owner.\n- INVALID_ARGUMENT: Cannot remove the group owner.",
           "httpPath": "/api.v1.GroupService/RemoveMember",
           "options": {
             "skipAuth": false,
@@ -671,7 +671,7 @@
     {
       "name": "MediaService",
       "fullName": "api.v1.MediaService",
-      "description": "MediaService handles file upload and download for all media types.\nAuthenticated via Access Token.\n\nUpload strategies:\n- Small files (avatars, thumbnails): use UploadFile for single-request upload. Returns a permanent public URL for AVATAR/GROUP_AVATAR purpose.\n- Large files (message attachments): use InitUpload → UploadChunk → CompleteUpload for resumable chunked upload. Returns a file_id; clients obtain time-limited download URLs via GetDownloadURL.\n\nAccess control:\n- AVATAR / GROUP_AVATAR files are publicly accessible via permanent URL. No download RPC needed.\n- MESSAGE files are private. GetDownloadURL issues a time-limited signed URL. file_id is UUID v7 (not enumerable), which provides sufficient protection against unauthorized access.",
+      "description": "MediaService handles file upload and download for all media types.\nAuthenticated via Access Token.\n\nUpload strategies:\n- Small files (avatars, thumbnails): use UploadFile for single-request upload. Returns a permanent public URL for AVATAR/GROUP_AVATAR purpose.\n- Large files (message attachments): use InitUpload → UploadChunk → CompleteUpload for resumable chunked upload. Returns a file_id; clients obtain time-limited download URLs via GetDownloadURL.\n\nAccess control:\n- AVATAR / GROUP_AVATAR files are publicly accessible via permanent URL. No download RPC needed.\n- MESSAGE files are private. GetDownloadURL issues a time-limited signed URL.",
       "methods": [
         {
           "name": "UploadFile",
@@ -723,7 +723,7 @@
         },
         {
           "name": "GetDownloadURL",
-          "description": "GetDownloadURL returns a time-limited signed download URL for a\nprivate (MESSAGE purpose) file.\n\nAccess control: file_id is UUID v7 and cannot be enumerated,\nwhich provides sufficient protection against unauthorized access.\nNo conversation membership check is performed.\n\nError conditions:\n- NOT_FOUND: File does not exist.",
+          "description": "GetDownloadURL returns a time-limited signed download URL for a\nprivate (MESSAGE purpose) file.\n\nAccess control: file_id is not enumerable, which provides\nsufficient protection against unauthorized access.\nNo conversation membership check is performed.\n\nError conditions:\n- NOT_FOUND: File does not exist.",
           "httpPath": "/api.v1.MediaService/GetDownloadURL",
           "options": {
             "agentOnly": false,
@@ -766,7 +766,7 @@
         },
         {
           "name": "DeleteMessages",
-          "description": "DeleteMessages deletes messages by ID list for the current user only\n(local delete). Other participants are not affected.\n\nSide effects:\n- Marks the specified messages as deleted for the current user.\n- Deleted messages are excluded from future GetMessageHistory responses for this user.\n- Delivers a MessageDeletedEvent to the caller's own update box (multi-device sync).\n\nError conditions:\n- NOT_FOUND: Conversation does not exist.\n- PERMISSION_DENIED: User is not a member of the conversation.",
+          "description": "DeleteMessages deletes messages by ID list for the current user only\n(local delete). Other participants are not affected.\n\nSide effects:\n- Marks the specified messages as deleted for the current user.\n- Deleted messages are excluded from future GetMessageHistory responses for this user.\n- Delivers a MessageDeletedEvent to the caller's own update stream (multi-device sync).\n\nError conditions:\n- NOT_FOUND: Conversation does not exist.\n- PERMISSION_DENIED: User is not a member of the conversation.",
           "httpPath": "/api.v1.MessageService/DeleteMessages",
           "options": {
             "agentOnly": false,
@@ -778,7 +778,7 @@
         },
         {
           "name": "DeleteHistory",
-          "description": "DeleteHistory deletes all messages up to a given message ID for the\ncurrent user only (local delete).\n\nSide effects:\n- Marks all messages with message_id <= up_to_message_id as deleted for the current user.\n- Delivers a MessageDeletedEvent to the caller's own update box (multi-device sync).\n\nError conditions:\n- NOT_FOUND: Conversation does not exist.\n- PERMISSION_DENIED: User is not a member of the conversation.",
+          "description": "DeleteHistory deletes all messages up to a given message ID for the\ncurrent user only (local delete).\n\nSide effects:\n- Marks all messages with message_id <= up_to_message_id as deleted for the current user.\n- Delivers a MessageDeletedEvent to the caller's own update stream (multi-device sync).\n\nError conditions:\n- NOT_FOUND: Conversation does not exist.\n- PERMISSION_DENIED: User is not a member of the conversation.",
           "httpPath": "/api.v1.MessageService/DeleteHistory",
           "options": {
             "agentOnly": false,
@@ -889,7 +889,7 @@
     {
       "name": "PushService",
       "fullName": "api.v1.PushService",
-      "description": "PushService handles push notification token registration and removal.\nThe full push dispatch logic is in the interservice gRPC layer.\nAuthenticated via Access Token.",
+      "description": "PushService handles push notification token registration and removal.\nAuthenticated via Access Token.",
       "methods": [
         {
           "name": "RegisterToken",
@@ -917,7 +917,7 @@
         },
         {
           "name": "ClearBadge",
-          "description": "ClearBadge clears the push notification badge count for the user.\n\nSide effects:\n- iOS: Sends a silent push with badge=0 to clear the app icon badge.\n- Android: No server-side action needed (client clears locally).\n- Resets the server-side badge cache for this user.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.",
+          "description": "ClearBadge clears the push notification badge count for the user.\n\nSide effects:\n- iOS: Sends a silent push with badge=0 to clear the app icon badge.\n- Android: No server-side action needed (client clears locally).\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.",
           "httpPath": "/api.v1.PushService/ClearBadge",
           "options": {
             "skipAuth": false,
@@ -965,7 +965,7 @@
     "shared.v1.UserInfo": {
       "name": "UserInfo",
       "fullName": "shared.v1.UserInfo",
-      "description": "UserInfo is the public view of a user, used across list rendering and\nprofile pages. Combines identity and display fields into a single\nreusable structure.\n\nOnline status is NOT exposed to clients. Gateway maintains connection\nstate in memory only (no Redis, no client display).",
+      "description": "UserInfo is the public view of a user, used across list rendering and\nprofile pages. Combines identity and display fields into a single\nreusable structure.\n\nOnline status is NOT included in this structure.",
       "fields": [
         {
           "name": "user_id",
@@ -1096,7 +1096,7 @@
     "shared.v1.AgentCommandList": {
       "name": "AgentCommandList",
       "fullName": "shared.v1.AgentCommandList",
-      "description": "AgentCommandList is a wrapper for serializing a list of commands\nas a single protobuf message (stored as bytea in PostgreSQL).",
+      "description": "AgentCommandList is a wrapper for serializing a list of commands\nas a single protobuf message.",
       "fields": [
         {
           "name": "items",
@@ -1164,7 +1164,7 @@
     "shared.v1.AgentProfile": {
       "name": "AgentProfile",
       "fullName": "shared.v1.AgentProfile",
-      "description": "AgentProfile is the self-view of an agent's profile, returned to the\nagent developer via AgentService.GetSelfAgent. Contains all agent_profiles\nfields visible to the owner.",
+      "description": "AgentProfile is the self-view of an agent's profile, returned to the\nagent developer via AgentService.GetSelfAgent.",
       "fields": [
         {
           "name": "status",
@@ -1385,7 +1385,7 @@
           "name": "profile",
           "jsonName": "profile",
           "type": "shared.v1.AgentProfile",
-          "description": "Agent profile (developer-visible fields from agent_profiles).",
+          "description": "Agent profile (developer-visible fields).",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -1653,7 +1653,7 @@
     "api.v1.Device": {
       "name": "Device",
       "fullName": "api.v1.Device",
-      "description": "Device represents an active device session (server view).",
+      "description": "Device represents an active device session.",
       "fields": [
         {
           "name": "device_id",
@@ -2804,7 +2804,7 @@
     "api.v1.BlockedUserItem": {
       "name": "BlockedUserItem",
       "fullName": "api.v1.BlockedUserItem",
-      "description": "BlockedUserItem represents a blocked user entry.\nWhen a user is blocked:\n- Neither party can send messages or friend requests to the other.\n- If the two users are contacts, the contact relationship is removed.\n- Existing conversations are hidden but not deleted.\n- A UserBlockToggledEvent is delivered to the blocker's update box.",
+      "description": "BlockedUserItem represents a blocked user entry.\nWhen a user is blocked:\n- Neither party can send messages or friend requests to the other.\n- If the two users are contacts, the contact relationship is removed.\n- Existing conversations are hidden but not deleted.\n- A UserBlockToggledEvent is delivered to the blocker's update stream.",
       "fields": [
         {
           "name": "user",
@@ -2847,7 +2847,7 @@
           "name": "message",
           "jsonName": "message",
           "type": "string",
-          "description": "Optional greeting message (max 200 chars). Included in the\nFriendRequestReceivedEvent delivered to the target's update box.",
+          "description": "Optional greeting message (max 200 chars). Included in the\nFriendRequestReceivedEvent delivered to the target's update stream.",
           "optional": false,
           "repeated": false,
           "sensitive": false,
@@ -3259,7 +3259,7 @@
     "shared.v1.ConversationInfo": {
       "name": "ConversationInfo",
       "fullName": "shared.v1.ConversationInfo",
-      "description": "ConversationInfo represents a conversation entry in a user's or agent's\nconversation list. Covers private and group conversation types.\n\nSync model:\nEach conversation maintains an independent message_id sequence (allocated\nvia Redis INCR per conversation). Clients compare their local\nlast_message_id with the server's value to determine whether\nincremental message fetching is needed.\n\nUnread count:\nThe server does NOT return unread_count. Clients calculate it locally: unread = last_message_id - last_read_message_id\nThis simplifies the server and avoids maintaining a separate counter.",
+      "description": "ConversationInfo represents a conversation entry in a user's or agent's\nconversation list. Covers private and group conversation types.\n\nSync model:\nEach conversation maintains an independent message_id sequence.\nClients compare their local last_message_id with the server's value\nto determine whether incremental message fetching is needed.\n\nUnread count:\nThe server does NOT return unread_count. Clients calculate it locally: unread = last_message_id - last_read_message_id",
       "fields": [
         {
           "name": "conversation_id",
@@ -3498,7 +3498,7 @@
     "api.v1.ListConversationsResponse": {
       "name": "ListConversationsResponse",
       "fullName": "api.v1.ListConversationsResponse",
-      "description": "ListConversationsResponse contains conversations with denormalized user and group data.",
+      "description": "ListConversationsResponse contains conversations with related user and group data.",
       "fields": [
         {
           "name": "conversations",
@@ -3621,7 +3621,7 @@
     "shared.v1.ErrorDetail": {
       "name": "ErrorDetail",
       "fullName": "shared.v1.ErrorDetail",
-      "description": "ErrorDetail is the standard error payload attached to connect.Error details.\nIt is the sole mechanism for clients to identify and handle errors.\n\nFull error code definitions: docs/designs/d12-error-codes.md\nGo constants: internal/xerr/",
+      "description": "ErrorDetail is the standard error payload attached to connect.Error details.\nIt is the sole mechanism for clients to identify and handle errors.",
       "fields": [
         {
           "name": "error_code",
@@ -3747,7 +3747,7 @@
     "shared.v1.GatewayErrorFrame": {
       "name": "GatewayErrorFrame",
       "fullName": "shared.v1.GatewayErrorFrame",
-      "description": "GatewayErrorFrame carries connection-level error information using\nthe unified ErrorDetail error code system (D12).",
+      "description": "GatewayErrorFrame carries connection-level error information.",
       "fields": [
         {
           "name": "error",
@@ -3778,7 +3778,7 @@
           "name": "group_id",
           "jsonName": "groupId",
           "type": "int32",
-          "description": "Group ID this event belongs to, allowing update consumers to\nidentify the group without deriving it from conversation_id.",
+          "description": "Group ID this event belongs to.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -3869,7 +3869,7 @@
     "shared.v1.MemberRemovedEvent": {
       "name": "MemberRemovedEvent",
       "fullName": "shared.v1.MemberRemovedEvent",
-      "description": "MemberRemovedEvent is produced when a member (user or agent) is removed\nby the group owner. Unified event replacing the old MemberKickedEvent,\nAgentRemovedEvent, KickedFromGroupEvent, and RemovedFromGroupEvent.\n\nDual delivery:\n- GROUP conversation: visible to all remaining members.\n- Removed member's update box: via RemovedFromGroupEvent SnUpdate (the member is no longer in the group).",
+      "description": "MemberRemovedEvent is produced when a member (user or agent) is removed\nby the group owner.\n\nDelivery:\n- GROUP conversation: visible to all remaining members.\n- Removed member: receives a RemovedFromGroupEvent SnUpdate.",
       "fields": [
         {
           "name": "member",
@@ -4498,7 +4498,7 @@
     "shared.v1.CardContent": {
       "name": "CardContent",
       "fullName": "shared.v1.CardContent",
-      "description": "CardContent carries an Adaptive Card message payload.\nThe card_json field contains a valid Adaptive Card JSON conforming to\nhttps://adaptivecards.io/schemas/adaptive-card.json\n\nServer treats card_json as an opaque payload: it validates JSON syntax\nand enforces a 50 KB size limit, but does NOT validate against the\nAdaptive Card schema. Rendering is entirely the client's responsibility.\n\nInteraction:\n- Action.OpenUrl: handled client-side (open browser/webview).\n- Action.Submit: client sends SubmitCardAction RPC with the action's data payload. Server forwards to the agent via webhook.\n- Action.ShowCard / Action.ToggleVisibility: handled client-side.",
+      "description": "CardContent carries an Adaptive Card message payload.\nThe card_json field contains a valid Adaptive Card JSON conforming to\nhttps://adaptivecards.io/schemas/adaptive-card.json\n\nServer validates JSON syntax and enforces a 50 KB size limit, but does\nNOT validate against the Adaptive Card schema. Rendering is entirely\nthe client's responsibility.\n\nInteraction:\n- Action.OpenUrl: handled client-side (open browser/webview).\n- Action.Submit: client sends SubmitCardAction RPC with the action's data payload, which is forwarded to the agent.\n- Action.ShowCard / Action.ToggleVisibility: handled client-side.",
       "fields": [
         {
           "name": "card_json",
@@ -4530,7 +4530,7 @@
     "shared.v1.StreamContent": {
       "name": "StreamContent",
       "fullName": "shared.v1.StreamContent",
-      "description": "StreamContent carries streaming message data (e.g. agent real-time\ngeneration). Delivered via Update push on the long connection.\n\nThe stream is uniquely identified by message_id (assigned when the\nagent calls SendMessage with type=STREAM). Each delta carries a seq\nnumber for dedup and ordering.\n\nLifecycle: 1. START: Server creates the message record (assigns message_id), pushes StreamContent with phase=START. No text content yet. 2. DELTA: Server pushes incremental text fragments via Update push. Deltas are NOT persisted; they are ephemeral push-only payloads. 3. END: Server persists the final accumulated text into the message record and pushes phase=END with the complete content. 4. ERROR: Generation failed. Server persists the error state.\n\nRecovery after disconnect / app restart: Clients must track locally which stream messages have not reached a terminal phase (END or ERROR). On reconnect, call MessageService.GetMessage for each incomplete stream. The returned StreamContent reflects the current server-side state:\n- phase=END + accumulated_text: generation finished while offline.\n- phase=ERROR: generation failed.\n- phase=DELTA: still generating; client resumes receiving deltas from the long connection. Use accumulated_text as the baseline and append subsequent deltas.",
+      "description": "StreamContent carries streaming message data (e.g. agent real-time\ngeneration). Delivered via Update push on the long connection.\n\nThe stream is uniquely identified by message_id (assigned when the\nagent calls SendMessage with type=STREAM). Each delta carries a seq\nnumber for dedup and ordering.\n\nLifecycle: 1. START: A new streaming message is created (message_id assigned), StreamContent with phase=START is pushed. No text content yet. 2. DELTA: Incremental text fragments are pushed via Update. Deltas are ephemeral push-only payloads. 3. END: The final accumulated text is committed and phase=END is pushed with the complete content. 4. ERROR: Generation failed; the error state is committed.\n\nRecovery after disconnect / app restart: Clients must track locally which stream messages have not reached a terminal phase (END or ERROR). On reconnect, call MessageService.GetMessage for each incomplete stream. The returned StreamContent reflects the current server-side state:\n- phase=END + accumulated_text: generation finished while offline.\n- phase=ERROR: generation failed.\n- phase=DELTA: still generating; client resumes receiving deltas from the long connection. Use accumulated_text as the baseline and append subsequent deltas.",
       "fields": [
         {
           "name": "phase",
@@ -4545,7 +4545,7 @@
           "name": "seq",
           "jsonName": "seq",
           "type": "int32",
-          "description": "Delta sequence number (agent-side auto-increment, starting from 1).\nServer uses this for dedup and gap detection. Only meaningful in\nDELTA phase pushes; 0 for START/END/ERROR.",
+          "description": "Delta sequence number (agent-side auto-increment, starting from 1).\nUsed for dedup and ordering. Only meaningful in\nDELTA phase pushes; 0 for START/END/ERROR.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -4572,7 +4572,7 @@
           "name": "accumulated_text",
           "jsonName": "accumulatedText",
           "type": "string",
-          "description": "Accumulated full text up to this point. Populated by the server in:\n- END phase: the complete final content.\n- ERROR phase: partial content generated before the error.\n- HTTP query (GetMessage): current accumulated content regardless of phase, enabling clients to recover after disconnect.\nEmpty in real-time DELTA pushes (clients accumulate locally).",
+          "description": "Accumulated full text up to this point. Populated in:\n- END phase: the complete final content.\n- ERROR phase: partial content generated before the error.\n- HTTP query (GetMessage): current accumulated content regardless of phase, enabling clients to recover after disconnect.\nEmpty in real-time DELTA pushes (clients accumulate locally).",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -4764,7 +4764,7 @@
     "shared.v1.SnUpdate": {
       "name": "SnUpdate",
       "fullName": "shared.v1.SnUpdate",
-      "description": "SnUpdate is a sequenced update delivered to a user's update box.\nEach update carries a monotonically increasing sn. Clients detect\ngaps by comparing received sn with local_sn + 1.",
+      "description": "SnUpdate is a sequenced update delivered to a user's update stream.\nEach update carries a monotonically increasing sn. Clients detect\ngaps by comparing received sn with local_sn + 1.",
       "fields": [
         {
           "name": "sn",
@@ -4950,7 +4950,7 @@
     "shared.v1.NonSnUpdate": {
       "name": "NonSnUpdate",
       "fullName": "shared.v1.NonSnUpdate",
-      "description": "NonSnUpdate is a non-sequenced update pushed in real time but not\npersisted in the update box. Clients do not track sn for these.",
+      "description": "NonSnUpdate is a non-sequenced, ephemeral update pushed in real time.\nClients do not track sn for these.",
       "fields": [
         {
           "name": "message_envelope",
@@ -4977,7 +4977,7 @@
     "shared.v1.CardActionAnswer": {
       "name": "CardActionAnswer",
       "fullName": "shared.v1.CardActionAnswer",
-      "description": "CardActionAnswer carries the agent's response to a card action.\nPushed as NonSnUpdate to the user who submitted the action.\nGateway maps this to a CardActionAnswerPush frame.",
+      "description": "CardActionAnswer carries the agent's response to a card action.\nPushed as NonSnUpdate to the user who submitted the action.",
       "fields": [
         {
           "name": "action_id",
@@ -5027,7 +5027,7 @@
     "shared.v1.FriendRequestReceivedEvent": {
       "name": "FriendRequestReceivedEvent",
       "fullName": "shared.v1.FriendRequestReceivedEvent",
-      "description": "FriendRequestReceivedEvent is produced when a friend request is sent.\nDelivered as an SnUpdate to the target user's update box.\nUser info for from_user_id is provided via related_users in the\nUpdate wrapper.",
+      "description": "FriendRequestReceivedEvent is produced when a friend request is sent.\nDelivered as an SnUpdate to the target user's update stream.\nUser info for from_user_id is provided via related_users in the\nUpdate wrapper.",
       "fields": [
         {
           "name": "request",
@@ -5043,7 +5043,7 @@
     "shared.v1.FriendRequestAcceptedEvent": {
       "name": "FriendRequestAcceptedEvent",
       "fullName": "shared.v1.FriendRequestAcceptedEvent",
-      "description": "FriendRequestAcceptedEvent is produced when a friend request is accepted.\nDelivered as an SnUpdate to both parties' update boxes.\nUser info for the peer is provided via related_users in the\nUpdate wrapper.",
+      "description": "FriendRequestAcceptedEvent is produced when a friend request is accepted.\nDelivered as an SnUpdate to both parties' update stream.\nUser info for the peer is provided via related_users in the\nUpdate wrapper.",
       "fields": [
         {
           "name": "request",
@@ -5059,7 +5059,7 @@
     "shared.v1.FriendRequestRejectedEvent": {
       "name": "FriendRequestRejectedEvent",
       "fullName": "shared.v1.FriendRequestRejectedEvent",
-      "description": "FriendRequestRejectedEvent is produced when a friend request is rejected.\nDelivered as an SnUpdate to both parties' update boxes.",
+      "description": "FriendRequestRejectedEvent is produced when a friend request is rejected.\nDelivered as an SnUpdate to both parties' update stream.",
       "fields": [
         {
           "name": "request_id",
@@ -5084,7 +5084,7 @@
     "shared.v1.FriendRequestSentEvent": {
       "name": "FriendRequestSentEvent",
       "fullName": "shared.v1.FriendRequestSentEvent",
-      "description": "FriendRequestSentEvent is produced when the current user sends a friend\nrequest. Delivered to the sender's own update box (multi-device sync).",
+      "description": "FriendRequestSentEvent is produced when the current user sends a friend\nrequest. Delivered to the sender's own update stream (multi-device sync).",
       "fields": [
         {
           "name": "request_id",
@@ -5109,7 +5109,7 @@
     "shared.v1.ContactAliasUpdatedEvent": {
       "name": "ContactAliasUpdatedEvent",
       "fullName": "shared.v1.ContactAliasUpdatedEvent",
-      "description": "ContactAliasUpdatedEvent is produced when a contact alias is changed.\nDelivered as an SnUpdate to the caller's own update box only\n(multi-device sync).",
+      "description": "ContactAliasUpdatedEvent is produced when a contact alias is changed.\nDelivered as an SnUpdate to the caller's own update stream only\n(multi-device sync).",
       "fields": [
         {
           "name": "contact_user_id",
@@ -5134,7 +5134,7 @@
     "shared.v1.UsernameChangedEvent": {
       "name": "UsernameChangedEvent",
       "fullName": "shared.v1.UsernameChangedEvent",
-      "description": "UsernameChangedEvent is produced when a user sets their username.\nDelivered as an SnUpdate to the user's own update box only\n(multi-device sync). Contacts learn the new username on demand.",
+      "description": "UsernameChangedEvent is produced when a user sets their username.\nDelivered as an SnUpdate to the user's own update stream only\n(multi-device sync). Contacts learn the new username on demand.",
       "fields": [
         {
           "name": "user_id",
@@ -5159,7 +5159,7 @@
     "shared.v1.ContactDeletedEvent": {
       "name": "ContactDeletedEvent",
       "fullName": "shared.v1.ContactDeletedEvent",
-      "description": "ContactDeletedEvent is produced when a contact is removed.\nSingle-sided: delivered as an SnUpdate to the caller's own update box\nonly (multi-device sync). The other party is NOT notified.",
+      "description": "ContactDeletedEvent is produced when a contact is removed.\nSingle-sided: delivered as an SnUpdate to the caller's own update stream\nonly (multi-device sync). The other party is NOT notified.",
       "fields": [
         {
           "name": "peer_user_id",
@@ -5175,7 +5175,7 @@
     "shared.v1.ContactAddedEvent": {
       "name": "ContactAddedEvent",
       "fullName": "shared.v1.ContactAddedEvent",
-      "description": "ContactAddedEvent is produced when a user adds an agent as a contact\nvia AddContact. Delivered to the caller's own update box (multi-device sync).",
+      "description": "ContactAddedEvent is produced when a user adds an agent as a contact\nvia AddContact. Delivered to the caller's own update stream (multi-device sync).",
       "fields": [
         {
           "name": "peer_user_id",
@@ -5191,7 +5191,7 @@
     "shared.v1.UserBlockToggledEvent": {
       "name": "UserBlockToggledEvent",
       "fullName": "shared.v1.UserBlockToggledEvent",
-      "description": "UserBlockToggledEvent is produced when a user blocks or unblocks another.\nDelivered as an SnUpdate to the operator's own update box only\n(for multi-device sync). The target user is NOT notified.",
+      "description": "UserBlockToggledEvent is produced when a user blocks or unblocks another.\nDelivered as an SnUpdate to the operator's own update stream only\n(for multi-device sync). The target user is NOT notified.",
       "fields": [
         {
           "name": "target_user_id",
@@ -5216,7 +5216,7 @@
     "shared.v1.UserProfileUpdatedEvent": {
       "name": "UserProfileUpdatedEvent",
       "fullName": "shared.v1.UserProfileUpdatedEvent",
-      "description": "UserProfileUpdatedEvent is produced when a user updates their profile.\nDelivered as an SnUpdate to the user's own update box only (multi-device\nsync). Contacts refresh cached profile data on demand (via message\ndenormalized user info or by viewing the contact detail page).",
+      "description": "UserProfileUpdatedEvent is produced when a user updates their profile.\nDelivered as an SnUpdate to the user's own update stream only (multi-device\nsync). Contacts refresh cached profile data on demand.",
       "fields": [
         {
           "name": "user_id",
@@ -5262,7 +5262,7 @@
     "shared.v1.ConversationActionEvent": {
       "name": "ConversationActionEvent",
       "fullName": "shared.v1.ConversationActionEvent",
-      "description": "ConversationActionEvent is produced when a user performs a conversation\nmanagement action (mute, unmute, delete). Delivered as an SnUpdate\nto the operator's own update box only (for multi-device sync).\nOther participants are NOT notified.",
+      "description": "ConversationActionEvent is produced when a user performs a conversation\nmanagement action (mute, unmute, delete). Delivered as an SnUpdate\nto the operator's own update stream only (for multi-device sync).\nOther participants are NOT notified.",
       "fields": [
         {
           "name": "conversation_id",
@@ -5296,7 +5296,7 @@
     "shared.v1.MessageDeletedEvent": {
       "name": "MessageDeletedEvent",
       "fullName": "shared.v1.MessageDeletedEvent",
-      "description": "MessageDeletedEvent is produced when a user deletes messages locally\n(DeleteMessages or DeleteHistory). Delivered as an SnUpdate to the\noperator's own update box only (for multi-device sync).\nOther participants are NOT notified.",
+      "description": "MessageDeletedEvent is produced when a user deletes messages locally\n(DeleteMessages or DeleteHistory). Delivered as an SnUpdate to the\noperator's own update stream only (for multi-device sync).\nOther participants are NOT notified.",
       "fields": [
         {
           "name": "conversation_id",
@@ -5330,7 +5330,7 @@
     "shared.v1.ReadReceiptEvent": {
       "name": "ReadReceiptEvent",
       "fullName": "shared.v1.ReadReceiptEvent",
-      "description": "ReadReceiptEvent is produced when a user marks messages as read.\nDelivered as an SnUpdate to the reader's own update box only\n(for multi-device sync). The peer is NOT notified.",
+      "description": "ReadReceiptEvent is produced when a user marks messages as read.\nDelivered as an SnUpdate to the reader's own update stream only\n(for multi-device sync). The peer is NOT notified.",
       "fields": [
         {
           "name": "conversation_id",
@@ -5373,7 +5373,7 @@
     "shared.v1.RemovedFromGroupEvent": {
       "name": "RemovedFromGroupEvent",
       "fullName": "shared.v1.RemovedFromGroupEvent",
-      "description": "RemovedFromGroupEvent is delivered as an SnUpdate to the removed\nmember's (user or agent) update box when they are removed from a\ngroup by the owner. Unified event for both user kicks and agent removals.",
+      "description": "RemovedFromGroupEvent is delivered as an SnUpdate to the removed\nmember's (user or agent) update stream when they are removed from a\ngroup by the owner. Unified event for both user kicks and agent removals.",
       "fields": [
         {
           "name": "group_id",
@@ -5398,7 +5398,7 @@
     "shared.v1.GroupDissolvedEvent": {
       "name": "GroupDissolvedEvent",
       "fullName": "shared.v1.GroupDissolvedEvent",
-      "description": "GroupDissolvedEvent is produced when the group owner dissolves the group.\nDelivered as an SnUpdate to every member's update box.",
+      "description": "GroupDissolvedEvent is produced when the group owner dissolves the group.\nDelivered as an SnUpdate to every member's update stream.",
       "fields": [
         {
           "name": "operator_id",
@@ -5617,7 +5617,7 @@
           "name": "sn_update",
           "jsonName": "snUpdate",
           "type": "shared.v1.SnUpdate",
-          "description": "Sequenced update (persisted in the user's update box).",
+          "description": "Sequenced update.",
           "optional": false,
           "repeated": false,
           "oneofGroup": "update",
@@ -6666,7 +6666,7 @@
     "api.v1.DeleteHistoryResponse": {
       "name": "DeleteHistoryResponse",
       "fullName": "api.v1.DeleteHistoryResponse",
-      "description": "DeleteHistoryResponse is returned after history is deleted.\nUses waterline-based deletion (max_deleted_message_id), so no\nprecise count is available.",
+      "description": "DeleteHistoryResponse is returned after history is deleted.",
       "fields": []
     },
     "api.v1.RecallMessageRequest": {

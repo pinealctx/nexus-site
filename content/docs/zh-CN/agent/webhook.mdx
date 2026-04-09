@@ -39,9 +39,8 @@ curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryCo
 | `Content-Type` | `application/json` |
 | `X-Nexus-Signature` | HMAC-SHA256 签名（hex 编码） |
 | `X-Nexus-Timestamp` | 请求时间戳（Unix 秒） |
-| `X-Nexus-Event-Type` | 事件类型（如 `MESSAGE`） |
 
-请求体是 JSON 序列化的 `WebhookEvent`。
+请求体是 JSON 序列化的 `Update`（protojson）。事件类型通过检查 `Update` 的载荷字段来确定（见下方示例）。
 
 ## 签名验证
 
@@ -63,15 +62,17 @@ def verify(body: bytes, timestamp: str, signature: str, secret: str) -> bool:
 
 ### MESSAGE
 
-收到新消息。这是最常见的事件，涵盖所有消息类型。
+收到新消息。这是最常见的事件，涵盖所有消息类型。消息是有序更新，检查 `snUpdate.messageEnvelope` 字段。
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
-  "timestamp": "1712000000000",
-  "relatedUsers": [{"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}],
-  "messageEvent": {
-    "message": {
+  "users": [
+    {"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}
+  ],
+  "groups": [],
+  "snUpdate": {
+    "sn": 1,
+    "messageEnvelope": {
       "messageId": "1001",
       "conversationId": "8589934634",
       "senderId": 42,
@@ -91,19 +92,22 @@ def verify(body: bytes, timestamp: str, signature: str, secret: str) -> bool:
 
 ### CARD_ACTION
 
-用户点击了 Adaptive Card 的 Action.Submit 按钮。
+用户点击了 Adaptive Card 的 Action.Submit 按钮。卡片操作是非有序更新，检查 `nonSnUpdate.cardAction` 字段。
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_CARD_ACTION",
-  "timestamp": "1712000000000",
-  "cardAction": {
-    "id": "act_abc123",
-    "senderId": 42,
-    "conversationId": "8589934634",
-    "messageId": "1001",
-    "actionData": "{\"choice\": \"option_a\"}",
-    "verb": "submit_form"
+  "users": [
+    {"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}
+  ],
+  "nonSnUpdate": {
+    "cardAction": {
+      "actionId": "act_abc123",
+      "senderId": 42,
+      "conversationId": "8589934634",
+      "messageId": "1001",
+      "actionData": "{\"choice\": \"option_a\"}",
+      "verb": "submit_form"
+    }
   }
 }
 ```
@@ -112,38 +116,43 @@ def verify(body: bytes, timestamp: str, signature: str, secret: str) -> bool:
 
 ### CONTACT_ADDED
 
-用户将 Agent 添加为联系人。适合发送欢迎消息。
+用户将 Agent 添加为联系人。适合发送欢迎消息。这是有序更新，检查 `snUpdate.contactAdded` 字段。
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_CONTACT_ADDED",
-  "timestamp": "1712000000000",
-  "relatedUsers": [{"userId": 42, "nickname": "Alice"}],
-  "contactAdded": {"userId": 42}
+  "users": [
+    {"userId": 42, "nickname": "Alice"}
+  ],
+  "snUpdate": {
+    "sn": 2,
+    "contactAdded": {"peerUserId": 42}
+  }
 }
 ```
 
 ### REMOVED_FROM_GROUP
 
-Agent 被群主移出群组。
+Agent 被群主移出群组。这是有序更新，检查 `snUpdate.removedFromGroup` 字段。
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_REMOVED_FROM_GROUP",
-  "timestamp": "1712000000000",
-  "removedFromGroup": {"groupId": 100, "operatorId": 1}
+  "snUpdate": {
+    "sn": 3,
+    "removedFromGroup": {"groupId": 100, "operatorId": 1}
+  }
 }
 ```
 
 ### GROUP_DISSOLVED
 
-Agent 所在的群组被解散。
+Agent 所在的群组被解散。这是有序更新，检查 `snUpdate.groupDissolved` 字段。
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_GROUP_DISSOLVED",
-  "timestamp": "1712000000000",
-  "groupDissolved": {"groupId": 100, "operatorId": 1}
+  "snUpdate": {
+    "sn": 4,
+    "groupDissolved": {"groupId": 100, "operatorId": 1}
+  }
 }
 ```
 

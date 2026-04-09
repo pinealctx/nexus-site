@@ -87,13 +87,11 @@ curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryCo
 
 ## 第四步：处理 Webhook 事件
 
-Nexus AI 发送的 Webhook 请求体是 JSON 格式的 `WebhookEvent`：
+Nexus AI 发送的 Webhook 请求体是 JSON 格式的 `Update`：
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
-  "timestamp": "1712000000000",
-  "relatedUsers": [
+  "users": [
     {
       "userId": 42,
       "username": "alice",
@@ -102,8 +100,10 @@ Nexus AI 发送的 Webhook 请求体是 JSON 格式的 `WebhookEvent`：
       "accountType": "ACCOUNT_TYPE_USER"
     }
   ],
-  "messageEvent": {
-    "message": {
+  "groups": [],
+  "snUpdate": {
+    "sn": 1,
+    "messageEnvelope": {
       "messageId": "1001",
       "conversationId": "8589934634",
       "senderId": 42,
@@ -123,11 +123,11 @@ Nexus AI 发送的 Webhook 请求体是 JSON 格式的 `WebhookEvent`：
 
 | 事件类型 | 说明 |
 |----------|------|
-| `MESSAGE` | 收到新消息（包括文本、图片、群事件等所有消息类型） |
-| `CARD_ACTION` | 用户点击了 Adaptive Card 的 Action.Submit 按钮 |
-| `CONTACT_ADDED` | 用户将 Agent 添加为联系人 |
-| `REMOVED_FROM_GROUP` | Agent 被移出群组 |
-| `GROUP_DISSOLVED` | Agent 所在的群组被解散 |
+| `MESSAGE` | `snUpdate.messageEnvelope` — 收到新消息（包括文本、图片、群事件等所有消息类型） |
+| `CARD_ACTION` | `nonSnUpdate.cardAction` — 用户点击了 Adaptive Card 的 Action.Submit 按钮 |
+| `CONTACT_ADDED` | `snUpdate.contactAdded` — 用户将 Agent 添加为联系人 |
+| `REMOVED_FROM_GROUP` | `snUpdate.removedFromGroup` — Agent 被移出群组 |
+| `GROUP_DISSOLVED` | `snUpdate.groupDissolved` — Agent 所在的群组被解散 |
 
 ## 第五步：回复消息
 
@@ -198,21 +198,23 @@ def webhook():
         return jsonify({"error": "invalid signature"}), 401
 
     event = request.json
-    event_type = event.get("eventType", "")
 
-    # Handle new messages
-    if event_type == "WEBHOOK_EVENT_TYPE_MESSAGE":
-        msg = event["messageEvent"]["message"]
+    # 处理新消息（snUpdate 中包含 messageEnvelope）
+    sn_update = event.get("snUpdate")
+    non_sn_update = event.get("nonSnUpdate")
+
+    if sn_update and "messageEnvelope" in sn_update:
+        msg = sn_update["messageEnvelope"]
         body = msg.get("body", {})
 
-        # Skip non-text messages
+        # 跳过非文本消息
         if body.get("type") != "MESSAGE_TYPE_TEXT":
             return jsonify({"ok": True})
 
         user_text = body["text"]["text"]
         conversation_id = msg["conversationId"]
 
-        # Echo reply
+        # Echo 回复
         msg_counter += 1
         requests.post(
             f"{API_BASE}/api.v1.MessageService/SendMessage",
@@ -231,9 +233,9 @@ def webhook():
             },
         )
 
-    # Handle contact added — send welcome message
-    elif event_type == "WEBHOOK_EVENT_TYPE_CONTACT_ADDED":
-        user_id = event["contactAdded"]["userId"]
+    # 处理联系人添加 — 发送欢迎消息
+    elif sn_update and "contactAdded" in sn_update:
+        peer_user_id = sn_update["contactAdded"]["peerUserId"]
         # Compute private conversation ID:
         # int64(max(a,b)) << 32 | int64(min(a,b))
         # where a = agent_user_id, b = user_id
@@ -253,7 +255,6 @@ if __name__ == "__main__":
 |--------|------|
 | `X-Nexus-Signature` | `sha256=<hex>`（HMAC-SHA256 签名） |
 | `X-Nexus-Timestamp` | 请求时间戳（Unix 秒） |
-| `X-Nexus-Event-Type` | 事件类型 |
 
 验证逻辑：
 

@@ -39,9 +39,8 @@ Each Webhook request includes these HTTP headers:
 | `Content-Type` | `application/json` |
 | `X-Nexus-Signature` | HMAC-SHA256 signature (hex encoded) |
 | `X-Nexus-Timestamp` | Request timestamp (Unix seconds) |
-| `X-Nexus-Event-Type` | Event type (e.g. `MESSAGE`) |
 
-The body is a JSON-serialized `WebhookEvent`.
+The body is a JSON-serialized `Update` (protojson). The event type is determined by inspecting the `Update` payload (see examples below).
 
 ## Signature Verification
 
@@ -63,15 +62,17 @@ Also validate the timestamp — reject requests older than 5 minutes to prevent 
 
 ### MESSAGE
 
-New message received. The most common event, covering all message types.
+New message received. The most common event, covering all message types. Messages are sequenced updates — check for the `snUpdate.messageEnvelope` field.
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_MESSAGE",
-  "timestamp": "1712000000000",
-  "relatedUsers": [{"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}],
-  "messageEvent": {
-    "message": {
+  "users": [
+    {"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}
+  ],
+  "groups": [],
+  "snUpdate": {
+    "sn": 1,
+    "messageEnvelope": {
       "messageId": "1001",
       "conversationId": "8589934634",
       "senderId": 42,
@@ -88,19 +89,22 @@ Group event messages (`MESSAGE_TYPE_GROUP`) have `senderId` of 0, with event det
 
 ### CARD_ACTION
 
-User clicked an Adaptive Card Action.Submit button.
+User clicked an Adaptive Card Action.Submit button. Card actions are non-sequenced updates — check for the `nonSnUpdate.cardAction` field.
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_CARD_ACTION",
-  "timestamp": "1712000000000",
-  "cardAction": {
-    "id": "act_abc123",
-    "senderId": 42,
-    "conversationId": "8589934634",
-    "messageId": "1001",
-    "actionData": "{\"choice\": \"option_a\"}",
-    "verb": "submit_form"
+  "users": [
+    {"userId": 42, "nickname": "Alice", "accountType": "ACCOUNT_TYPE_USER"}
+  ],
+  "nonSnUpdate": {
+    "cardAction": {
+      "actionId": "act_abc123",
+      "senderId": 42,
+      "conversationId": "8589934634",
+      "messageId": "1001",
+      "actionData": "{\"choice\": \"option_a\"}",
+      "verb": "submit_form"
+    }
   }
 }
 ```
@@ -109,36 +113,43 @@ Respond via `MessageService.AnswerCardAction` (toast/alert) or update the card v
 
 ### CONTACT_ADDED
 
-User added the Agent as a contact. Good place to send a welcome message.
+User added the Agent as a contact. Good place to send a welcome message. This is a sequenced update — check for the `snUpdate.contactAdded` field.
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_CONTACT_ADDED",
-  "timestamp": "1712000000000",
-  "relatedUsers": [{"userId": 42, "nickname": "Alice"}],
-  "contactAdded": {"userId": 42}
+  "users": [
+    {"userId": 42, "nickname": "Alice"}
+  ],
+  "snUpdate": {
+    "sn": 2,
+    "contactAdded": {"peerUserId": 42}
+  }
 }
 ```
 
 ### REMOVED_FROM_GROUP
 
-Agent was removed from a group by the owner.
+Agent was removed from a group by the owner. This is a sequenced update — check for the `snUpdate.removedFromGroup` field.
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_REMOVED_FROM_GROUP",
-  "removedFromGroup": {"groupId": 100, "operatorId": 1}
+  "snUpdate": {
+    "sn": 3,
+    "removedFromGroup": {"groupId": 100, "operatorId": 1}
+  }
 }
 ```
 
 ### GROUP_DISSOLVED
 
-A group the Agent belongs to was dissolved.
+A group the Agent belongs to was dissolved. This is a sequenced update — check for the `snUpdate.groupDissolved` field.
 
 ```json
 {
-  "eventType": "WEBHOOK_EVENT_TYPE_GROUP_DISSOLVED",
-  "groupDissolved": {"groupId": 100, "operatorId": 1}
+  "snUpdate": {
+    "sn": 4,
+    "groupDissolved": {"groupId": 100, "operatorId": 1}
+  }
 }
 ```
 
