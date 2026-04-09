@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-RELEASES_URL="${NEXUS_RELEASES_URL:-https://xsyphon-nexus-dev-media.s3.amazonaws.com/releases/cli.json}"
+RELEASES_URL="${NEXUS_RELEASES_URL:-__RELEASES_URL_PLACEHOLDER__}"
 INSTALL_DIR="${NEXUS_INSTALL_DIR:-$HOME/.local/bin}"
 BINARY_NAME="nexus-cli"
 
@@ -20,6 +20,15 @@ err()   { printf '\033[1;31mError: %s\033[0m\n' "$*" >&2; exit 1; }
 
 need_cmd() {
   command -v "$1" >/dev/null 2>&1 || err "Required command not found: $1"
+}
+
+# Validate that the releases URL was injected at build time.
+validate_releases_url() {
+  case "$RELEASES_URL" in
+    *PLACEHOLDER*|"")
+      err "This install script was not built correctly (missing releases URL)."
+      ;;
+  esac
 }
 
 # ── Detect OS / Arch ──
@@ -203,6 +212,7 @@ main() {
   info "Nexus CLI Installer"
   echo ""
   detect_platform
+  validate_releases_url
   fetch_release
   install
   echo ""

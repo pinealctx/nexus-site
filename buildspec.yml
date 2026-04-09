@@ -25,6 +25,12 @@ phases:
         mkdir -p public/releases
         aws s3 cp "s3://${S3_BUCKET}/releases/cli.json" public/releases/cli.json && echo "  cli.json OK" || echo "  WARN: cli.json not found, using local fallback"
         aws s3 cp "s3://${S3_BUCKET}/releases/desktop.json" public/releases/desktop.json && echo "  desktop.json OK" || echo "  WARN: desktop.json not found, using local fallback"
+      - |
+        echo "Injecting releases URL into install scripts ..."
+        CLI_RELEASES_URL="https://${S3_BUCKET}.s3.amazonaws.com/releases/cli.json"
+        sed -i "s|__RELEASES_URL_PLACEHOLDER__|${CLI_RELEASES_URL}|g" public/install.sh
+        sed -i "s|__RELEASES_URL_PLACEHOLDER__|${CLI_RELEASES_URL}|g" public/install.ps1
+        echo "  URL: ${CLI_RELEASES_URL}"
 
   build:
     commands:

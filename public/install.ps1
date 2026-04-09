@@ -6,13 +6,17 @@
 
 $ErrorActionPreference = "Stop"
 
-$ReleasesUrl = if ($env:NEXUS_RELEASES_URL) { $env:NEXUS_RELEASES_URL } else { "https://xsyphon-nexus-dev-media.s3.amazonaws.com/releases/cli.json" }
+$ReleasesUrl = if ($env:NEXUS_RELEASES_URL) { $env:NEXUS_RELEASES_URL } else { "__RELEASES_URL_PLACEHOLDER__" }
 $InstallDir  = if ($env:NEXUS_INSTALL_DIR)  { $env:NEXUS_INSTALL_DIR }  else { Join-Path $HOME ".local\bin" }
 $BinaryName  = "nexus-cli.exe"
 
 function Write-Info  { param($msg) Write-Host $msg -ForegroundColor Cyan }
 function Write-Ok    { param($msg) Write-Host $msg -ForegroundColor Green }
 function Write-Err   { param($msg) Write-Host "Error: $msg" -ForegroundColor Red; exit 1 }
+
+if ($ReleasesUrl -like "*PLACEHOLDER*") {
+    Write-Err "This install script was not built correctly (missing releases URL)."
+}
 
 # ── Detect Arch ──
 
