@@ -19,9 +19,28 @@ export interface ProductRelease {
   assets: ReleaseAsset[];
 }
 
-function loadRelease(filename: string): ProductRelease {
-  const filePath = join(process.cwd(), "public", "releases", filename);
+const S3_BUCKET = process.env.S3_BUCKET;
+const RELEASES_BASE_URL = S3_BUCKET ? `https://${S3_BUCKET}.s3.amazonaws.com/releases` : "";
+const REVALIDATE_SECONDS = 600; // 10-minute TTL
+
+async function loadRelease(filename: string): Promise<ProductRelease> {
+  // Remote fetch with Next.js data cache (TTL = 10 min)
+  if (RELEASES_BASE_URL) {
+    try {
+      const res = await fetch(`${RELEASES_BASE_URL}/${filename}`, {
+        next: { revalidate: REVALIDATE_SECONDS },
+      });
+      if (res.ok) {
+        return res.json();
+      }
+    } catch {
+      // Fall through to local file
+    }
+  }
+
+  // Fallback: local file (build-time copy or dev fixtures)
   try {
+    const filePath = join(process.cwd(), "public", "releases", filename);
     return JSON.parse(readFileSync(filePath, "utf-8"));
   } catch {
     return { version: "0.0.0", release_date: "", assets: [] };
@@ -36,8 +55,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function DownloadPage() {
-  const desktop = loadRelease("desktop.json");
-  const cli = loadRelease("cli.json");
+export default async function DownloadPage() {
+  const [desktop, cli] = await Promise.all([
+    loadRelease("desktop.json"),
+    loadRelease("cli.json"),
+  ]);
   return <DownloadClient desktop={desktop} cli={cli} />;
 }

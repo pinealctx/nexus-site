@@ -7,6 +7,10 @@ const withMDX = createMDX();
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  outputFileTracingIncludes: {
+    "/install.sh": ["./lib/install-scripts/install.sh"],
+    "/install.ps1": ["./lib/install-scripts/install.ps1"],
+  },
 };
 
 export default withMDX(withNextIntl(nextConfig));
