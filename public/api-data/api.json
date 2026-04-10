@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-10T11:38:41.956Z",
+  "generatedAt": "2026-04-10T15:56:22.130Z",
   "services": [
     {
       "name": "AgentService",
@@ -3051,6 +3051,40 @@
           "jsonName": "gateway",
           "type": "api.v1.GatewayEndpoints",
           "description": "Gateway connection endpoints.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "login",
+          "jsonName": "login",
+          "type": "api.v1.LoginConfig",
+          "description": "Login method configuration.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.LoginConfig": {
+      "name": "LoginConfig",
+      "fullName": "api.v1.LoginConfig",
+      "description": "LoginConfig describes which login methods are enabled on this server.",
+      "fields": [
+        {
+          "name": "email_enabled",
+          "jsonName": "emailEnabled",
+          "type": "bool",
+          "description": "Whether email-based login (verify code + password) is enabled.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "phone_enabled",
+          "jsonName": "phoneEnabled",
+          "type": "bool",
+          "description": "Whether phone-based login (verify code + password) is enabled.",
           "optional": false,
           "repeated": false,
           "sensitive": false
