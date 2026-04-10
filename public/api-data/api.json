@@ -1,15 +1,15 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-09T08:23:06.685Z",
+  "generatedAt": "2026-04-10T11:38:41.956Z",
   "services": [
     {
       "name": "AgentService",
       "fullName": "api.v1.AgentService",
-      "description": "AgentService handles agent discovery (client side) and agent\nself-management (agent side, agent_only).\n\nAgent lifecycle (client side):\n- Users discover agents via ContactService.SearchUsers (account_type=AGENT).\n- Users browse featured agents via ListFeaturedAgents.\n- Users view agent details via GetAgentDetail.\n- Users add agents as contacts via ContactService.AddContact.\n- Users remove agent contacts via ContactService.DeleteContact.\n- Users list their agent contacts via ContactService.ListContacts (filtered by account_type = \"agent\").\n\nAgent self-management (agent_only):\n- Agents view their own profile via GetSelfAgent.\n- Agents update profile fields via UpdateSelfAgent.\n- Agents permanently delete themselves via DeleteSelfAgent.\n- Agents regenerate their token via RevokeSelfToken.\n- Agents configure event delivery via SetDeliveryConfig.\n\nRelationship to other services:\n- Adding an agent creates a conversation (type = AGENT) visible in ConversationService.ListConversations.\n- Adding an agent to a group is handled by GroupService.AddAgent.",
+      "description": "AgentService handles agent discovery, Mini App launch, and developer\nmanagement of agents.\n\nDiscovery (any authenticated identity):\n- Users browse featured agents via ListFeaturedAgents.\n- Users view agent public profile via GetAgentInfo.\n\nMini App launch (user_only):\n- Users obtain signed initData to launch a Mini App via GetMiniAppLaunchData.\n\nDeveloper management (user_only):\n- Developers create agents via CreateAgent.\n- Developers list their agents via ListMyAgents.\n- Developers view full agent profile via GetMyAgent.\n- Developers update agent config via SetAgentConfig.\n- Developers delete agents via DeleteMyAgent.\n- Developers regenerate agent token via RegenerateAgentToken.\n- Developers regenerate agent secret key via RegenerateAgentSecretKey.\n- Developers configure Mini App via SetAgentMiniApp.\n\nRelationship to other services:\n- Adding an agent creates a conversation (type = AGENT) visible in ConversationService.ListConversations.\n- Adding an agent to a group is handled by GroupService.AddAgent.",
       "methods": [
         {
           "name": "ListFeaturedAgents",
-          "description": "ListFeaturedAgents returns a batch of recommended agents for the\ndiscovery page. No pagination; call again to get a different batch.\nThe recommendation strategy may change over time.",
+          "description": "ListFeaturedAgents returns a batch of recommended agents for the\ndiscovery page. No pagination; call again to get a different batch.",
           "httpPath": "/api.v1.AgentService/ListFeaturedAgents",
           "options": {
             "agentOnly": false,
@@ -20,83 +20,131 @@
           "outputType": "api.v1.ListFeaturedAgentsResponse"
         },
         {
-          "name": "GetAgentDetail",
-          "description": "GetAgentDetail returns detailed info for a specific agent.\n\nError conditions:\n- NOT_FOUND: Agent does not exist or has been deleted.",
-          "httpPath": "/api.v1.AgentService/GetAgentDetail",
+          "name": "GetAgentInfo",
+          "description": "GetAgentInfo returns public profile info for a specific agent.\n\nError conditions:\n- NOT_FOUND: Agent does not exist or has been deleted.",
+          "httpPath": "/api.v1.AgentService/GetAgentInfo",
           "options": {
             "agentOnly": false,
             "userOnly": false,
             "skipAuth": false
           },
-          "inputType": "api.v1.GetAgentDetailRequest",
-          "outputType": "api.v1.GetAgentDetailResponse"
+          "inputType": "api.v1.GetAgentInfoRequest",
+          "outputType": "api.v1.GetAgentInfoResponse"
         },
         {
-          "name": "GetSelfAgent",
-          "description": "GetSelfAgent returns the current agent's profile.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired agent token.",
-          "httpPath": "/api.v1.AgentService/GetSelfAgent",
+          "name": "GetMiniAppLaunchData",
+          "description": "GetMiniAppLaunchData generates signed initData for launching a Mini App.\n\nError conditions:\n- FAILED_PRECONDITION: Agent has not enabled Mini App.\n- PERMISSION_DENIED: User has no access to this agent or conversation_id mismatch.",
+          "httpPath": "/api.v1.AgentService/GetMiniAppLaunchData",
           "options": {
             "skipAuth": false,
-            "agentOnly": true,
-            "userOnly": false
+            "agentOnly": false,
+            "userOnly": true
           },
-          "inputType": "api.v1.GetSelfAgentRequest",
-          "outputType": "api.v1.GetSelfAgentResponse"
+          "inputType": "api.v1.GetMiniAppLaunchDataRequest",
+          "outputType": "api.v1.GetMiniAppLaunchDataResponse"
         },
         {
-          "name": "UpdateSelfAgent",
-          "description": "UpdateSelfAgent updates the current agent's profile fields.\n\nSide effects:\n- If visibility changes from PRIVATE to PUBLIC, the agent becomes discoverable in the client-facing agent directory.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired agent token.\n- INVALID_ARGUMENT: Invalid field values.",
-          "httpPath": "/api.v1.AgentService/UpdateSelfAgent",
+          "name": "CreateAgent",
+          "description": "CreateAgent creates a new agent on behalf of the authenticated user.\n\nSide effects:\n- Establishes bidirectional contact relationship between developer and agent.\n- Auto-generates Agent Token and secret_key.\n\nError conditions:\n- ALREADY_EXISTS: Username is taken.\n- INVALID_ARGUMENT: Invalid username or name.",
+          "httpPath": "/api.v1.AgentService/CreateAgent",
           "options": {
             "skipAuth": false,
-            "agentOnly": true,
-            "userOnly": false
+            "agentOnly": false,
+            "userOnly": true
           },
-          "inputType": "api.v1.UpdateSelfAgentRequest",
-          "outputType": "api.v1.UpdateSelfAgentResponse"
+          "inputType": "api.v1.CreateAgentRequest",
+          "outputType": "api.v1.CreateAgentResponse"
         },
         {
-          "name": "DeleteSelfAgent",
-          "description": "DeleteSelfAgent permanently deletes the current agent.\n\nSide effects:\n- Sets agent status to DELETED.\n- Removes the agent from all group memberships.\n- Existing conversations with this agent become read-only.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired agent token.",
-          "httpPath": "/api.v1.AgentService/DeleteSelfAgent",
+          "name": "ListMyAgents",
+          "description": "ListMyAgents lists all agents created by the authenticated user.",
+          "httpPath": "/api.v1.AgentService/ListMyAgents",
           "options": {
             "skipAuth": false,
-            "agentOnly": true,
-            "userOnly": false
+            "agentOnly": false,
+            "userOnly": true
           },
-          "inputType": "api.v1.DeleteSelfAgentRequest",
-          "outputType": "api.v1.DeleteSelfAgentResponse"
+          "inputType": "api.v1.ListMyAgentsRequest",
+          "outputType": "api.v1.ListMyAgentsResponse"
         },
         {
-          "name": "RevokeSelfToken",
-          "description": "RevokeSelfToken revokes the current agent token and issues a new one.\n\nSide effects:\n- The current token becomes invalid immediately.\n- A new token is returned in the response.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired agent token.",
-          "httpPath": "/api.v1.AgentService/RevokeSelfToken",
+          "name": "GetMyAgent",
+          "description": "GetMyAgent returns the full profile of an agent owned by the authenticated user.\n\nError conditions:\n- NOT_FOUND: Agent does not exist.\n- PERMISSION_DENIED: Caller is not the agent creator.",
+          "httpPath": "/api.v1.AgentService/GetMyAgent",
           "options": {
             "skipAuth": false,
-            "agentOnly": true,
-            "userOnly": false
+            "agentOnly": false,
+            "userOnly": true
           },
-          "inputType": "api.v1.RevokeSelfTokenRequest",
-          "outputType": "api.v1.RevokeSelfTokenResponse"
+          "inputType": "api.v1.GetMyAgentRequest",
+          "outputType": "api.v1.GetMyAgentResponse"
         },
         {
-          "name": "SetDeliveryConfig",
-          "description": "SetDeliveryConfig configures the agent's event delivery mode.\nSupports three modes via oneof: webhook (HTTPS POST), websocket\n(persistent /ws/agent connection), or none (stop all delivery).\nModes are mutually exclusive; setting one clears the other.\n\nSide effects (webhook mode):\n- Verifies the URL with a test request before saving.\n- Generates a new signing secret (replaces any existing secret).\n- Forces delivery_mode to WEBHOOK.\nSide effects (websocket mode):\n- Clears any configured webhook URL and secret.\n- Forces delivery_mode to WEBSOCKET.\nSide effects (none mode):\n- Clears webhook config and resets delivery_mode to WEBHOOK.\n- Stops all event delivery until reconfigured.\n\nError conditions:\n- FAILED_PRECONDITION: Agent is deleted.\n- INVALID_ARGUMENT: Webhook URL is not a valid HTTPS endpoint.\n- FAILED_PRECONDITION: Webhook URL verification failed.",
-          "httpPath": "/api.v1.AgentService/SetDeliveryConfig",
+          "name": "SetAgentConfig",
+          "description": "SetAgentConfig updates configuration fields of an agent.\nOnly provided fields are updated; omitted fields remain unchanged.\nWhen delivery_mode is set to WEBHOOK, webhook_url must also be provided.\n\nError conditions:\n- NOT_FOUND: Agent does not exist.\n- PERMISSION_DENIED: Caller is not the agent creator.\n- INVALID_ARGUMENT: Invalid field values or webhook URL.",
+          "httpPath": "/api.v1.AgentService/SetAgentConfig",
           "options": {
             "skipAuth": false,
-            "agentOnly": true,
-            "userOnly": false
+            "agentOnly": false,
+            "userOnly": true
           },
-          "inputType": "api.v1.SetDeliveryConfigRequest",
-          "outputType": "api.v1.SetDeliveryConfigResponse"
+          "inputType": "api.v1.SetAgentConfigRequest",
+          "outputType": "api.v1.SetAgentConfigResponse"
+        },
+        {
+          "name": "DeleteMyAgent",
+          "description": "DeleteMyAgent permanently deletes an agent owned by the authenticated user.\n\nSide effects:\n- Sets agent status to DELETED.\n- Removes the agent from all group memberships.\n- Existing conversations become read-only.\n\nError conditions:\n- NOT_FOUND: Agent does not exist.\n- PERMISSION_DENIED: Caller is not the agent creator.",
+          "httpPath": "/api.v1.AgentService/DeleteMyAgent",
+          "options": {
+            "skipAuth": false,
+            "agentOnly": false,
+            "userOnly": true
+          },
+          "inputType": "api.v1.DeleteMyAgentRequest",
+          "outputType": "api.v1.DeleteMyAgentResponse"
+        },
+        {
+          "name": "RegenerateAgentToken",
+          "description": "RegenerateAgentToken regenerates the API token for an agent.\nThe old token becomes invalid immediately.\n\nError conditions:\n- NOT_FOUND: Agent does not exist.\n- PERMISSION_DENIED: Caller is not the agent creator.",
+          "httpPath": "/api.v1.AgentService/RegenerateAgentToken",
+          "options": {
+            "skipAuth": false,
+            "agentOnly": false,
+            "userOnly": true
+          },
+          "inputType": "api.v1.RegenerateAgentTokenRequest",
+          "outputType": "api.v1.RegenerateAgentTokenResponse"
+        },
+        {
+          "name": "RegenerateAgentSecretKey",
+          "description": "RegenerateAgentSecretKey regenerates the HMAC secret key for an agent.\nThe old key becomes invalid immediately.\n\nError conditions:\n- NOT_FOUND: Agent does not exist.\n- PERMISSION_DENIED: Caller is not the agent creator.",
+          "httpPath": "/api.v1.AgentService/RegenerateAgentSecretKey",
+          "options": {
+            "skipAuth": false,
+            "agentOnly": false,
+            "userOnly": true
+          },
+          "inputType": "api.v1.RegenerateAgentSecretKeyRequest",
+          "outputType": "api.v1.RegenerateAgentSecretKeyResponse"
+        },
+        {
+          "name": "SetAgentMiniApp",
+          "description": "SetAgentMiniApp configures the Mini App for an agent.\n\nError conditions:\n- NOT_FOUND: Agent does not exist.\n- PERMISSION_DENIED: Caller is not the agent creator.\n- INVALID_ARGUMENT: URL is not a valid HTTPS URL.",
+          "httpPath": "/api.v1.AgentService/SetAgentMiniApp",
+          "options": {
+            "skipAuth": false,
+            "agentOnly": false,
+            "userOnly": true
+          },
+          "inputType": "api.v1.SetAgentMiniAppRequest",
+          "outputType": "api.v1.SetAgentMiniAppResponse"
         }
       ]
     },
     {
       "name": "UserService",
       "fullName": "api.v1.UserService",
-      "description": "UserService handles user profile, device sessions, and username resolution.\nAuthenticated via Access Token.",
+      "description": "UserService handles user profile, device sessions, and username resolution.\nAuthenticated via Access Token (User or Agent).",
       "methods": [
         {
           "name": "GetProfile",
@@ -115,9 +163,9 @@
           "description": "UpdateProfile updates the current user profile fields.\n\nSide effects:\n- If avatar_url changes, the old avatar is not deleted (clients may still cache it).\n- Delivers a UserProfileUpdatedEvent as an SnUpdate to the user's own update stream only (for multi-device sync). Contacts refresh cached profile data on demand.\n\nError conditions:\n- UNAUTHENTICATED: Invalid or expired access token.\n- INVALID_ARGUMENT: Nickname exceeds 64 characters or signature exceeds 200 characters.",
           "httpPath": "/api.v1.UserService/UpdateProfile",
           "options": {
-            "skipAuth": false,
             "agentOnly": false,
-            "userOnly": true
+            "userOnly": false,
+            "skipAuth": false
           },
           "inputType": "api.v1.UpdateProfileRequest",
           "outputType": "api.v1.UpdateProfileResponse"
@@ -1109,10 +1157,10 @@
         }
       ]
     },
-    "shared.v1.AgentDetail": {
-      "name": "AgentDetail",
-      "fullName": "shared.v1.AgentDetail",
-      "description": "AgentDetail is the full detail view of an agent for profile pages.",
+    "shared.v1.AgentInfo": {
+      "name": "AgentInfo",
+      "fullName": "shared.v1.AgentInfo",
+      "description": "AgentInfo is the public profile view of an agent, visible to all users.",
       "fields": [
         {
           "name": "user",
@@ -1121,15 +1169,6 @@
           "description": "Agent user info (user_id, username, nickname, avatar_url, account_type).\nThe signature field in UserInfo serves as the agent description.",
           "optional": false,
           "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "commands",
-          "jsonName": "commands",
-          "type": "shared.v1.AgentCommandInfo",
-          "description": "Registered slash commands.",
-          "optional": false,
-          "repeated": true,
           "sensitive": false
         },
         {
@@ -1151,6 +1190,60 @@
           "sensitive": false
         },
         {
+          "name": "visibility",
+          "jsonName": "visibility",
+          "type": "shared.v1.AgentVisibility",
+          "description": "Agent visibility (public/private).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "is_system_agent",
+          "jsonName": "isSystemAgent",
+          "type": "bool",
+          "description": "Whether this is a system agent (e.g. AgentRoot).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "commands",
+          "jsonName": "commands",
+          "type": "shared.v1.AgentCommandInfo",
+          "description": "Registered slash commands.",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        },
+        {
+          "name": "mini_app_enabled",
+          "jsonName": "miniAppEnabled",
+          "type": "bool",
+          "description": "Whether Mini App is enabled for this agent.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "mini_app_url",
+          "jsonName": "miniAppUrl",
+          "type": "string",
+          "description": "Mini App entry URL (HTTPS).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "mini_app_permissions",
+          "jsonName": "miniAppPermissions",
+          "type": "int32",
+          "description": "Mini App permission bitmask.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
           "name": "created_at",
           "jsonName": "createdAt",
           "type": "int64",
@@ -1164,8 +1257,17 @@
     "shared.v1.AgentProfile": {
       "name": "AgentProfile",
       "fullName": "shared.v1.AgentProfile",
-      "description": "AgentProfile is the self-view of an agent's profile, returned to the\nagent developer via AgentService.GetSelfAgent.",
+      "description": "AgentProfile is the developer-facing full detail of an agent's profile.",
       "fields": [
+        {
+          "name": "user",
+          "jsonName": "user",
+          "type": "shared.v1.UserInfo",
+          "description": "Agent user info (user_id, username, nickname, avatar_url, account_type, signature).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
         {
           "name": "status",
           "jsonName": "status",
@@ -1180,6 +1282,42 @@
           "jsonName": "visibility",
           "type": "shared.v1.AgentVisibility",
           "description": "Agent visibility.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "is_system_agent",
+          "jsonName": "isSystemAgent",
+          "type": "bool",
+          "description": "Whether this is a system agent.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "delivery_mode",
+          "jsonName": "deliveryMode",
+          "type": "shared.v1.AgentDeliveryMode",
+          "description": "Agent event delivery mode.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "token_prefix",
+          "jsonName": "tokenPrefix",
+          "type": "string",
+          "description": "Agent token prefix (e.g. \"nxa_xxxx\") for identification.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "secret_key_prefix",
+          "jsonName": "secretKeyPrefix",
+          "type": "string",
+          "description": "Secret key prefix for identification (e.g. \"abcd1234...\").",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -1203,28 +1341,37 @@
           "sensitive": false
         },
         {
-          "name": "token_prefix",
-          "jsonName": "tokenPrefix",
+          "name": "mini_app_enabled",
+          "jsonName": "miniAppEnabled",
+          "type": "bool",
+          "description": "Whether Mini App is enabled.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "mini_app_url",
+          "jsonName": "miniAppUrl",
           "type": "string",
-          "description": "Agent token prefix (e.g. \"nxa_xxxx\") for identification.",
+          "description": "Mini App entry URL.",
           "optional": false,
           "repeated": false,
           "sensitive": false
         },
         {
-          "name": "webhook_configured",
-          "jsonName": "webhookConfigured",
-          "type": "bool",
-          "description": "Whether a webhook URL is configured.",
+          "name": "mini_app_allowed_origins",
+          "jsonName": "miniAppAllowedOrigins",
+          "type": "string",
+          "description": "Allowed web origins for Mini App security validation.",
           "optional": false,
-          "repeated": false,
+          "repeated": true,
           "sensitive": false
         },
         {
-          "name": "is_system_agent",
-          "jsonName": "isSystemAgent",
-          "type": "bool",
-          "description": "Whether this is a system agent.",
+          "name": "mini_app_permissions",
+          "jsonName": "miniAppPermissions",
+          "type": "int32",
+          "description": "Mini App permission bitmask.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -1246,49 +1393,8 @@
           "optional": false,
           "repeated": false,
           "sensitive": false
-        },
-        {
-          "name": "delivery_mode",
-          "jsonName": "deliveryMode",
-          "type": "shared.v1.AgentDeliveryMode",
-          "description": "Agent event delivery mode.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
         }
       ]
-    },
-    "shared.v1.WebhookDeliveryConfig": {
-      "name": "WebhookDeliveryConfig",
-      "fullName": "shared.v1.WebhookDeliveryConfig",
-      "description": "WebhookDeliveryConfig configures webhook delivery.",
-      "fields": [
-        {
-          "name": "url",
-          "jsonName": "url",
-          "type": "string",
-          "description": "Webhook URL (must be HTTPS).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "minLen": 1,
-            "maxLen": 2048
-          }
-        }
-      ]
-    },
-    "shared.v1.WebSocketDeliveryConfig": {
-      "name": "WebSocketDeliveryConfig",
-      "fullName": "shared.v1.WebSocketDeliveryConfig",
-      "description": "WebSocketDeliveryConfig enables WebSocket delivery.",
-      "fields": []
-    },
-    "shared.v1.NoDeliveryConfig": {
-      "name": "NoDeliveryConfig",
-      "fullName": "shared.v1.NoDeliveryConfig",
-      "description": "NoDeliveryConfig stops all event delivery.",
-      "fields": []
     },
     "api.v1.ListFeaturedAgentsRequest": {
       "name": "ListFeaturedAgentsRequest",
@@ -1318,7 +1424,7 @@
         {
           "name": "agents",
           "jsonName": "agents",
-          "type": "shared.v1.UserInfo",
+          "type": "shared.v1.AgentInfo",
           "description": "Recommended agents.",
           "optional": false,
           "repeated": true,
@@ -1326,10 +1432,10 @@
         }
       ]
     },
-    "api.v1.GetAgentDetailRequest": {
-      "name": "GetAgentDetailRequest",
-      "fullName": "api.v1.GetAgentDetailRequest",
-      "description": "GetAgentDetailRequest requests detailed info for a specific agent.",
+    "api.v1.GetAgentInfoRequest": {
+      "name": "GetAgentInfoRequest",
+      "fullName": "api.v1.GetAgentInfoRequest",
+      "description": "GetAgentInfoRequest requests public profile info for a specific agent.",
       "fields": [
         {
           "name": "agent_user_id",
@@ -1345,89 +1451,251 @@
         }
       ]
     },
-    "api.v1.GetAgentDetailResponse": {
-      "name": "GetAgentDetailResponse",
-      "fullName": "api.v1.GetAgentDetailResponse",
-      "description": "GetAgentDetailResponse contains the agent detail.",
+    "api.v1.GetAgentInfoResponse": {
+      "name": "GetAgentInfoResponse",
+      "fullName": "api.v1.GetAgentInfoResponse",
+      "description": "GetAgentInfoResponse contains the agent public profile.",
       "fields": [
         {
           "name": "agent",
           "jsonName": "agent",
-          "type": "shared.v1.AgentDetail",
-          "description": "Agent detail info.",
+          "type": "shared.v1.AgentInfo",
+          "description": "Agent public profile info.",
           "optional": false,
           "repeated": false,
           "sensitive": false
         }
       ]
     },
-    "api.v1.GetSelfAgentRequest": {
-      "name": "GetSelfAgentRequest",
-      "fullName": "api.v1.GetSelfAgentRequest",
-      "description": "GetSelfAgentRequest requests the current agent profile.",
-      "fields": []
-    },
-    "api.v1.GetSelfAgentResponse": {
-      "name": "GetSelfAgentResponse",
-      "fullName": "api.v1.GetSelfAgentResponse",
-      "description": "GetSelfAgentResponse contains the full agent profile (developer self-view).",
+    "api.v1.GetMiniAppLaunchDataRequest": {
+      "name": "GetMiniAppLaunchDataRequest",
+      "fullName": "api.v1.GetMiniAppLaunchDataRequest",
+      "description": "GetMiniAppLaunchDataRequest requests signed initData for launching a Mini App.",
       "fields": [
         {
-          "name": "user",
-          "jsonName": "user",
-          "type": "shared.v1.UserInfo",
-          "description": "Agent user info (public fields).",
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Target agent user ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        },
+        {
+          "name": "conversation_id",
+          "jsonName": "conversationId",
+          "type": "int64",
+          "description": "Conversation ID (private chat or group chat). Zero means no conversation context.",
           "optional": false,
           "repeated": false,
           "sensitive": false
         },
         {
-          "name": "profile",
-          "jsonName": "profile",
-          "type": "shared.v1.AgentProfile",
-          "description": "Agent profile (developer-visible fields).",
+          "name": "start_param",
+          "jsonName": "startParam",
+          "type": "string",
+          "description": "Start parameter (from Direct Link or Card Action).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "platform",
+          "jsonName": "platform",
+          "type": "string",
+          "description": "Client platform (\"ios\" / \"android\" / \"desktop\").",
           "optional": false,
           "repeated": false,
           "sensitive": false
         }
       ]
     },
-    "api.v1.UpdateSelfAgentRequest": {
-      "name": "UpdateSelfAgentRequest",
-      "fullName": "api.v1.UpdateSelfAgentRequest",
-      "description": "UpdateSelfAgentRequest updates agent profile fields.\nAll fields are optional; only provided fields are updated.",
+    "api.v1.GetMiniAppLaunchDataResponse": {
+      "name": "GetMiniAppLaunchDataResponse",
+      "fullName": "api.v1.GetMiniAppLaunchDataResponse",
+      "description": "GetMiniAppLaunchDataResponse contains the signed initData and Mini App URL.",
       "fields": [
+        {
+          "name": "init_data",
+          "jsonName": "initData",
+          "type": "string",
+          "description": "Signed initData query string.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "mini_app_url",
+          "jsonName": "miniAppUrl",
+          "type": "string",
+          "description": "Mini App entry URL.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.CreateAgentRequest": {
+      "name": "CreateAgentRequest",
+      "fullName": "api.v1.CreateAgentRequest",
+      "description": "CreateAgentRequest creates a new agent.",
+      "fields": [
+        {
+          "name": "username",
+          "jsonName": "username",
+          "type": "string",
+          "description": "Agent unique username.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "minLen": 5,
+            "maxLen": 32
+          }
+        },
         {
           "name": "name",
           "jsonName": "name",
           "type": "string",
-          "description": "New display name.",
-          "optional": true,
+          "description": "Agent display name.",
+          "optional": false,
           "repeated": false,
-          "oneofGroup": "_name",
           "sensitive": false,
           "validation": {
+            "minLen": 1,
             "maxLen": 64
           }
         },
         {
-          "name": "avatar_url",
-          "jsonName": "avatarUrl",
+          "name": "signature",
+          "jsonName": "signature",
           "type": "string",
-          "description": "New avatar URL.",
-          "optional": true,
+          "description": "Agent signature / description.",
+          "optional": false,
           "repeated": false,
-          "oneofGroup": "_avatar_url",
           "sensitive": false,
           "validation": {
-            "maxLen": 2048
+            "maxLen": 256
+          }
+        }
+      ]
+    },
+    "api.v1.CreateAgentResponse": {
+      "name": "CreateAgentResponse",
+      "fullName": "api.v1.CreateAgentResponse",
+      "description": "CreateAgentResponse contains the created agent credentials and profile.",
+      "fields": [
+        {
+          "name": "profile",
+          "jsonName": "profile",
+          "type": "shared.v1.AgentProfile",
+          "description": "Full agent profile.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "token",
+          "jsonName": "token",
+          "type": "string",
+          "description": "Generated API token (plaintext, returned only once).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": true
+        },
+        {
+          "name": "secret_key",
+          "jsonName": "secretKey",
+          "type": "string",
+          "description": "Generated HMAC secret key (plaintext, returned only once).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": true
+        }
+      ]
+    },
+    "api.v1.ListMyAgentsRequest": {
+      "name": "ListMyAgentsRequest",
+      "fullName": "api.v1.ListMyAgentsRequest",
+      "description": "ListMyAgentsRequest lists agents owned by the authenticated user.",
+      "fields": []
+    },
+    "api.v1.ListMyAgentsResponse": {
+      "name": "ListMyAgentsResponse",
+      "fullName": "api.v1.ListMyAgentsResponse",
+      "description": "ListMyAgentsResponse contains the agent list.",
+      "fields": [
+        {
+          "name": "agents",
+          "jsonName": "agents",
+          "type": "shared.v1.AgentProfile",
+          "description": "Agent profiles (developer-visible details).",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.GetMyAgentRequest": {
+      "name": "GetMyAgentRequest",
+      "fullName": "api.v1.GetMyAgentRequest",
+      "description": "GetMyAgentRequest requests the full profile of a specific agent.",
+      "fields": [
+        {
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Target agent user ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        }
+      ]
+    },
+    "api.v1.GetMyAgentResponse": {
+      "name": "GetMyAgentResponse",
+      "fullName": "api.v1.GetMyAgentResponse",
+      "description": "GetMyAgentResponse contains the full agent profile.",
+      "fields": [
+        {
+          "name": "profile",
+          "jsonName": "profile",
+          "type": "shared.v1.AgentProfile",
+          "description": "Agent profile (developer-visible fields, includes user info).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.SetAgentConfigRequest": {
+      "name": "SetAgentConfigRequest",
+      "fullName": "api.v1.SetAgentConfigRequest",
+      "description": "SetAgentConfigRequest updates agent configuration fields.\nOnly provided fields are updated; omitted fields remain unchanged.",
+      "fields": [
+        {
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Target agent user ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
           }
         },
         {
           "name": "visibility",
           "jsonName": "visibility",
           "type": "shared.v1.AgentVisibility",
-          "description": "New visibility setting.",
+          "description": "Visibility setting.",
           "optional": true,
           "repeated": false,
           "oneofGroup": "_visibility",
@@ -1437,7 +1705,7 @@
           "name": "ip_whitelist",
           "jsonName": "ipWhitelist",
           "type": "string",
-          "description": "New IP whitelist (replaces existing). Pass empty list to clear.",
+          "description": "IP whitelist (replaces existing). Pass empty list to clear.",
           "optional": false,
           "repeated": true,
           "sensitive": false,
@@ -1454,102 +1722,193 @@
           "repeated": false,
           "oneofGroup": "_commands",
           "sensitive": false
-        }
-      ]
-    },
-    "api.v1.UpdateSelfAgentResponse": {
-      "name": "UpdateSelfAgentResponse",
-      "fullName": "api.v1.UpdateSelfAgentResponse",
-      "description": "UpdateSelfAgentResponse is returned after the agent is updated.",
-      "fields": []
-    },
-    "api.v1.DeleteSelfAgentRequest": {
-      "name": "DeleteSelfAgentRequest",
-      "fullName": "api.v1.DeleteSelfAgentRequest",
-      "description": "DeleteSelfAgentRequest permanently deletes the current agent.",
-      "fields": []
-    },
-    "api.v1.DeleteSelfAgentResponse": {
-      "name": "DeleteSelfAgentResponse",
-      "fullName": "api.v1.DeleteSelfAgentResponse",
-      "description": "DeleteSelfAgentResponse is returned after the agent is deleted.",
-      "fields": []
-    },
-    "api.v1.RevokeSelfTokenRequest": {
-      "name": "RevokeSelfTokenRequest",
-      "fullName": "api.v1.RevokeSelfTokenRequest",
-      "description": "RevokeSelfTokenRequest revokes the current agent token.",
-      "fields": []
-    },
-    "api.v1.RevokeSelfTokenResponse": {
-      "name": "RevokeSelfTokenResponse",
-      "fullName": "api.v1.RevokeSelfTokenResponse",
-      "description": "RevokeSelfTokenResponse contains the new agent token.",
-      "fields": [
-        {
-          "name": "new_token",
-          "jsonName": "newToken",
-          "type": "string",
-          "description": "New agent token (nxa_xxx format).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": true
-        }
-      ]
-    },
-    "api.v1.SetDeliveryConfigRequest": {
-      "name": "SetDeliveryConfigRequest",
-      "fullName": "api.v1.SetDeliveryConfigRequest",
-      "description": "SetDeliveryConfigRequest configures the agent's event delivery mode.",
-      "fields": [
-        {
-          "name": "webhook",
-          "jsonName": "webhook",
-          "type": "shared.v1.WebhookDeliveryConfig",
-          "description": "Switch to WEBHOOK mode with the given URL.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "config",
-          "sensitive": false
         },
         {
-          "name": "websocket",
-          "jsonName": "websocket",
-          "type": "shared.v1.WebSocketDeliveryConfig",
-          "description": "Switch to WEBSOCKET mode.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "config",
-          "sensitive": false
-        },
-        {
-          "name": "none",
-          "jsonName": "none",
-          "type": "shared.v1.NoDeliveryConfig",
-          "description": "Stop all delivery (WEBHOOK mode with no URL).",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "config",
-          "sensitive": false
-        }
-      ]
-    },
-    "api.v1.SetDeliveryConfigResponse": {
-      "name": "SetDeliveryConfigResponse",
-      "fullName": "api.v1.SetDeliveryConfigResponse",
-      "description": "SetDeliveryConfigResponse is returned after delivery config is set.",
-      "fields": [
-        {
-          "name": "webhook_secret",
-          "jsonName": "webhookSecret",
-          "type": "string",
-          "description": "Server-generated HMAC-SHA256 signing secret (webhook mode only).\nEmpty for websocket and none modes.",
+          "name": "delivery_mode",
+          "jsonName": "deliveryMode",
+          "type": "shared.v1.AgentDeliveryMode",
+          "description": "Event delivery mode.",
           "optional": true,
           "repeated": false,
-          "oneofGroup": "_webhook_secret",
+          "oneofGroup": "_delivery_mode",
+          "sensitive": false
+        },
+        {
+          "name": "webhook_url",
+          "jsonName": "webhookUrl",
+          "type": "string",
+          "description": "Webhook URL (required when delivery_mode is WEBHOOK, must be HTTPS).",
+          "optional": true,
+          "repeated": false,
+          "oneofGroup": "_webhook_url",
+          "sensitive": false,
+          "validation": {
+            "maxLen": 2048
+          }
+        }
+      ]
+    },
+    "api.v1.SetAgentConfigResponse": {
+      "name": "SetAgentConfigResponse",
+      "fullName": "api.v1.SetAgentConfigResponse",
+      "description": "SetAgentConfigResponse is returned after the agent config is updated.",
+      "fields": []
+    },
+    "api.v1.DeleteMyAgentRequest": {
+      "name": "DeleteMyAgentRequest",
+      "fullName": "api.v1.DeleteMyAgentRequest",
+      "description": "DeleteMyAgentRequest permanently deletes an agent.",
+      "fields": [
+        {
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Target agent user ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        }
+      ]
+    },
+    "api.v1.DeleteMyAgentResponse": {
+      "name": "DeleteMyAgentResponse",
+      "fullName": "api.v1.DeleteMyAgentResponse",
+      "description": "DeleteMyAgentResponse is returned after the agent is deleted.",
+      "fields": []
+    },
+    "api.v1.RegenerateAgentTokenRequest": {
+      "name": "RegenerateAgentTokenRequest",
+      "fullName": "api.v1.RegenerateAgentTokenRequest",
+      "description": "RegenerateAgentTokenRequest regenerates an agent API token.",
+      "fields": [
+        {
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Target agent user ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        }
+      ]
+    },
+    "api.v1.RegenerateAgentTokenResponse": {
+      "name": "RegenerateAgentTokenResponse",
+      "fullName": "api.v1.RegenerateAgentTokenResponse",
+      "description": "RegenerateAgentTokenResponse contains the new token.",
+      "fields": [
+        {
+          "name": "token",
+          "jsonName": "token",
+          "type": "string",
+          "description": "New API token (nxa_xxx format).",
+          "optional": false,
+          "repeated": false,
           "sensitive": true
         }
       ]
+    },
+    "api.v1.RegenerateAgentSecretKeyRequest": {
+      "name": "RegenerateAgentSecretKeyRequest",
+      "fullName": "api.v1.RegenerateAgentSecretKeyRequest",
+      "description": "RegenerateAgentSecretKeyRequest regenerates an agent HMAC secret key.",
+      "fields": [
+        {
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Target agent user ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        }
+      ]
+    },
+    "api.v1.RegenerateAgentSecretKeyResponse": {
+      "name": "RegenerateAgentSecretKeyResponse",
+      "fullName": "api.v1.RegenerateAgentSecretKeyResponse",
+      "description": "RegenerateAgentSecretKeyResponse contains the new secret key.",
+      "fields": [
+        {
+          "name": "secret_key",
+          "jsonName": "secretKey",
+          "type": "string",
+          "description": "New HMAC secret key (plaintext).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": true
+        }
+      ]
+    },
+    "api.v1.SetAgentMiniAppRequest": {
+      "name": "SetAgentMiniAppRequest",
+      "fullName": "api.v1.SetAgentMiniAppRequest",
+      "description": "SetAgentMiniAppRequest configures the Mini App for an agent.",
+      "fields": [
+        {
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Target agent user ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        },
+        {
+          "name": "enabled",
+          "jsonName": "enabled",
+          "type": "bool",
+          "description": "Whether to enable Mini App.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "url",
+          "jsonName": "url",
+          "type": "string",
+          "description": "Mini App entry URL (must be HTTPS).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "allowed_origins",
+          "jsonName": "allowedOrigins",
+          "type": "string",
+          "description": "Allowed web origins for security validation.",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        },
+        {
+          "name": "permissions",
+          "jsonName": "permissions",
+          "type": "int32",
+          "description": "Permission bitmask.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.SetAgentMiniAppResponse": {
+      "name": "SetAgentMiniAppResponse",
+      "fullName": "api.v1.SetAgentMiniAppResponse",
+      "description": "SetAgentMiniAppResponse is returned after Mini App config is set.",
+      "fields": []
     },
     "api.v1.User": {
       "name": "User",
@@ -3677,98 +4036,6 @@
         }
       ]
     },
-    "shared.v1.HeartbeatPing": {
-      "name": "HeartbeatPing",
-      "fullName": "shared.v1.HeartbeatPing",
-      "description": "HeartbeatPing is an empty keepalive frame sent by the client at\nregular intervals. Used by both user and agent WebSocket connections.",
-      "fields": []
-    },
-    "shared.v1.HeartbeatPong": {
-      "name": "HeartbeatPong",
-      "fullName": "shared.v1.HeartbeatPong",
-      "description": "HeartbeatPong is the server response to a HeartbeatPing.",
-      "fields": [
-        {
-          "name": "server_time",
-          "jsonName": "serverTime",
-          "type": "int64",
-          "description": "Server timestamp (Unix ms). Clients can use this for clock drift\nestimation.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.GatewayAuthResponse": {
-      "name": "GatewayAuthResponse",
-      "fullName": "shared.v1.GatewayAuthResponse",
-      "description": "GatewayAuthResponse carries the authentication result for both user\nand agent WebSocket connections.",
-      "fields": [
-        {
-          "name": "success",
-          "jsonName": "success",
-          "type": "bool",
-          "description": "Whether authentication succeeded.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "user_id",
-          "jsonName": "userId",
-          "type": "int32",
-          "description": "Authenticated user ID (for agents this is agent_user_id).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "error_code",
-          "jsonName": "errorCode",
-          "type": "int32",
-          "description": "Business error code on failure (from ErrorDetail code space).",
-          "optional": true,
-          "repeated": false,
-          "oneofGroup": "_error_code",
-          "sensitive": false
-        },
-        {
-          "name": "error_message",
-          "jsonName": "errorMessage",
-          "type": "string",
-          "description": "Human-readable error message on failure.",
-          "optional": true,
-          "repeated": false,
-          "oneofGroup": "_error_message",
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.GatewayErrorFrame": {
-      "name": "GatewayErrorFrame",
-      "fullName": "shared.v1.GatewayErrorFrame",
-      "description": "GatewayErrorFrame carries connection-level error information.",
-      "fields": [
-        {
-          "name": "error",
-          "jsonName": "error",
-          "type": "shared.v1.ErrorDetail",
-          "description": "Structured error detail with error_code and error_name.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "fatal",
-          "jsonName": "fatal",
-          "type": "bool",
-          "description": "Whether the client should close the connection after this error.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
     "shared.v1.GroupContent": {
       "name": "GroupContent",
       "fullName": "shared.v1.GroupContent",
@@ -4950,7 +5217,7 @@
     "shared.v1.NonSnUpdate": {
       "name": "NonSnUpdate",
       "fullName": "shared.v1.NonSnUpdate",
-      "description": "NonSnUpdate is a non-sequenced, ephemeral update pushed in real time.\nClients do not track sn for these.",
+      "description": "NonSnUpdate is a non-sequenced, ephemeral update pushed in real time.\nClients and agents do not track sn for these. Used for:\n- Stream DELTA (real-time text generation push)\n- CardActionAnswer (agent's toast/alert response to a card action)\n- CardActionPayload (user's card action submission, delivered to agent)",
       "fields": [
         {
           "name": "message_envelope",
@@ -4971,6 +5238,16 @@
           "repeated": false,
           "oneofGroup": "update",
           "sensitive": false
+        },
+        {
+          "name": "card_action",
+          "jsonName": "cardAction",
+          "type": "shared.v1.CardActionPayload",
+          "description": "Card action submission from a user (delivered to agent, ephemeral).",
+          "optional": false,
+          "repeated": false,
+          "oneofGroup": "update",
+          "sensitive": false
         }
       ]
     },
@@ -4983,7 +5260,34 @@
           "name": "action_id",
           "jsonName": "actionId",
           "type": "string",
-          "description": "Action ID.",
+          "description": "Server-assigned action ID (matches CardActionPayload.action_id).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "conversation_id",
+          "jsonName": "conversationId",
+          "type": "int64",
+          "description": "Conversation where the card action was submitted.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "message_id",
+          "jsonName": "messageId",
+          "type": "int64",
+          "description": "Card message ID that the action belongs to.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "agent_user_id",
+          "jsonName": "agentUserId",
+          "type": "int32",
+          "description": "Agent user ID that produced this answer.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -5002,6 +5306,67 @@
           "jsonName": "showAlert",
           "type": "bool",
           "description": "Whether to show as alert dialog (true) or toast (false).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "shared.v1.CardActionPayload": {
+      "name": "CardActionPayload",
+      "fullName": "shared.v1.CardActionPayload",
+      "description": "CardActionPayload contains an Adaptive Card Action.Submit event.\nPushed as NonSnUpdate to the agent that owns the card.\nThis is an ephemeral event — not sequenced and not persisted.",
+      "fields": [
+        {
+          "name": "action_id",
+          "jsonName": "actionId",
+          "type": "string",
+          "description": "Server-assigned action ID (use in AnswerCardAction).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "conversation_id",
+          "jsonName": "conversationId",
+          "type": "int64",
+          "description": "Conversation ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "message_id",
+          "jsonName": "messageId",
+          "type": "int64",
+          "description": "Card message ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "sender_id",
+          "jsonName": "senderId",
+          "type": "int32",
+          "description": "User who submitted the action.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "action_data",
+          "jsonName": "actionData",
+          "type": "string",
+          "description": "Action data (JSON string from Action.Submit).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "verb",
+          "jsonName": "verb",
+          "type": "string",
+          "description": "Action verb identifier.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -5448,7 +5813,7 @@
     "api.v1.ClientFrame": {
       "name": "ClientFrame",
       "fullName": "api.v1.ClientFrame",
-      "description": "ClientFrame is the transport-agnostic upstream envelope. The long\nconnection is a push-only channel — clients send only authentication\nand heartbeat frames upstream. All business requests go through\nConnect RPC (HTTP).",
+      "description": "ClientFrame is the transport-agnostic upstream envelope used by both\nusers and agents. The long connection is a push-only channel — clients\nsend only authentication and heartbeat frames upstream. All business\nrequests go through Connect RPC (HTTP).",
       "fields": [
         {
           "name": "request_id",
@@ -5472,7 +5837,7 @@
           "name": "auth_request",
           "jsonName": "authRequest",
           "type": "api.v1.AuthRequest",
-          "description": "Connection authentication. Server responds with ServerFrame.auth_response.",
+          "description": "Connection authentication. Server responds with ServerFrame.auth_response.\nUsers send nxs_-prefixed tokens; agents send nxa_-prefixed tokens.",
           "optional": false,
           "repeated": false,
           "oneofGroup": "payload",
@@ -5481,7 +5846,7 @@
         {
           "name": "heartbeat_ping",
           "jsonName": "heartbeatPing",
-          "type": "shared.v1.HeartbeatPing",
+          "type": "api.v1.HeartbeatPing",
           "description": "Heartbeat ping. Server responds with ServerFrame.heartbeat_pong.",
           "optional": false,
           "repeated": false,
@@ -5493,7 +5858,7 @@
     "api.v1.ServerFrame": {
       "name": "ServerFrame",
       "fullName": "api.v1.ServerFrame",
-      "description": "ServerFrame is the transport-agnostic downstream envelope. Every message\nsent by the server on the long connection is wrapped in a ServerFrame.\n\nFor response frames (auth_response, heartbeat_pong), the request_id\nmatches the originating ClientFrame.request_id.\nFor push frames (update, error), the server generates a unique\nrequest_id.",
+      "description": "ServerFrame is the transport-agnostic downstream envelope used by both\nusers and agents. Every message sent by the server on the long\nconnection is wrapped in a ServerFrame.\n\nFor response frames (auth_response, heartbeat_pong), the request_id\nmatches the originating ClientFrame.request_id.\nFor push frames (update, error), the server generates a unique\nrequest_id.",
       "fields": [
         {
           "name": "request_id",
@@ -5516,7 +5881,7 @@
         {
           "name": "auth_response",
           "jsonName": "authResponse",
-          "type": "shared.v1.GatewayAuthResponse",
+          "type": "api.v1.GatewayAuthResponse",
           "description": "Authentication result. Response to ClientFrame.auth_request.",
           "optional": false,
           "repeated": false,
@@ -5527,7 +5892,7 @@
           "name": "update",
           "jsonName": "update",
           "type": "api.v1.Update",
-          "description": "Update push.",
+          "description": "Update push (SnUpdate or NonSnUpdate with related entity info).",
           "optional": false,
           "repeated": false,
           "oneofGroup": "payload",
@@ -5536,7 +5901,7 @@
         {
           "name": "heartbeat_pong",
           "jsonName": "heartbeatPong",
-          "type": "shared.v1.HeartbeatPong",
+          "type": "api.v1.HeartbeatPong",
           "description": "Heartbeat pong. Response to ClientFrame.heartbeat_ping.",
           "optional": false,
           "repeated": false,
@@ -5546,18 +5911,8 @@
         {
           "name": "error",
           "jsonName": "error",
-          "type": "shared.v1.GatewayErrorFrame",
+          "type": "api.v1.GatewayErrorFrame",
           "description": "Error response or connection-level error push.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "card_action_answer",
-          "jsonName": "cardActionAnswer",
-          "type": "api.v1.CardActionAnswerPush",
-          "description": "Card action answer push (toast/alert from agent).",
           "optional": false,
           "repeated": false,
           "oneofGroup": "payload",
@@ -5568,24 +5923,25 @@
     "api.v1.AuthRequest": {
       "name": "AuthRequest",
       "fullName": "api.v1.AuthRequest",
-      "description": "AuthRequest is the long-connection authentication request frame.",
+      "description": "AuthRequest is the long-connection authentication request frame.\nBoth users and agents use this message:\n- nxs_ prefix → user session token\n- nxa_ prefix → agent token",
       "fields": [
         {
           "name": "token",
           "jsonName": "token",
           "type": "string",
-          "description": "Access token.",
+          "description": "Access token (nxs_ for users, nxa_ for agents).",
           "optional": false,
           "repeated": false,
-          "sensitive": false
+          "sensitive": true
         },
         {
           "name": "device_info",
           "jsonName": "deviceInfo",
           "type": "api.v1.DeviceInput",
-          "description": "Client device information.",
-          "optional": false,
+          "description": "Client device information (optional).",
+          "optional": true,
           "repeated": false,
+          "oneofGroup": "_device_info",
           "sensitive": false
         }
       ]
@@ -5627,7 +5983,7 @@
           "name": "non_sn_update",
           "jsonName": "nonSnUpdate",
           "type": "shared.v1.NonSnUpdate",
-          "description": "Non-sequenced update (ephemeral, e.g. stream deltas).",
+          "description": "Non-sequenced update (ephemeral, e.g. stream deltas, card actions).",
           "optional": false,
           "repeated": false,
           "oneofGroup": "update",
@@ -5635,34 +5991,81 @@
         }
       ]
     },
-    "api.v1.CardActionAnswerPush": {
-      "name": "CardActionAnswerPush",
-      "fullName": "api.v1.CardActionAnswerPush",
-      "description": "CardActionAnswerPush is pushed when an agent responds to an Adaptive\nCard Action.Submit via AnswerCardAction. The client displays the text\nas a toast or alert dialog depending on show_alert.\nThis is an ephemeral notification, not persisted as a message.",
+    "api.v1.HeartbeatPing": {
+      "name": "HeartbeatPing",
+      "fullName": "api.v1.HeartbeatPing",
+      "description": "HeartbeatPing is an empty keepalive frame sent by the client at\nregular intervals. Used by both user and agent WebSocket connections.",
+      "fields": []
+    },
+    "api.v1.HeartbeatPong": {
+      "name": "HeartbeatPong",
+      "fullName": "api.v1.HeartbeatPong",
+      "description": "HeartbeatPong is the server response to a HeartbeatPing.",
       "fields": [
         {
-          "name": "action_id",
-          "jsonName": "actionId",
-          "type": "string",
-          "description": "Action ID that this answer corresponds to.",
+          "name": "server_time",
+          "jsonName": "serverTime",
+          "type": "int64",
+          "description": "Server timestamp (Unix ms). Clients can use this for clock drift\nestimation.",
           "optional": false,
           "repeated": false,
           "sensitive": false
-        },
+        }
+      ]
+    },
+    "api.v1.GatewayAuthResponse": {
+      "name": "GatewayAuthResponse",
+      "fullName": "api.v1.GatewayAuthResponse",
+      "description": "GatewayAuthResponse carries the authentication result for both user\nand agent WebSocket connections.",
+      "fields": [
         {
-          "name": "text",
-          "jsonName": "text",
-          "type": "string",
-          "description": "Response text to display.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "show_alert",
-          "jsonName": "showAlert",
+          "name": "success",
+          "jsonName": "success",
           "type": "bool",
-          "description": "Whether to show as alert dialog (true) or toast (false).",
+          "description": "Whether authentication succeeded.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "user_id",
+          "jsonName": "userId",
+          "type": "int32",
+          "description": "Authenticated user ID (for agents this is agent_user_id).\nOnly meaningful when success = true.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "error",
+          "jsonName": "error",
+          "type": "shared.v1.ErrorDetail",
+          "description": "Error detail on failure. Only present when success = false.\nUses the same ErrorDetail structure as GatewayErrorFrame for\nconsistent error handling across all gateway responses.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.GatewayErrorFrame": {
+      "name": "GatewayErrorFrame",
+      "fullName": "api.v1.GatewayErrorFrame",
+      "description": "GatewayErrorFrame carries connection-level error information.",
+      "fields": [
+        {
+          "name": "error",
+          "jsonName": "error",
+          "type": "shared.v1.ErrorDetail",
+          "description": "Structured error detail with error_code and error_name.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "fatal",
+          "jsonName": "fatal",
+          "type": "bool",
+          "description": "Whether the client should close the connection after this error.",
           "optional": false,
           "repeated": false,
           "sensitive": false
@@ -7296,384 +7699,6 @@
           "sensitive": false
         }
       ]
-    },
-    "shared.v1.WebhookEvent": {
-      "name": "WebhookEvent",
-      "fullName": "shared.v1.WebhookEvent",
-      "description": "WebhookEvent is the unified event envelope delivered to agent webhook\nendpoints via HTTP POST with protojson serialization.\n\nMessage delivery model: Agents receive the same message stream as regular users. Group events (group membership changes, etc.) arrive as messages with MessageType GROUP, carrying structured GroupContent payloads.",
-      "fields": [
-        {
-          "name": "event_type",
-          "jsonName": "eventType",
-          "type": "shared.v1.WebhookEventType",
-          "description": "Event type discriminator.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "timestamp",
-          "jsonName": "timestamp",
-          "type": "int64",
-          "description": "Event timestamp (Unix ms).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "related_users",
-          "jsonName": "relatedUsers",
-          "type": "shared.v1.UserInfo",
-          "description": "Related user info referenced by the event (sender, operator, etc.).",
-          "optional": false,
-          "repeated": true,
-          "sensitive": false
-        },
-        {
-          "name": "related_groups",
-          "jsonName": "relatedGroups",
-          "type": "shared.v1.GroupInfo",
-          "description": "Related group info referenced by the event (for group events).",
-          "optional": false,
-          "repeated": true,
-          "sensitive": false
-        },
-        {
-          "name": "message_event",
-          "jsonName": "messageEvent",
-          "type": "shared.v1.MessageEventPayload",
-          "description": "Message event payload (all message types including group events).",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "card_action",
-          "jsonName": "cardAction",
-          "type": "shared.v1.CardActionPayload",
-          "description": "Card action event payload (Adaptive Card Action.Submit).",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "contact_added",
-          "jsonName": "contactAdded",
-          "type": "shared.v1.ContactAddedPayload",
-          "description": "Contact added event payload.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "removed_from_group",
-          "jsonName": "removedFromGroup",
-          "type": "shared.v1.RemovedFromGroupPayload",
-          "description": "Removed from group event payload.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "group_dissolved",
-          "jsonName": "groupDissolved",
-          "type": "shared.v1.GroupDissolvedPayload",
-          "description": "Group dissolved event payload.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.MessageEventPayload": {
-      "name": "MessageEventPayload",
-      "fullName": "shared.v1.MessageEventPayload",
-      "description": "MessageEventPayload wraps a full message envelope for webhook delivery.",
-      "fields": [
-        {
-          "name": "message",
-          "jsonName": "message",
-          "type": "shared.v1.MessageEnvelope",
-          "description": "Full message envelope.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.CardActionPayload": {
-      "name": "CardActionPayload",
-      "fullName": "shared.v1.CardActionPayload",
-      "description": "CardActionPayload contains an Adaptive Card Action.Submit event.",
-      "fields": [
-        {
-          "name": "id",
-          "jsonName": "id",
-          "type": "string",
-          "description": "Server-assigned action ID (use in AnswerCardAction).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "sender_id",
-          "jsonName": "senderId",
-          "type": "int32",
-          "description": "User who submitted the action.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "conversation_id",
-          "jsonName": "conversationId",
-          "type": "int64",
-          "description": "Conversation ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "message_id",
-          "jsonName": "messageId",
-          "type": "int64",
-          "description": "Card message ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "action_data",
-          "jsonName": "actionData",
-          "type": "string",
-          "description": "Action data (JSON string from Action.Submit).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "verb",
-          "jsonName": "verb",
-          "type": "string",
-          "description": "Action verb identifier.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.ContactAddedPayload": {
-      "name": "ContactAddedPayload",
-      "fullName": "shared.v1.ContactAddedPayload",
-      "description": "ContactAddedPayload is delivered when a user adds this agent as a\ncontact. The agent can use this to send a welcome message.",
-      "fields": [
-        {
-          "name": "user_id",
-          "jsonName": "userId",
-          "type": "int32",
-          "description": "User who added the agent.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.RemovedFromGroupPayload": {
-      "name": "RemovedFromGroupPayload",
-      "fullName": "shared.v1.RemovedFromGroupPayload",
-      "description": "RemovedFromGroupPayload is delivered when the agent is removed from a\ngroup by the group owner.",
-      "fields": [
-        {
-          "name": "group_id",
-          "jsonName": "groupId",
-          "type": "int32",
-          "description": "Group ID the agent was removed from.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "operator_id",
-          "jsonName": "operatorId",
-          "type": "int32",
-          "description": "User ID of the operator who removed the agent.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.GroupDissolvedPayload": {
-      "name": "GroupDissolvedPayload",
-      "fullName": "shared.v1.GroupDissolvedPayload",
-      "description": "GroupDissolvedPayload is delivered when a group the agent belongs to\nis dissolved by its owner.",
-      "fields": [
-        {
-          "name": "group_id",
-          "jsonName": "groupId",
-          "type": "int32",
-          "description": "Group ID that was dissolved.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "operator_id",
-          "jsonName": "operatorId",
-          "type": "int32",
-          "description": "User ID of the owner who dissolved the group.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.AgentClientFrame": {
-      "name": "AgentClientFrame",
-      "fullName": "shared.v1.AgentClientFrame",
-      "description": "AgentClientFrame is the upstream frame sent by an agent over WebSocket.",
-      "fields": [
-        {
-          "name": "request_id",
-          "jsonName": "requestId",
-          "type": "int64",
-          "description": "Request ID for request-response correlation.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "type",
-          "jsonName": "type",
-          "type": "shared.v1.AgentClientFrameType",
-          "description": "Frame type discriminator.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "auth_request",
-          "jsonName": "authRequest",
-          "type": "shared.v1.AgentAuthRequest",
-          "description": "Authentication request.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "heartbeat_ping",
-          "jsonName": "heartbeatPing",
-          "type": "shared.v1.HeartbeatPing",
-          "description": "Heartbeat ping.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.AgentAuthRequest": {
-      "name": "AgentAuthRequest",
-      "fullName": "shared.v1.AgentAuthRequest",
-      "description": "AgentAuthRequest carries the agent token for WebSocket authentication.",
-      "fields": [
-        {
-          "name": "token",
-          "jsonName": "token",
-          "type": "string",
-          "description": "Agent Token (nxa_ prefix).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": true
-        }
-      ]
-    },
-    "shared.v1.AgentServerFrame": {
-      "name": "AgentServerFrame",
-      "fullName": "shared.v1.AgentServerFrame",
-      "description": "AgentServerFrame is the downstream frame sent by the gateway to an agent.",
-      "fields": [
-        {
-          "name": "request_id",
-          "jsonName": "requestId",
-          "type": "int64",
-          "description": "Request ID for request-response correlation.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "type",
-          "jsonName": "type",
-          "type": "shared.v1.AgentServerFrameType",
-          "description": "Frame type discriminator.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "auth_response",
-          "jsonName": "authResponse",
-          "type": "shared.v1.GatewayAuthResponse",
-          "description": "Authentication response.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "event_push",
-          "jsonName": "eventPush",
-          "type": "shared.v1.AgentEventPush",
-          "description": "Event push.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "heartbeat_pong",
-          "jsonName": "heartbeatPong",
-          "type": "shared.v1.HeartbeatPong",
-          "description": "Heartbeat pong.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        },
-        {
-          "name": "error",
-          "jsonName": "error",
-          "type": "shared.v1.GatewayErrorFrame",
-          "description": "Error notification.",
-          "optional": false,
-          "repeated": false,
-          "oneofGroup": "payload",
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.AgentEventPush": {
-      "name": "AgentEventPush",
-      "fullName": "shared.v1.AgentEventPush",
-      "description": "AgentEventPush wraps a WebhookEvent for WebSocket delivery.",
-      "fields": [
-        {
-          "name": "event",
-          "jsonName": "event",
-          "type": "shared.v1.WebhookEvent",
-          "description": "Reuses the same WebhookEvent structure, ensuring consistent\nbusiness data between Webhook and WebSocket modes.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
     }
   },
   "enums": {
@@ -8185,11 +8210,6 @@
           "name": "SERVER_FRAME_TYPE_ERROR",
           "number": 4,
           "description": "Error."
-        },
-        {
-          "name": "SERVER_FRAME_TYPE_CARD_ACTION_ANSWER",
-          "number": 5,
-          "description": "Card action answer (toast/alert from agent)."
         }
       ]
     },
@@ -8217,97 +8237,6 @@
           "name": "MEDIA_PURPOSE_MESSAGE",
           "number": 3,
           "description": "Message attachment (private, time-limited URL with conversation-level\naccess control)."
-        }
-      ]
-    },
-    "shared.v1.WebhookEventType": {
-      "name": "WebhookEventType",
-      "fullName": "shared.v1.WebhookEventType",
-      "description": "WebhookEventType identifies the kind of webhook event.\n\nAgents are first-class citizens in the message system. All message\ntypes (text, media, group events, recalls) are\ndelivered as MESSAGE events containing a full MessageEnvelope.\nThis mirrors how regular users receive messages via long connection.",
-      "values": [
-        {
-          "name": "WEBHOOK_EVENT_TYPE_UNSPECIFIED",
-          "number": 0,
-          "description": "Unspecified."
-        },
-        {
-          "name": "WEBHOOK_EVENT_TYPE_MESSAGE",
-          "number": 1,
-          "description": "New message received. Covers all message types including group\nevents (group member changes, etc.) which are delivered as\nMessageType GROUP within the envelope."
-        },
-        {
-          "name": "WEBHOOK_EVENT_TYPE_CARD_ACTION",
-          "number": 2,
-          "description": "Adaptive Card Action.Submit from a user."
-        },
-        {
-          "name": "WEBHOOK_EVENT_TYPE_CONTACT_ADDED",
-          "number": 3,
-          "description": "A user added this agent as a contact."
-        },
-        {
-          "name": "WEBHOOK_EVENT_TYPE_REMOVED_FROM_GROUP",
-          "number": 4,
-          "description": "Agent was removed from a group."
-        },
-        {
-          "name": "WEBHOOK_EVENT_TYPE_GROUP_DISSOLVED",
-          "number": 5,
-          "description": "A group the agent belongs to was dissolved."
-        }
-      ]
-    },
-    "shared.v1.AgentClientFrameType": {
-      "name": "AgentClientFrameType",
-      "fullName": "shared.v1.AgentClientFrameType",
-      "description": "AgentClientFrameType enumerates upstream frame types.",
-      "values": [
-        {
-          "name": "AGENT_CLIENT_FRAME_TYPE_UNSPECIFIED",
-          "number": 0,
-          "description": "Unspecified."
-        },
-        {
-          "name": "AGENT_CLIENT_FRAME_TYPE_AUTH_REQUEST",
-          "number": 1,
-          "description": "Authentication request carrying agent token."
-        },
-        {
-          "name": "AGENT_CLIENT_FRAME_TYPE_HEARTBEAT_PING",
-          "number": 2,
-          "description": "Heartbeat keepalive ping."
-        }
-      ]
-    },
-    "shared.v1.AgentServerFrameType": {
-      "name": "AgentServerFrameType",
-      "fullName": "shared.v1.AgentServerFrameType",
-      "description": "AgentServerFrameType enumerates downstream frame types.",
-      "values": [
-        {
-          "name": "AGENT_SERVER_FRAME_TYPE_UNSPECIFIED",
-          "number": 0,
-          "description": "Unspecified."
-        },
-        {
-          "name": "AGENT_SERVER_FRAME_TYPE_AUTH_RESPONSE",
-          "number": 1,
-          "description": "Authentication result."
-        },
-        {
-          "name": "AGENT_SERVER_FRAME_TYPE_EVENT_PUSH",
-          "number": 2,
-          "description": "Event push carrying a WebhookEvent."
-        },
-        {
-          "name": "AGENT_SERVER_FRAME_TYPE_HEARTBEAT_PONG",
-          "number": 3,
-          "description": "Heartbeat pong response."
-        },
-        {
-          "name": "AGENT_SERVER_FRAME_TYPE_ERROR",
-          "number": 4,
-          "description": "Error notification."
         }
       ]
     }

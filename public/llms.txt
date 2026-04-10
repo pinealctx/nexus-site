@@ -25,12 +25,16 @@
 
 ### AgentService
 - POST /api.v1.AgentService/ListFeaturedAgents
-- POST /api.v1.AgentService/GetAgentDetail
-- POST /api.v1.AgentService/GetSelfAgent
-- POST /api.v1.AgentService/UpdateSelfAgent
-- POST /api.v1.AgentService/DeleteSelfAgent
-- POST /api.v1.AgentService/RevokeSelfToken
-- POST /api.v1.AgentService/SetDeliveryConfig
+- POST /api.v1.AgentService/GetAgentInfo
+- POST /api.v1.AgentService/GetMiniAppLaunchData
+- POST /api.v1.AgentService/CreateAgent
+- POST /api.v1.AgentService/ListMyAgents
+- POST /api.v1.AgentService/GetMyAgent
+- POST /api.v1.AgentService/SetAgentConfig
+- POST /api.v1.AgentService/DeleteMyAgent
+- POST /api.v1.AgentService/RegenerateAgentToken
+- POST /api.v1.AgentService/RegenerateAgentSecretKey
+- POST /api.v1.AgentService/SetAgentMiniApp
 
 ### UserService
 - POST /api.v1.UserService/GetProfile

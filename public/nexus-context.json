@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-09T08:23:07.296Z",
+  "generatedAt": "2026-04-10T11:38:42.513Z",
   "api": {
     "baseUrl": "https://api.nexus-dev.xsyphon.com",
     "services": [
@@ -16,52 +16,84 @@
             "responseType": "ListFeaturedAgentsResponse"
           },
           {
-            "name": "GetAgentDetail",
-            "path": "/api.v1.AgentService/GetAgentDetail",
-            "description": "GetAgentDetail returns detailed info for a specific agent.",
+            "name": "GetAgentInfo",
+            "path": "/api.v1.AgentService/GetAgentInfo",
+            "description": "GetAgentInfo returns public profile info for a specific agent.",
             "auth": "access_token",
-            "requestType": "GetAgentDetailRequest",
-            "responseType": "GetAgentDetailResponse"
+            "requestType": "GetAgentInfoRequest",
+            "responseType": "GetAgentInfoResponse"
           },
           {
-            "name": "GetSelfAgent",
-            "path": "/api.v1.AgentService/GetSelfAgent",
-            "description": "GetSelfAgent returns the current agent's profile.",
-            "auth": "agent_token",
-            "requestType": "GetSelfAgentRequest",
-            "responseType": "GetSelfAgentResponse"
+            "name": "GetMiniAppLaunchData",
+            "path": "/api.v1.AgentService/GetMiniAppLaunchData",
+            "description": "GetMiniAppLaunchData generates signed initData for launching a Mini App.",
+            "auth": "user_token",
+            "requestType": "GetMiniAppLaunchDataRequest",
+            "responseType": "GetMiniAppLaunchDataResponse"
           },
           {
-            "name": "UpdateSelfAgent",
-            "path": "/api.v1.AgentService/UpdateSelfAgent",
-            "description": "UpdateSelfAgent updates the current agent's profile fields.",
-            "auth": "agent_token",
-            "requestType": "UpdateSelfAgentRequest",
-            "responseType": "UpdateSelfAgentResponse"
+            "name": "CreateAgent",
+            "path": "/api.v1.AgentService/CreateAgent",
+            "description": "CreateAgent creates a new agent on behalf of the authenticated user.",
+            "auth": "user_token",
+            "requestType": "CreateAgentRequest",
+            "responseType": "CreateAgentResponse"
           },
           {
-            "name": "DeleteSelfAgent",
-            "path": "/api.v1.AgentService/DeleteSelfAgent",
-            "description": "DeleteSelfAgent permanently deletes the current agent.",
-            "auth": "agent_token",
-            "requestType": "DeleteSelfAgentRequest",
-            "responseType": "DeleteSelfAgentResponse"
+            "name": "ListMyAgents",
+            "path": "/api.v1.AgentService/ListMyAgents",
+            "description": "ListMyAgents lists all agents created by the authenticated user.",
+            "auth": "user_token",
+            "requestType": "ListMyAgentsRequest",
+            "responseType": "ListMyAgentsResponse"
           },
           {
-            "name": "RevokeSelfToken",
-            "path": "/api.v1.AgentService/RevokeSelfToken",
-            "description": "RevokeSelfToken revokes the current agent token and issues a new one.",
-            "auth": "agent_token",
-            "requestType": "RevokeSelfTokenRequest",
-            "responseType": "RevokeSelfTokenResponse"
+            "name": "GetMyAgent",
+            "path": "/api.v1.AgentService/GetMyAgent",
+            "description": "GetMyAgent returns the full profile of an agent owned by the authenticated user.",
+            "auth": "user_token",
+            "requestType": "GetMyAgentRequest",
+            "responseType": "GetMyAgentResponse"
           },
           {
-            "name": "SetDeliveryConfig",
-            "path": "/api.v1.AgentService/SetDeliveryConfig",
-            "description": "SetDeliveryConfig configures the agent's event delivery mode.",
-            "auth": "agent_token",
-            "requestType": "SetDeliveryConfigRequest",
-            "responseType": "SetDeliveryConfigResponse"
+            "name": "SetAgentConfig",
+            "path": "/api.v1.AgentService/SetAgentConfig",
+            "description": "SetAgentConfig updates configuration fields of an agent.",
+            "auth": "user_token",
+            "requestType": "SetAgentConfigRequest",
+            "responseType": "SetAgentConfigResponse"
+          },
+          {
+            "name": "DeleteMyAgent",
+            "path": "/api.v1.AgentService/DeleteMyAgent",
+            "description": "DeleteMyAgent permanently deletes an agent owned by the authenticated user.",
+            "auth": "user_token",
+            "requestType": "DeleteMyAgentRequest",
+            "responseType": "DeleteMyAgentResponse"
+          },
+          {
+            "name": "RegenerateAgentToken",
+            "path": "/api.v1.AgentService/RegenerateAgentToken",
+            "description": "RegenerateAgentToken regenerates the API token for an agent.",
+            "auth": "user_token",
+            "requestType": "RegenerateAgentTokenRequest",
+            "responseType": "RegenerateAgentTokenResponse"
+          },
+          {
+            "name": "RegenerateAgentSecretKey",
+            "path": "/api.v1.AgentService/RegenerateAgentSecretKey",
+            "description": "RegenerateAgentSecretKey regenerates the HMAC secret key for an agent.",
+            "auth": "user_token",
+            "requestType": "RegenerateAgentSecretKeyRequest",
+            "responseType": "RegenerateAgentSecretKeyResponse"
+          },
+          {
+            "name": "SetAgentMiniApp",
+            "path": "/api.v1.AgentService/SetAgentMiniApp",
+            "description": "SetAgentMiniApp configures the Mini App for an agent.",
+            "auth": "user_token",
+            "requestType": "SetAgentMiniAppRequest",
+            "responseType": "SetAgentMiniAppResponse"
           }
         ]
       },
@@ -80,7 +112,7 @@
             "name": "UpdateProfile",
             "path": "/api.v1.UserService/UpdateProfile",
             "description": "UpdateProfile updates the current user profile fields.",
-            "auth": "user_token",
+            "auth": "access_token",
             "requestType": "UpdateProfileRequest",
             "responseType": "UpdateProfileResponse"
           },
