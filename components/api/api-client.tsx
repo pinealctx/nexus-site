@@ -80,7 +80,9 @@ interface ApiClientProps {
 export function ApiClient({ apiData }: ApiClientProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
 
   // Ctrl+K / Cmd+K to open search
   useEffect(() => {
@@ -117,9 +119,104 @@ export function ApiClient({ apiData }: ApiClientProps) {
     }
   }, [activeSection]);
 
+  // Close mobile nav on outside click
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) {
+        setMobileNavOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [mobileNavOpen]);
+
+  // Close mobile nav on Escape
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileNavOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [mobileNavOpen]);
+
   return (
     <div className="mx-auto flex w-full max-w-[1400px] gap-0">
       <ApiSearchDialog apiData={apiData} open={searchOpen} onOpenChange={setSearchOpen} />
+
+      {/* Mobile nav trigger */}
+      <div ref={mobileNavRef} className="fixed bottom-4 right-4 z-40 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileNavOpen(!mobileNavOpen)}
+          aria-expanded={mobileNavOpen}
+          aria-label="Toggle API navigation"
+          className="flex h-12 w-12 items-center justify-center rounded-full border bg-background shadow-lg transition-colors hover:bg-accent"
+        >
+          <List className="h-5 w-5" />
+        </button>
+        {mobileNavOpen && (
+          <div className="absolute bottom-14 right-0 max-h-[60vh] w-72 overflow-y-auto rounded-xl border bg-background shadow-2xl">
+            {/* Mobile search trigger */}
+            <div className="border-b p-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  setSearchOpen(true);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:bg-background"
+              >
+                <Search className="h-4 w-4" />
+                <span className="flex-1 text-left">Search...</span>
+              </button>
+            </div>
+            {/* Mobile nav */}
+            <nav className="p-3">
+              <div className="mb-3">
+                <span className="px-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Endpoints
+                </span>
+              </div>
+              {apiData.services.map((svc) => (
+                <MobileServiceItem key={svc.fullName} service={svc} onSelect={() => setMobileNavOpen(false)} />
+              ))}
+              <div className="mt-4 border-t pt-3">
+                <span className="px-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Schemas
+                </span>
+                <div className="mt-2 space-y-0.5">
+                  {Object.values(apiData.messages)
+                    .filter((m) => m.fields.length > 0 && isSchemaMessage(m.name))
+                    .map((m) => (
+                      <a
+                        key={m.fullName}
+                        href={`#schema-${m.name}`}
+                        onClick={() => setMobileNavOpen(false)}
+                        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      >
+                        <Braces className="h-3 w-3 shrink-0 text-primary" />
+                        <span className="truncate">{m.name}</span>
+                      </a>
+                    ))}
+                  {Object.values(apiData.enums).map((e) => (
+                    <a
+                      key={e.fullName}
+                      href={`#enum-${e.name}`}
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    >
+                      <Hash className="h-3 w-3 shrink-0 text-primary" />
+                      <span className="truncate">{e.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </nav>
+          </div>
+        )}
+      </div>
 
       {/* Sidebar */}
       <aside className="hidden w-72 shrink-0 border-r lg:block">
@@ -191,7 +288,7 @@ export function ApiClient({ apiData }: ApiClientProps) {
                         : "text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}
                   >
-                    <Hash className="h-3 w-3 shrink-0 text-purple-500" />
+                    <Hash className="h-3 w-3 shrink-0 text-primary" />
                     <span className="truncate">{e.name}</span>
                   </a>
                 ))}
@@ -314,10 +411,47 @@ function SidebarService({
   );
 }
 
+// Mobile service item — simplified collapsible for mobile nav
+function MobileServiceItem({ service, onSelect }: { service: ServiceInfo; onSelect: () => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mb-1">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-accent"
+      >
+        {open ? (
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        )}
+        <span className="truncate">{service.name}</span>
+        <span className="ml-auto text-[10px] text-muted-foreground">{service.methods.length}</span>
+      </button>
+      {open && (
+        <div className="ml-3 mt-0.5 space-y-0.5 border-l pl-3">
+          {service.methods.map((m) => (
+            <a
+              key={m.name}
+              href={`#${service.name}-${m.name}`}
+              onClick={onSelect}
+              className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <MethodBadge method={m} />
+              <span className="truncate">{m.name}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MethodBadge({ method }: { method: MethodInfo }) {
-  if (method.options.agentOnly) return <Bot className="h-3 w-3 shrink-0 text-orange-500" />;
-  if (method.options.skipAuth) return <Shield className="h-3 w-3 shrink-0 text-emerald-500" />;
-  if (method.options.userOnly) return <User className="h-3 w-3 shrink-0 text-blue-500" />;
+  if (method.options.agentOnly) return <Bot className="h-3 w-3 shrink-0 text-api-icon-agent" />;
+  if (method.options.skipAuth) return <Shield className="h-3 w-3 shrink-0 text-api-icon-noauth" />;
+  if (method.options.userOnly) return <User className="h-3 w-3 shrink-0 text-api-icon-user" />;
   return <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />;
 }
 
@@ -446,7 +580,7 @@ function EndpointExample({ method, inputMsg }: { method: MethodInfo; inputMsg?: 
       {/* Header */}
       <div className="flex items-start justify-between gap-3 border-b px-4 py-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="rounded bg-emerald-500/15 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+          <span className="rounded bg-api-method/15 px-2 py-0.5 font-mono text-[10px] font-bold text-api-method">
             POST
           </span>
           <code className="min-w-0 break-all text-xs text-muted-foreground">{method.httpPath}</code>
@@ -457,7 +591,7 @@ function EndpointExample({ method, inputMsg }: { method: MethodInfo; inputMsg?: 
           className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           aria-label="Copy"
         >
-          {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? <Check className="h-3.5 w-3.5 text-api-method" /> : <Copy className="h-3.5 w-3.5" />}
         </button>
       </div>
       {/* Body */}
@@ -527,16 +661,13 @@ function FieldsList({
   const grouped = groupByOneof(fields);
 
   return (
-    <div className={cn("mt-3 w-full min-w-0 divide-y rounded-lg border", depth > 0 && "ml-4 mt-2")}>
+    <div className={cn("mt-3 w-full min-w-0 overflow-x-auto divide-y rounded-lg border", depth > 0 && "ml-4 mt-2")}>
       {grouped.map((item) => {
         if (item.kind === "oneof-header") {
           return (
-            <div key={`oneof-${item.name}`} className="bg-amber-50/80 px-4 py-2 dark:bg-amber-950/20">
-              <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
-                oneof{" "}
-                <code className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono dark:bg-amber-900/40">
-                  {item.name}
-                </code>
+            <div key={`oneof-${item.name}`} className="bg-api-oneof-bg px-4 py-2">
+              <span className="text-xs font-medium text-api-oneof">
+                oneof <code className="ml-1 rounded bg-api-oneof/10 px-1.5 py-0.5 font-mono">{item.name}</code>
               </span>
             </div>
           );
@@ -593,15 +724,15 @@ function FieldRow({
           <div className="flex flex-wrap items-center gap-2">
             <code className="break-all text-sm font-medium">{f.jsonName}</code>
             {!f.optional && !f.oneofGroup && (
-              <span className="text-[10px] font-semibold uppercase text-red-500">required</span>
+              <span className="text-[10px] font-semibold uppercase text-api-required">required</span>
             )}
             {f.repeated && (
-              <span className="inline-flex items-center gap-0.5 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+              <span className="inline-flex items-center gap-0.5 rounded bg-api-badge-info-bg px-1.5 py-0.5 text-[10px] font-medium text-api-badge-info">
                 <List className="h-2.5 w-2.5" /> array
               </span>
             )}
             {f.sensitive && (
-              <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-900/40 dark:text-red-300">
+              <span className="rounded bg-api-badge-danger-bg px-1.5 py-0.5 text-[10px] font-medium text-api-badge-danger">
                 sensitive
               </span>
             )}
@@ -688,7 +819,7 @@ function EnumSchema({ enumInfo }: { enumInfo: EnumInfo }) {
   return (
     <div id={`enum-${enumInfo.name}`} className="scroll-mt-20 px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-center gap-2">
-        <Hash className="h-4 w-4 text-purple-500" />
+        <Hash className="h-4 w-4 text-api-enum" />
         <h3 className="font-mono text-sm font-semibold">{enumInfo.name}</h3>
         <code className="break-all rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
           {enumInfo.fullName}
@@ -754,17 +885,17 @@ function OptionTag({ type }: { type: "agentOnly" | "userOnly" | "skipAuth" }) {
     agentOnly: {
       label: "Agent Only",
       icon: Bot,
-      cls: "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-300",
+      cls: "border-api-tag-agent-border bg-api-tag-agent-bg text-api-tag-agent",
     },
     userOnly: {
       label: "User Only",
       icon: User,
-      cls: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300",
+      cls: "border-api-tag-user-border bg-api-tag-user-bg text-api-tag-user",
     },
     skipAuth: {
       label: "No Auth",
       icon: Shield,
-      cls: "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/50 dark:text-green-300",
+      cls: "border-api-tag-noauth-border bg-api-tag-noauth-bg text-api-tag-noauth",
     },
   }[type];
   const Icon = cfg.icon;
@@ -795,7 +926,7 @@ function ValidationBadges({ v }: { v: ValidationInfo }) {
       {parts.map((p) => (
         <span
           key={p}
-          className="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"
+          className="rounded bg-api-badge-validation-bg px-1.5 py-0.5 text-[10px] font-medium text-api-badge-validation"
         >
           {p}
         </span>

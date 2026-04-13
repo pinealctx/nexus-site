@@ -89,6 +89,30 @@
     --color-sidebar-primary: var(--sidebar-primary);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar: var(--sidebar);
+    --color-api-method: var(--api-method);
+    --color-api-method-foreground: var(--api-method-foreground);
+    --color-api-enum: var(--api-enum);
+    --color-api-required: var(--api-required);
+    --color-api-badge-info: var(--api-badge-info);
+    --color-api-badge-info-bg: var(--api-badge-info-bg);
+    --color-api-badge-danger: var(--api-badge-danger);
+    --color-api-badge-danger-bg: var(--api-badge-danger-bg);
+    --color-api-badge-validation: var(--api-badge-validation);
+    --color-api-badge-validation-bg: var(--api-badge-validation-bg);
+    --color-api-oneof: var(--api-oneof);
+    --color-api-oneof-bg: var(--api-oneof-bg);
+    --color-api-tag-agent: var(--api-tag-agent);
+    --color-api-tag-agent-bg: var(--api-tag-agent-bg);
+    --color-api-tag-agent-border: var(--api-tag-agent-border);
+    --color-api-tag-user: var(--api-tag-user);
+    --color-api-tag-user-bg: var(--api-tag-user-bg);
+    --color-api-tag-user-border: var(--api-tag-user-border);
+    --color-api-tag-noauth: var(--api-tag-noauth);
+    --color-api-tag-noauth-bg: var(--api-tag-noauth-bg);
+    --color-api-tag-noauth-border: var(--api-tag-noauth-border);
+    --color-api-icon-agent: var(--api-icon-agent);
+    --color-api-icon-noauth: var(--api-icon-noauth);
+    --color-api-icon-user: var(--api-icon-user);
     --color-chart-5: var(--chart-5);
     --color-chart-4: var(--chart-4);
     --color-chart-3: var(--chart-3);
@@ -154,6 +178,32 @@
     --sidebar-accent-foreground: oklch(0.18 0.01 270);
     --sidebar-border: oklch(0.91 0.004 270);
     --sidebar-ring: oklch(0.65 0.04 270);
+
+    /* API semantic colors */
+    --api-method: oklch(0.627 0.194 149);
+    --api-method-foreground: oklch(0.383 0.16 149);
+    --api-enum: oklch(0.541 0.281 293);
+    --api-required: oklch(0.637 0.237 26);
+    --api-badge-info: oklch(0.623 0.214 259);
+    --api-badge-info-bg: oklch(0.93 0.04 259);
+    --api-badge-danger: oklch(0.577 0.215 26);
+    --api-badge-danger-bg: oklch(0.928 0.04 26);
+    --api-badge-validation: oklch(0.541 0.216 293);
+    --api-badge-validation-bg: oklch(0.921 0.04 293);
+    --api-oneof: oklch(0.609 0.126 65);
+    --api-oneof-bg: oklch(0.961 0.056 65);
+    --api-tag-agent: oklch(0.705 0.162 47);
+    --api-tag-agent-bg: oklch(0.953 0.042 47);
+    --api-tag-agent-border: oklch(0.901 0.076 47);
+    --api-tag-user: oklch(0.623 0.214 259);
+    --api-tag-user-bg: oklch(0.93 0.04 259);
+    --api-tag-user-border: oklch(0.878 0.088 259);
+    --api-tag-noauth: oklch(0.598 0.145 155);
+    --api-tag-noauth-bg: oklch(0.95 0.04 155);
+    --api-tag-noauth-border: oklch(0.901 0.068 155);
+    --api-icon-agent: oklch(0.705 0.162 47);
+    --api-icon-noauth: oklch(0.627 0.194 149);
+    --api-icon-user: oklch(0.623 0.214 259);
 }
 
 .dark {
@@ -188,6 +238,32 @@
     --sidebar-accent-foreground: oklch(0.93 0.005 270);
     --sidebar-border: oklch(1 0 0 / 8%);
     --sidebar-ring: oklch(0.50 0.06 270);
+
+    /* API semantic colors — dark variants */
+    --api-method: oklch(0.765 0.177 149);
+    --api-method-foreground: oklch(0.865 0.15 149);
+    --api-enum: oklch(0.706 0.183 293);
+    --api-required: oklch(0.706 0.191 22);
+    --api-badge-info: oklch(0.765 0.177 259);
+    --api-badge-info-bg: oklch(0.25 0.05 259);
+    --api-badge-danger: oklch(0.706 0.191 26);
+    --api-badge-danger-bg: oklch(0.25 0.06 26);
+    --api-badge-validation: oklch(0.706 0.183 293);
+    --api-badge-validation-bg: oklch(0.25 0.05 293);
+    --api-oneof: oklch(0.795 0.142 65);
+    --api-oneof-bg: oklch(0.20 0.04 65);
+    --api-tag-agent: oklch(0.765 0.163 47);
+    --api-tag-agent-bg: oklch(0.25 0.05 47);
+    --api-tag-agent-border: oklch(0.40 0.08 47);
+    --api-tag-user: oklch(0.765 0.177 259);
+    --api-tag-user-bg: oklch(0.25 0.05 259);
+    --api-tag-user-border: oklch(0.40 0.08 259);
+    --api-tag-noauth: oklch(0.765 0.15 155);
+    --api-tag-noauth-bg: oklch(0.25 0.05 155);
+    --api-tag-noauth-border: oklch(0.40 0.08 155);
+    --api-icon-agent: oklch(0.705 0.162 47);
+    --api-icon-noauth: oklch(0.627 0.194 149);
+    --api-icon-user: oklch(0.623 0.214 259);
 }
 
 @layer base {

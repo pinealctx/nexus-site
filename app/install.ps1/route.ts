@@ -4,10 +4,7 @@ import { join } from "node:path";
 const S3_BUCKET = process.env.S3_BUCKET ?? "";
 const PLACEHOLDER = "__RELEASES_URL_PLACEHOLDER__";
 
-const template = readFileSync(
-  join(process.cwd(), "lib", "install-scripts", "install.ps1"),
-  "utf-8",
-);
+const template = readFileSync(join(process.cwd(), "lib", "install-scripts", "install.ps1"), "utf-8");
 
 export function GET() {
   const releasesUrl = `https://${S3_BUCKET}.s3.amazonaws.com/releases/cli.json`;

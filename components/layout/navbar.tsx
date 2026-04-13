@@ -3,7 +3,7 @@
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, usePathname } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -25,8 +25,33 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
+  const mobileToggleRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
   const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
+
+  const closeMobile = useCallback(() => {
+    setMobileOpen(false);
+    mobileToggleRef.current?.focus();
+  }, []);
+
+  // Focus first link when mobile menu opens
+  useEffect(() => {
+    if (mobileOpen) {
+      setTimeout(() => firstLinkRef.current?.focus(), 0);
+    }
+  }, [mobileOpen]);
+
+  // Close mobile menu on Escape
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMobile();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [mobileOpen, closeMobile]);
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -74,10 +99,13 @@ export function Navbar() {
 
           {/* Mobile toggle */}
           <button
+            ref={mobileToggleRef}
             type="button"
             className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -86,12 +114,17 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t bg-background/95 px-6 pb-6 pt-4 backdrop-blur-xl md:hidden">
+        <div
+          ref={mobileMenuRef}
+          id="mobile-menu"
+          className="border-t bg-background/95 px-6 pb-6 pt-4 backdrop-blur-xl md:hidden"
+        >
           <nav className="flex flex-col gap-0.5">
-            {navItems.map((item) => (
+            {navItems.map((item, idx) => (
               <Link
                 key={item.href}
                 href={item.href}
+                ref={idx === 0 ? firstLinkRef : undefined}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "rounded-md px-3 py-2 text-[13px] font-medium transition-colors",

@@ -19,17 +19,54 @@ interface ApiSearchDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// Focus trap: keep Tab cycling within the dialog
+function useFocusTrap(containerRef: React.RefObject<HTMLElement | null>, active: boolean) {
+  useEffect(() => {
+    if (!active || !containerRef.current) return;
+    const container = containerRef.current;
+    const selector = 'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const focusable = container.querySelectorAll<HTMLElement>(selector);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    container.addEventListener("keydown", handleKeyDown);
+    return () => container.removeEventListener("keydown", handleKeyDown);
+  }, [containerRef, active]);
+}
+
 export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialogProps) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  useFocusTrap(dialogRef, open);
 
   const allItems = useMemo<SearchResult[]>(() => {
     const items: SearchResult[] = [];
+    const seen = new Set<string>();
+    const add = (item: SearchResult) => {
+      if (!seen.has(item.anchor)) {
+        seen.add(item.anchor);
+        items.push(item);
+      }
+    };
     for (const svc of apiData.services) {
       for (const m of svc.methods) {
-        items.push({
+        add({
           type: "method",
           label: m.name,
           description: m.httpPath,
@@ -40,20 +77,20 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
     }
     for (const msg of Object.values(apiData.messages)) {
       if (msg.fields.length > 0 && !msg.name.endsWith("Request") && !msg.name.endsWith("Response")) {
-        items.push({
+        add({
           type: "schema",
           label: msg.name,
           description: msg.fullName,
-          anchor: `schema-${msg.name}`,
+          anchor: `schema-${msg.fullName}`,
         });
       }
     }
     for (const e of Object.values(apiData.enums)) {
-      items.push({
+      add({
         type: "enum",
         label: e.name,
         description: e.fullName,
-        anchor: `enum-${e.name}`,
+        anchor: `enum-${e.fullName}`,
       });
     }
     return items;
@@ -77,9 +114,13 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
 
   useEffect(() => {
     if (open) {
+      triggerRef.current = document.activeElement as HTMLElement;
       setQuery("");
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 0);
+    } else if (triggerRef.current) {
+      triggerRef.current.focus();
+      triggerRef.current = null;
     }
   }, [open]);
 
@@ -125,34 +166,34 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
   const iconForType = (type: SearchResult["type"]) => {
     switch (type) {
       case "method":
-        return <ArrowRight className="h-4 w-4 shrink-0 text-emerald-500" />;
+        return <ArrowRight className="h-4 w-4 shrink-0 text-api-method" />;
       case "schema":
         return <Braces className="h-4 w-4 shrink-0 text-primary" />;
       case "enum":
-        return <Hash className="h-4 w-4 shrink-0 text-purple-500" />;
+        return <Hash className="h-4 w-4 shrink-0 text-api-enum" />;
     }
   };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
-      {/* biome-ignore lint/a11y/useSemanticElements: backdrop overlay needs absolute positioning not possible with button */}
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-        role="button"
-        tabIndex={-1}
         onClick={() => onOpenChange(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") onOpenChange(false);
-        }}
-        aria-label="Close search"
+        aria-hidden="true"
       />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-lg rounded-xl border bg-background shadow-2xl">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search API reference"
+        className="relative w-full max-w-lg rounded-xl border bg-background shadow-2xl"
+      >
         {/* Search input */}
         <div className="flex items-center gap-3 border-b px-4 py-3">
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
@@ -161,6 +202,10 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            role="combobox"
+            aria-expanded={results.length > 0}
+            aria-controls="search-results"
+            aria-label="Search API reference"
           />
           <button
             type="button"
@@ -172,7 +217,7 @@ export function ApiSearchDialog({ apiData, open, onOpenChange }: ApiSearchDialog
         </div>
 
         {/* Results */}
-        <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
+        <div ref={listRef} id="search-results" role="listbox" className="max-h-[50vh] overflow-y-auto p-2">
           {results.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">No results found</div>
           ) : (

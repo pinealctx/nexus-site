@@ -56,9 +56,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DownloadPage() {
-  const [desktop, cli] = await Promise.all([
-    loadRelease("desktop.json"),
-    loadRelease("cli.json"),
-  ]);
+  const [desktop, cli] = await Promise.all([loadRelease("desktop.json"), loadRelease("cli.json")]);
   return <DownloadClient desktop={desktop} cli={cli} />;
 }
