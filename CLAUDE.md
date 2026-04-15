@@ -12,21 +12,23 @@ Official Nexus AI website — marketing homepage, MDX documentation, auto-genera
 pnpm install          # Install dependencies
 pnpm dev              # Start dev server (http://localhost:3000)
 pnpm build            # Production build
-pnpm lint             # ESLint via next lint
-pnpm vitest           # Run tests
+pnpm lint             # Biome check
+pnpm lint:fix         # Biome check --fix
+pnpm format           # Biome format --write
+pnpm vitest           # Run tests (direct binary call)
 
-# Code generation (requires buf CLI and sibling nexus-ai repo)
+# Code generation (requires buf CLI and sibling nexus-proto repo)
 pnpm gen:proto        # Build protobuf descriptor from ../nexus-proto/proto → public/api-data/descriptor.json
 pnpm gen:api-data     # Parse descriptor → public/api-data/api.json
 pnpm gen:context      # Generate public/nexus-context.json for AI assistants
 pnpm gen:llms         # Generate public/llms.txt for LLM consumption
-pnpm gen              # Runs gen:api-data + gen:context + gen:llms
+pnpm gen              # Runs gen:proto + gen:api-data + gen:context + gen:llms
 ```
 
 ## Tech Stack
 
 - Next.js 15 (App Router) + React 19 + TypeScript (strict)
-- Tailwind CSS 4 + shadcn/ui (base-nova style) + lucide-react icons
+- Tailwind CSS 4 + @base-ui/react + lucide-react icons
 - Fumadocs (fumadocs-core, fumadocs-mdx, fumadocs-ui) for MDX documentation
 - next-intl v4 for i18n (zh-CN default, en secondary)
 - next-themes for dark/light mode
@@ -144,6 +146,6 @@ Tests in `lib/__tests__/` using Vitest:
 - **Default locale is zh-CN**, not en. English is secondary.
 - **`localePrefix: "as-needed"`**: zh-CN URLs have no prefix, en uses `/en/`.
 - Fumadocs integration: `next.config.ts` chains `withMDX(withNextIntl(nextConfig))`.
-- No custom ESLint or Prettier config — relies on eslint-config-next defaults.
+- Biome for linting and formatting (no ESLint or Prettier).
 - Inter font via `next/font/google`. CSS variables use oklch color space.
 - `api/` and `download/` pages read JSON data at build time via `readFileSync`.
