@@ -70,6 +70,16 @@ Send a heartbeat every 30 seconds after authentication:
 }
 ```
 
+The server responds:
+
+```json
+{
+  "requestId": "2",
+  "type": "SERVER_FRAME_TYPE_HEARTBEAT_PONG",
+  "heartbeatPong": {"serverTime": "1712000000000"}
+}
+```
+
 The server disconnects after 90 seconds without a heartbeat.
 
 ## Receiving Events
@@ -97,7 +107,7 @@ Events arrive as `ServerFrame` messages with `type: SERVER_FRAME_TYPE_UPDATE` co
 }
 ```
 
-Updates are sequenced — each `snUpdate` carries a monotonically increasing `sn`. Your agent can detect gaps by comparing the received `sn` with the last seen value and pull missed updates via `GetUpdates`.
+Updates are sequenced — each `snUpdate` carries a monotonically increasing `sn`. Your agent can detect gaps by comparing the received `sn` with the last seen value and pull missed updates via `SyncService.GetDifference`.
 
 Event types and fields are identical to Webhook. See [Webhook Events](/docs/agent/webhook) for details.
 
@@ -134,14 +144,14 @@ Re-authenticate after each reconnection.
 
 ## Configuration
 
-Switch to WebSocket mode via `SetDeliveryConfig`:
+Switch to WebSocket mode via `SetAgentConfig` (called by the agent owner):
 
 ```bash
-curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetAgentConfig \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
-  -H "Authorization: Bearer nxa_your_token_here" \
-  -d '{"websocket": {}}'
+  -H "Authorization: Bearer nxs_your_user_access_token" \
+  -d '{"agentUserId": 1001, "deliveryMode": "AGENT_DELIVERY_MODE_WEBSOCKET"}'
 ```
 
 Also configurable via AgentRoot command:

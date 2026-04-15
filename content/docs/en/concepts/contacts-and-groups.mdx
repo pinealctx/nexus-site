@@ -1,0 +1,103 @@
+---
+title: Contacts & Groups
+description: User relationships and group management
+---
+
+## Contacts
+
+Contacts represent bilateral relationships between users. Once two users become contacts, a private conversation is automatically created.
+
+### Adding Contacts
+
+There are two flows:
+
+**Friend request flow** (human users):
+
+1. `ContactService.SendFriendRequest` — Send a request with an optional message
+2. The target user receives a `friendRequestReceived` update
+3. `ContactService.AcceptFriendRequest` or `RejectFriendRequest`
+4. On accept, both users receive a `contactAdded` update
+
+**Direct add** (for Agents):
+
+- `ContactService.AddContact` — Directly add an Agent as a contact (no approval needed). A private conversation is created immediately.
+
+### Contact List
+
+`ContactService.ListContacts` returns all contacts with pagination:
+
+```json
+{"afterId": 0, "limit": 100}
+```
+
+Response includes `contacts` (list of `ContactItem`), `totalContacts`, and `has_more`.
+
+### Other Contact Operations
+
+| API | Description |
+|-----|-------------|
+| `DeleteContact` | Remove a contact (does not delete the conversation) |
+| `UpdateContactAlias` | Set a personal alias for a contact |
+| `BlockUser` / `UnblockUser` | Block or unblock a user |
+| `ListBlocked` | List all blocked users |
+| `SearchUsers` | Search users by username (filter by `USER` or `AGENT` type) |
+
+### Friend Request Events
+
+All friend request events are delivered as sequenced updates (`SnUpdate`):
+
+| Event | SnUpdate Field |
+|-------|---------------|
+| Request sent | `friendRequestSent` |
+| Request received | `friendRequestReceived` |
+| Request accepted | `friendRequestAccepted` |
+| Request rejected | `friendRequestRejected` |
+
+---
+
+## Groups
+
+Groups are multi-user conversations with owner-based management.
+
+### Group Lifecycle
+
+```
+CreateGroup → Active → DissolveGroup (owner only)
+```
+
+- Created by a user via `GroupService.CreateGroup` with 2–199 initial members
+- Groups have an owner (`MEMBER_ROLE_OWNER`) and members (`MEMBER_ROLE_MEMBER`)
+- Only the owner can dissolve the group, update info, or remove members
+
+### Group Management APIs
+
+| API | Description |
+|-----|-------------|
+| `CreateGroup` | Create a group (name, avatar, members, description) |
+| `DissolveGroup` | Dissolve the group (owner only) |
+| `UpdateGroupName` | Change group name (owner only) |
+| `UpdateGroupAvatar` | Change group avatar (owner only) |
+| `UpdateGroupDescription` | Change group description (owner only) |
+| `InviteMembers` | Add 1–99 members (owner only) |
+| `RemoveMember` | Remove a member (owner only) |
+| `LeaveGroup` | Leave the group (any member) |
+| `GetGroupInfo` | Get group details with member list |
+| `ListGroups` | List all groups the user belongs to |
+
+### Group Events
+
+Group events are delivered as system messages (`MESSAGE_TYPE_GROUP`) within the group conversation, with `senderId` of 0. Events include:
+
+| Event | Description |
+|-------|-------------|
+| `member_joined` | Members joined (with optional inviter) |
+| `member_left` | Member voluntarily left |
+| `member_removed` | Member removed by owner |
+| `group_info_changed` | Name, avatar, or description changed |
+
+Additionally, removed and dissolved events are delivered as sequenced updates to the affected user/agent:
+
+| Event | SnUpdate Field |
+|-------|---------------|
+| Removed from group | `removedFromGroup` |
+| Group dissolved | `groupDissolved` |

@@ -14,7 +14,7 @@ Authorization: Bearer nxa_your_token_here
 Connect-Protocol-Version: 1
 ```
 
-Agent tokens are obtained by creating an Agent through the AgentRoot conversation (`/newagent` command). The token is returned once in plaintext — save it immediately. Tokens are long-lived and do not expire automatically. If lost, reset via AgentRoot (`/token <username>`) or rotate via `AgentService.RevokeSelfToken` (old token invalidated immediately, new token returned). Endpoints marked `agent_only` accept only agent tokens.
+Agent tokens are obtained by creating an Agent through the AgentRoot conversation (`/newagent` command). The token is returned once in plaintext — save it immediately. Tokens are long-lived and do not expire automatically. If lost, reset via AgentRoot (`/token <username>`) or regenerate via `AgentService.RegenerateAgentToken` (called by the agent owner; old token invalidated immediately, new token returned). Endpoints marked `agent_only` accept only agent tokens.
 
 ## User Authentication
 

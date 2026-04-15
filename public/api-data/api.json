@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-10T15:56:22.130Z",
+  "generatedAt": "2026-04-15T03:07:49.839Z",
   "services": [
     {
       "name": "AgentService",
@@ -7520,10 +7520,34 @@
       "description": "AnswerCardActionRequest responds to a card action submission.",
       "fields": [
         {
+          "name": "conversation_id",
+          "jsonName": "conversationId",
+          "type": "int64",
+          "description": "Conversation ID where the card action was submitted.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        },
+        {
+          "name": "message_id",
+          "jsonName": "messageId",
+          "type": "int64",
+          "description": "Card message ID that the action belongs to.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        },
+        {
           "name": "action_id",
           "jsonName": "actionId",
           "type": "string",
-          "description": "Action ID from the webhook event.",
+          "description": "Action ID from the webhook event (unique within conversation).",
           "optional": false,
           "repeated": false,
           "sensitive": false,

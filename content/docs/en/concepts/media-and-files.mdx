@@ -1,0 +1,92 @@
+---
+title: Media & Files
+description: File upload, download, and media handling
+---
+
+## Upload Methods
+
+Nexus AI provides two upload strategies depending on file size.
+
+### Single-request Upload (< 5 MB)
+
+For small files like avatars and small attachments, use `MediaService.UploadFile`:
+
+```bash
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.MediaService/UploadFile \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{
+    "fileName": "photo.jpg",
+    "contentType": "image/jpeg",
+    "purpose": "MEDIA_PURPOSE_MESSAGE",
+    "data": "<base64-encoded-bytes>"
+  }'
+```
+
+Response includes `MediaFileInfo` with `fileId`, `publicUrl`, dimensions, and checksum.
+
+### Chunked Upload (up to 100 MB)
+
+For large files like videos and documents, use the three-step process:
+
+**Step 1: Initialize** — `MediaService.InitUpload`
+
+```json
+{"fileName": "video.mp4", "contentType": "video/mp4", "size": 52428800}
+```
+
+Returns a `sessionId` for subsequent chunks.
+
+**Step 2: Upload chunks** — `MediaService.UploadChunk` (repeat as needed)
+
+```json
+{"sessionId": "upload_abc123", "chunk": "<base64-chunk>", "offset": 0}
+```
+
+**Step 3: Complete** — `MediaService.CompleteUpload`
+
+```json
+{"sessionId": "upload_abc123"}
+```
+
+Returns `MediaFileInfo` with the final `fileId`.
+
+## Download
+
+`MediaService.GetDownloadURL` returns a time-limited signed URL:
+
+```json
+{"fileId": "file_abc123"}
+```
+
+Response:
+
+```json
+{"url": "https://storage.example.com/...", "expiresAt": "1712000060000"}
+```
+
+Small files uploaded via `UploadFile` for avatar purpose have permanent public URLs (`publicUrl` in `MediaFileInfo`).
+
+## Media Purposes
+
+| Purpose | Description |
+|---------|-------------|
+| `MEDIA_PURPOSE_AVATAR` | User avatar |
+| `MEDIA_PURPOSE_GROUP_AVATAR` | Group avatar |
+| `MEDIA_PURPOSE_MESSAGE` | Message attachment |
+
+## MediaFileInfo Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `fileId` | string | Unique file identifier |
+| `fileName` | string | Original filename |
+| `contentType` | string | MIME type |
+| `size` | int64 | File size in bytes |
+| `checksum` | string | SHA256 hash |
+| `width` | int32 | Image/video width (if applicable) |
+| `height` | int32 | Image/video height (if applicable) |
+| `durationMs` | int64 | Audio/video duration (if applicable) |
+| `thumbnailFileId` | string | Thumbnail file ID (if applicable) |
+| `publicUrl` | string | Permanent public URL (avatars only) |

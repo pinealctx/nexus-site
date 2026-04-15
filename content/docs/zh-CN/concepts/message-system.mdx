@@ -30,14 +30,14 @@ Agent/User ──── SendMessage (HTTP) ────► Server ──── P
 
 | 字段 | 说明 |
 |------|------|
-| `message_id` | 会话内递增 ID |
-| `conversation_id` | 所属会话 |
-| `sender_id` | 发送者 ID（群事件消息为 0） |
+| `messageId` | 会话内递增 ID |
+| `conversationId` | 所属会话 |
+| `senderId` | 发送者 ID（群事件消息为 0） |
 | `body` | 消息体（类型 + 内容） |
-| `reply_to` | 引用回复上下文（可选） |
+| `replyTo` | 引用回复上下文（可选） |
 | `metadata` | 扩展键值对 |
-| `created_at` | 创建时间（Unix ms） |
-| `updated_at` | 最后修改时间（编辑/撤回时设置） |
+| `createdAt` | 创建时间（Unix ms） |
+| `updatedAt` | 最后修改时间（编辑/撤回时设置） |
 | `edited` | 是否被编辑过 |
 
 ## 消息历史

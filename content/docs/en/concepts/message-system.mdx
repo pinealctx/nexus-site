@@ -30,14 +30,14 @@ All messages use a unified envelope:
 
 | Field | Description |
 |-------|-------------|
-| `message_id` | Per-conversation incrementing ID |
-| `conversation_id` | Owning conversation |
-| `sender_id` | Sender ID (0 for group event messages) |
+| `messageId` | Per-conversation incrementing ID |
+| `conversationId` | Owning conversation |
+| `senderId` | Sender ID (0 for group event messages) |
 | `body` | Message body (type + content) |
-| `reply_to` | Reply context (optional) |
+| `replyTo` | Reply context (optional) |
 | `metadata` | Extensible key-value pairs |
-| `created_at` | Creation time (Unix ms) |
-| `updated_at` | Last modification time (on edit/recall) |
+| `createdAt` | Creation time (Unix ms) |
+| `updatedAt` | Last modification time (on edit/recall) |
 | `edited` | Whether the message was edited |
 
 ## Message History

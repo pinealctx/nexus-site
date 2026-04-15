@@ -7,17 +7,17 @@ Webhook is the primary way for agents to receive events. Nexus AI delivers event
 
 ## Configuration
 
-Call `AgentService.SetDeliveryConfig`:
+Call `AgentService.SetAgentConfig` (called by the agent owner with their user access token):
 
 ```bash
-curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetAgentConfig \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
-  -H "Authorization: Bearer nxa_your_token_here" \
-  -d '{"webhook": {"url": "https://your-server.com/webhook"}}'
+  -H "Authorization: Bearer nxs_your_user_access_token" \
+  -d '{"agentUserId": 1001, "deliveryMode": "AGENT_DELIVERY_MODE_WEBHOOK", "webhookUrl": "https://your-server.com/webhook"}'
 ```
 
-On success, the response contains a `webhook_secret` for signature verification. The server sends a test request to verify reachability before saving.
+On success, the response contains a `secret_key` for signature verification. The server sends a test request to verify reachability before saving.
 
 Also configurable via AgentRoot command:
 
@@ -27,7 +27,7 @@ Also configurable via AgentRoot command:
 
 **Notes:**
 - URL must be HTTPS
-- Each `SetDeliveryConfig` call generates a new `webhook_secret`, invalidating the previous one immediately
+- Each `SetAgentConfig` call generates a new `secret_key`, invalidating the previous one immediately
 - Switching to WebSocket mode clears the Webhook configuration
 
 ## Request Format
@@ -110,6 +110,26 @@ User clicked an Adaptive Card Action.Submit button. Card actions are non-sequenc
 ```
 
 Respond via `MessageService.AnswerCardAction` (toast/alert) or update the card via `MessageService.EditMessage`.
+
+`AnswerCardAction` is `agent_only` — called with the Agent's `nxa_` token:
+
+```bash
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.MessageService/AnswerCardAction \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer ${AGENT_TOKEN}" \
+  -d '{"conversationId": "8589934634", "messageId": "1001", "actionId": "act_abc123", "text": "You chose Blue!", "showAlert": false}'
+```
+
+| Field | Description |
+|-------|-------------|
+| `conversationId` | From the `cardAction` event |
+| `messageId` | From the `cardAction` event |
+| `actionId` | From the `cardAction` event |
+| `text` | Toast or alert text shown to the user |
+| `showAlert` | `true` = modal alert, `false` = toast notification |
+
+The user sees the response as a brief toast or an alert dialog. Card actions expire after 5 minutes (TTL).
 
 ### CONTACT_ADDED
 

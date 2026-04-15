@@ -3,7 +3,7 @@ title: Message Types
 description: All message types agents can send and receive
 ---
 
-Nexus AI supports multiple message types. Agents can send and receive all of them. Messages are carried in a `MessageBody` structure where `type` identifies the kind and `content` holds the payload.
+Nexus AI supports multiple message types. Agents can send and receive all of them. Messages are carried in a `MessageBody` structure where `type` identifies the kind and a `oneof content` field holds the type-specific payload.
 
 ## Text (TEXT)
 
@@ -76,6 +76,46 @@ Small files (< 5 MB) use `UploadFile`. Large files use chunked upload (`InitUplo
       "filename": "report.pdf",
       "sizeBytes": "1048576",
       "mimeType": "application/pdf"
+    }
+  }
+}
+```
+
+## Audio (AUDIO)
+
+Upload via `MediaService.UploadFile` first, then send with the returned `file_id`:
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_AUDIO",
+    "audio": {
+      "fileId": "file_audio123",
+      "durationMs": 15000,
+      "sizeBytes": "512000",
+      "transcript": "Hello, this is a voice message."
+    }
+  }
+}
+```
+
+The `transcript` field is optional — auto-generated or manually set speech-to-text result.
+
+## Video (VIDEO)
+
+Upload via chunked upload (`InitUpload` → `UploadChunk` → `CompleteUpload`) first, then send:
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_VIDEO",
+    "video": {
+      "fileId": "file_video123",
+      "thumbnailFileId": "file_thumb_video",
+      "durationMs": 60000,
+      "width": 1920,
+      "height": 1080,
+      "sizeBytes": "52428800"
     }
   }
 }

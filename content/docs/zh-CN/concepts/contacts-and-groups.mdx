@@ -1,0 +1,103 @@
+---
+title: 联系人与群组
+description: 用户关系和群组管理
+---
+
+## 联系人
+
+联系人代表用户之间的双向关系。两个用户成为联系人后，会自动创建一个私聊会话。
+
+### 添加联系人
+
+有两种流程：
+
+**好友请求流程**（人类用户之间）：
+
+1. `ContactService.SendFriendRequest` — 发送附带消息的好友请求
+2. 目标用户收到 `friendRequestReceived` 更新
+3. `ContactService.AcceptFriendRequest` 或 `RejectFriendRequest`
+4. 接受后双方都收到 `contactAdded` 更新
+
+**直接添加**（适用于 Agent）：
+
+- `ContactService.AddContact` — 直接添加 Agent 为联系人（无需审批），私聊会话立即创建。
+
+### 联系人列表
+
+`ContactService.ListContacts` 返回所有联系人，支持分页：
+
+```json
+{"afterId": 0, "limit": 100}
+```
+
+响应包含 `contacts`（`ContactItem` 列表）、`totalContacts` 和 `has_more`。
+
+### 其他联系人操作
+
+| API | 说明 |
+|-----|------|
+| `DeleteContact` | 删除联系人（不会删除会话） |
+| `UpdateContactAlias` | 设置联系人备注名 |
+| `BlockUser` / `UnblockUser` | 屏蔽/取消屏蔽用户 |
+| `ListBlocked` | 查看屏蔽列表 |
+| `SearchUsers` | 按用户名搜索用户（可按 `USER` 或 `AGENT` 类型过滤） |
+
+### 好友请求事件
+
+所有好友请求事件都作为有序更新（`SnUpdate`）投递：
+
+| 事件 | SnUpdate 字段 |
+|------|--------------|
+| 请求已发送 | `friendRequestSent` |
+| 收到请求 | `friendRequestReceived` |
+| 请求已接受 | `friendRequestAccepted` |
+| 请求已拒绝 | `friendRequestRejected` |
+
+---
+
+## 群组
+
+群组是基于所有者管理的多用户会话。
+
+### 群组生命周期
+
+```
+CreateGroup → 活跃 → DissolveGroup（仅群主）
+```
+
+- 用户通过 `GroupService.CreateGroup` 创建，初始成员 2–199 人
+- 群组有群主（`MEMBER_ROLE_OWNER`）和成员（`MEMBER_ROLE_MEMBER`）
+- 仅群主可以解散群组、修改信息、移除成员
+
+### 群组管理 API
+
+| API | 说明 |
+|-----|------|
+| `CreateGroup` | 创建群组（名称、头像、成员、描述） |
+| `DissolveGroup` | 解散群组（仅群主） |
+| `UpdateGroupName` | 修改群名称（仅群主） |
+| `UpdateGroupAvatar` | 修改群头像（仅群主） |
+| `UpdateGroupDescription` | 修改群描述（仅群主） |
+| `InviteMembers` | 邀请 1–99 名成员（仅群主） |
+| `RemoveMember` | 移除成员（仅群主） |
+| `LeaveGroup` | 退出群组（任何成员） |
+| `GetGroupInfo` | 获取群详情和成员列表 |
+| `ListGroups` | 列出所有已加入的群组 |
+
+### 群组事件
+
+群组事件作为系统消息（`MESSAGE_TYPE_GROUP`）投递在群聊会话中，`senderId` 为 0。事件包括：
+
+| 事件 | 说明 |
+|------|------|
+| `member_joined` | 成员加入（可选包含邀请人） |
+| `member_left` | 成员主动退出 |
+| `member_removed` | 成员被群主移除 |
+| `group_info_changed` | 名称、头像或描述变更 |
+
+此外，被移除和群解散事件还会作为有序更新单独投递给受影响的用户/Agent：
+
+| 事件 | SnUpdate 字段 |
+|------|--------------|
+| 被移出群组 | `removedFromGroup` |
+| 群组被解散 | `groupDissolved` |

@@ -1,0 +1,92 @@
+---
+title: 媒体与文件
+description: 文件上传、下载和媒体处理
+---
+
+## 上传方式
+
+Nexus AI 根据文件大小提供两种上传策略。
+
+### 单次上传（< 5 MB）
+
+适合头像、小附件等文件，使用 `MediaService.UploadFile`：
+
+```bash
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.MediaService/UploadFile \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Authorization: Bearer nxa_..." \
+  -d '{
+    "fileName": "photo.jpg",
+    "contentType": "image/jpeg",
+    "purpose": "MEDIA_PURPOSE_MESSAGE",
+    "data": "<base64-encoded-bytes>"
+  }'
+```
+
+响应包含 `MediaFileInfo`，其中有 `fileId`、`publicUrl`、尺寸和校验和。
+
+### 分片上传（最大 100 MB）
+
+适合视频、大文档等文件，使用三步流程：
+
+**步骤 1：初始化** — `MediaService.InitUpload`
+
+```json
+{"fileName": "video.mp4", "contentType": "video/mp4", "size": 52428800}
+```
+
+返回 `sessionId` 用于后续分片上传。
+
+**步骤 2：上传分片** — `MediaService.UploadChunk`（按需重复）
+
+```json
+{"sessionId": "upload_abc123", "chunk": "<base64-chunk>", "offset": 0}
+```
+
+**步骤 3：完成上传** — `MediaService.CompleteUpload`
+
+```json
+{"sessionId": "upload_abc123"}
+```
+
+返回包含最终 `fileId` 的 `MediaFileInfo`。
+
+## 下载
+
+`MediaService.GetDownloadURL` 返回有时限的签名下载链接：
+
+```json
+{"fileId": "file_abc123"}
+```
+
+响应：
+
+```json
+{"url": "https://storage.example.com/...", "expiresAt": "1712000060000"}
+```
+
+通过 `UploadFile` 上传的头像类文件具有永久的公开 URL（`MediaFileInfo` 中的 `publicUrl`）。
+
+## 媒体用途
+
+| 用途 | 说明 |
+|------|------|
+| `MEDIA_PURPOSE_AVATAR` | 用户头像 |
+| `MEDIA_PURPOSE_GROUP_AVATAR` | 群头像 |
+| `MEDIA_PURPOSE_MESSAGE` | 消息附件 |
+
+## MediaFileInfo 字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `fileId` | string | 文件唯一标识 |
+| `fileName` | string | 原始文件名 |
+| `contentType` | string | MIME 类型 |
+| `size` | int64 | 文件大小（字节） |
+| `checksum` | string | SHA256 校验和 |
+| `width` | int32 | 图片/视频宽度（如适用） |
+| `height` | int32 | 图片/视频高度（如适用） |
+| `durationMs` | int64 | 音频/视频时长（如适用） |
+| `thumbnailFileId` | string | 缩略图文件 ID（如适用） |
+| `publicUrl` | string | 永久公开 URL（仅头像） |

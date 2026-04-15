@@ -1,0 +1,281 @@
+---
+title: Error Codes
+description: Complete reference for all Nexus AI business error codes
+---
+
+All API errors follow the [Connect RPC error spec](https://connectrpc.com/docs/go/errors). Business errors include a structured `ErrorDetail` in the response:
+
+```json
+{
+  "code": "unauthenticated",
+  "message": "INVALID_TOKEN",
+  "detail": {
+    "@type": "type.googleapis.com/shared.v1.ErrorDetail",
+    "errorCode": 1001,
+    "errorName": "INVALID_TOKEN",
+    "metadata": {}
+  }
+}
+```
+
+Client code should match on `errorCode` for programmatic handling, and use `errorName` for logging.
+
+## Error Format
+
+```typescript
+interface ErrorDetail {
+  errorCode: number    // Numeric business error code
+  errorName: string    // Readable identifier (e.g. "INVALID_TOKEN")
+  metadata: Record<string, string>  // Optional context
+}
+```
+
+Common `metadata` keys:
+
+| Key | Description |
+|-----|-------------|
+| `retry_after` | Seconds to wait before retrying (rate limited errors) |
+| `attempts_remaining` | Remaining attempts before lockout |
+
+## Code Ranges
+
+| Range | Domain |
+|-------|--------|
+| 1000–1999 | Authentication & Login |
+| 2000–2999 | User & Profile |
+| 3000–3999 | Contacts |
+| 4000–4999 | Groups |
+| 5000–5999 | Conversations |
+| 6000–6999 | Messages |
+| 7000–7999 | Agents |
+| 8000–8999 | Media & Files |
+| 9000–9999 | Push Notifications |
+
+---
+
+## Authentication (1000–1999)
+
+### Token & Session (1001–1099)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 1001 | `INVALID_TOKEN` | 401 | Token is malformed, revoked, or unrecognized |
+| 1002 | `TOKEN_EXPIRED` | 401 | Access token has expired, use `RefreshToken` |
+| 1003 | `REFRESH_TOKEN_INVALID` | 401 | Refresh token is invalid or revoked |
+| 1004 | `REFRESH_TOKEN_REUSED` | 401 | Refresh token was already used (possible theft — all tokens revoked) |
+| 1005 | `DEVICE_LIMIT_EXCEEDED` | 429 | Too many simultaneous device sessions |
+| 1006 | `REFRESH_RATE_LIMITED` | 429 | Too many token refresh requests, `metadata.retry_after` |
+
+### Gateway Connection (1007–1099)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 1007 | `INVALID_FRAME` | 400 | Malformed WebSocket frame |
+| 1008 | `CONNECTION_REPLACED` | 499 | Same-user connection from another device closed this one |
+
+### Verify Code (1101–1199)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 1101 | `VERIFY_CODE_RATE_LIMITED` | 429 | Too many code requests in short period, `metadata.retry_after` |
+| 1102 | `VERIFY_CODE_DAILY_LIMIT` | 429 | Daily send limit exceeded |
+| 1103 | `VERIFY_CODE_SEND_FAILED` | 500 | SMS/email delivery failed |
+| 1104 | `VERIFY_TOKEN_EXPIRED` | 404 | The `verify_token` has expired, request a new code |
+| 1105 | `VERIFY_CODE_INVALID` | 400 | Incorrect verification code |
+| 1106 | `VERIFY_CODE_TOO_MANY_ATTEMPTS` | 429 | Too many wrong attempts, `metadata.attempts_remaining` |
+
+### Password (1201–1299)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 1201 | `INVALID_PASSWORD` | 401 | Wrong password |
+| 1202 | `ACCOUNT_LOCKED` | 429 | Too many failed login attempts |
+| 1203 | `PASSWORD_TOO_WEAK` | 400 | Password does not meet strength requirements |
+| 1204 | `RESET_TOKEN_INVALID` | 404 | Password reset token expired or invalid |
+| 1205 | `PASSWORD_NOT_SET` | 412 | Account has no password set (use `SetupPassword`) |
+| 1206 | `SAME_PASSWORD` | 400 | New password is the same as the old one |
+| 1207 | `PASSWORD_ALREADY_SET` | 412 | Account already has a password |
+
+### Identity Validation (1301–1399)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 1301 | `INVALID_EMAIL` | 400 | Malformed email address |
+| 1302 | `INVALID_PHONE` | 400 | Invalid phone number format |
+
+### Login Method (1401–1499)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 1401 | `LOGIN_METHOD_NOT_ALLOWED` | 400 | The requested login method (email/phone) is disabled by server config |
+
+---
+
+## User & Profile (2000–2999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 2001 | `USER_NOT_FOUND` | 404 | Target user does not exist |
+| 2002 | `USERNAME_TAKEN` | 409 | Username is already in use |
+| 2003 | `USERNAME_ALREADY_CHANGED` | 412 | Username can only be set once |
+| 2004 | `INVALID_USERNAME_FORMAT` | 400 | Must be 5–32 chars, `^[a-z][a-z0-9_]*$` |
+| 2005 | `PHONE_ALREADY_BOUND` | 409 | Phone number is already linked to another account |
+| 2006 | `EMAIL_ALREADY_BOUND` | 409 | Email is already linked to another account |
+| 2007 | `NICKNAME_TOO_LONG` | 400 | Nickname exceeds 64 characters |
+| 2008 | `SIGNATURE_TOO_LONG` | 400 | Signature exceeds 200 characters |
+| 2009 | `DEVICE_NOT_FOUND` | 404 | Device session not found |
+| 2010 | `CANNOT_REMOVE_CURRENT_DEVICE` | 400 | Cannot remove the device making the request |
+| 2011 | `USERNAME_RESERVED` | 400 | Username is reserved (e.g. system names) |
+
+---
+
+## Contacts (3000–3999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 3001 | `ALREADY_CONTACTS` | 409 | Already contacts with this user |
+| 3002 | `FRIEND_REQUEST_EXISTS` | 409 | A pending friend request already exists |
+| 3003 | `FRIEND_REQUEST_NOT_FOUND` | 404 | Friend request does not exist |
+| 3004 | `FRIEND_REQUEST_HANDLED` | 412 | Friend request was already accepted or rejected |
+| 3005 | `CANNOT_ADD_SELF` | 400 | Cannot add yourself as a contact |
+| 3006 | `USER_BLOCKED` | 403 | Operation blocked because you or the target has blocked the other |
+| 3007 | `NOT_CONTACTS` | 412 | Operation requires being contacts first |
+| 3008 | `ALREADY_BLOCKED` | 409 | User is already blocked |
+| 3009 | `NOT_BLOCKED` | 412 | User is not in your blocklist |
+| 3010 | `AGENT_PRIVATE` | 403 | Agent has private visibility, cannot be added directly |
+| 3011 | `USE_SEND_FRIEND_REQUEST` | 412 | Target is a regular user — use `SendFriendRequest` instead |
+| 3012 | `USE_ADD_CONTACT` | 412 | Target is an Agent — use `AddContact` instead |
+
+---
+
+## Groups (4000–4999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 4001 | `GROUP_NOT_FOUND` | 404 | Group does not exist |
+| 4002 | `GROUP_DISSOLVED` | 412 | Group has been dissolved |
+| 4003 | `NOT_GROUP_MEMBER` | 403 | You are not a member of this group |
+| 4004 | `NOT_GROUP_OWNER` | 403 | Only the group owner can perform this action |
+| 4005 | `ALREADY_GROUP_MEMBER` | 409 | User is already a member |
+| 4006 | `GROUP_MEMBER_LIMIT` | 429 | Group has reached the maximum member count |
+| 4007 | `GROUP_AGENT_LIMIT` | 429 | Group has reached the maximum agent count |
+| 4008 | `CANNOT_KICK_OWNER` | 400 | Cannot remove the group owner |
+| 4009 | `GROUP_NAME_INVALID` | 400 | Group name is empty or too long (1–64 chars) |
+| 4010 | `USER_GROUP_LIMIT` | 429 | User has joined too many groups |
+| 4011 | `INVITE_BLOCKED_USER` | 403 | Cannot invite a user who has blocked you |
+| 4012 | `OWNER_CANNOT_LEAVE` | 403 | Owner must dissolve the group instead of leaving |
+| 4013 | `GROUP_TOO_FEW_MEMBERS` | 412 | Group needs at least 2 members |
+
+---
+
+## Conversations (5000–5999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 5001 | `CONVERSATION_NOT_FOUND` | 404 | Conversation does not exist |
+| 5002 | `NOT_CONVERSATION_MEMBER` | 403 | You are not a participant in this conversation |
+| 5003 | `CONVERSATION_READONLY` | 412 | Cannot send to this conversation (e.g. deleted, muted) |
+
+---
+
+## Messages (6000–6999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 6001 | `MESSAGE_NOT_FOUND` | 404 | Message does not exist in this conversation |
+| 6002 | `NOT_MESSAGE_SENDER` | 403 | You did not send this message (cannot edit/recall others' messages) |
+| 6003 | `RECALL_TIMEOUT` | 412 | 24-hour recall window has passed |
+| 6004 | `MESSAGE_ALREADY_RECALLED` | 412 | Message was already recalled |
+| 6005 | `INVALID_MESSAGE_TYPE` | 400 | Unsupported or unrecognized message type |
+| 6006 | `MESSAGE_TOO_LONG` | 400 | Message content exceeds the size limit |
+| 6007 | `SEND_BLOCKED` | 403 | You have been blocked by the recipient |
+| 6008 | `DUPLICATE_MESSAGE` | 409 | A message with this `client_message_id` already exists |
+| 6009 | `STREAM_NOT_FOUND` | 404 | Streaming message does not exist or is not in streaming phase |
+| 6010 | `STREAM_SEQ_INVALID` | 400 | Stream delta sequence number is out of order |
+| 6011 | `CARD_ACTION_EXPIRED` | 404 | Card action callback has expired (5-minute TTL) |
+| 6012 | `STREAM_ALREADY_ENDED` | 412 | Stream has already been finalized or errored |
+| 6013 | `MESSAGE_TYPE_MISMATCH` | 400 | Edit body type does not match original message type |
+| 6014 | `NOT_CARD_MESSAGE` | 412 | Message is not a CARD type (cannot submit card action) |
+
+---
+
+## Agents (7000–7999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 7001 | `AGENT_NOT_FOUND` | 404 | Agent does not exist |
+| 7003 | `AGENT_DELETED` | 412 | Agent has been deleted |
+| 7004 | `AGENT_USERNAME_TAKEN` | 409 | Agent username is already in use |
+| 7005 | `NOT_AGENT_CREATOR` | 403 | You did not create this agent |
+| 7006 | `WEBHOOK_VERIFICATION_FAILED` | 412 | Webhook URL unreachable or returned non-2xx |
+| 7007 | `WEBHOOK_NOT_CONFIGURED` | 412 | Agent has no webhook URL configured |
+| 7008 | `IP_NOT_ALLOWED` | 403 | Request IP is not in the agent's IP whitelist |
+| 7009 | `COMMANDS_LIMIT_EXCEEDED` | 429 | Too many slash commands registered |
+| 7010 | `AGENTROOT_ALREADY_EXISTS` | 409 | AgentRoot system agent already initialized |
+| 7011 | `INVALID_DELIVERY_CONFIG` | 400 | Invalid delivery mode or missing required fields |
+| 7012 | `DELIVERY_MODE_MISMATCH` | 412 | Event delivery mode does not match the request |
+| 7013 | `MINI_APP_NOT_ENABLED` | 412 | Agent does not have Mini App enabled |
+| 7014 | `INVALID_MINI_APP_URL` | 400 | Mini App URL is invalid |
+| 7015 | `MINI_APP_ACCESS_DENIED` | 403 | Origin not in Mini App's allowed origins list |
+
+---
+
+## Media & Files (8000–8999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 8001 | `FILE_TOO_LARGE` | 429 | File exceeds maximum size (5 MB for `UploadFile`, 100 MB for chunked) |
+| 8002 | `UNSUPPORTED_FILE_TYPE` | 400 | File content type is not allowed |
+| 8003 | `UPLOAD_SESSION_EXPIRED` | 404 | Chunked upload session has timed out |
+| 8004 | `UPLOAD_SESSION_NOT_FOUND` | 404 | Upload session ID does not exist |
+| 8005 | `CHUNK_OFFSET_INVALID` | 400 | Chunk offset does not match expected position |
+| 8006 | `FILE_INCOMPLETE` | 412 | Not all chunks received, cannot complete upload |
+| 8007 | `INVALID_PURPOSE` | 400 | Invalid or unrecognized media purpose |
+| 8008 | `FILE_NOT_FOUND` | 404 | Requested file does not exist |
+| 8009 | `CHUNK_TOO_SMALL` | 400 | Individual chunk is below minimum size requirement |
+
+---
+
+## Push Notifications (9000–9999)
+
+| Code | Name | HTTP Status | Description |
+|------|------|-------------|-------------|
+| 9001 | `INVALID_PUSH_TOKEN` | 400 | Push token is malformed or empty |
+| 9002 | `UNSUPPORTED_PUSH_PLATFORM` | 400 | Push platform is not APNs or FCM |
+| 9003 | `PUSH_TOKEN_NOT_FOUND` | 404 | Push token is not registered for this device |
+
+---
+
+## Client Handling Guide
+
+### Token Lifecycle
+
+```
+1001 INVALID_TOKEN  → Re-authenticate (user: login, agent: check token)
+1002 TOKEN_EXPIRED  → Call RefreshToken
+1003 REFRESH_TOKEN_INVALID → Full re-login required
+1004 REFRESH_TOKEN_REUSED  → Full re-login required (security event)
+```
+
+### Rate Limiting
+
+When you receive a 429 error, check `metadata.retry_after`:
+
+```json
+{"errorCode": 1101, "errorName": "VERIFY_CODE_RATE_LIMITED", "metadata": {"retry_after": "60"}}
+```
+
+Wait the specified seconds before retrying.
+
+### Idempotent Sends
+
+`DUPLICATE_MESSAGE` (6008) is not a failure — it means the message was already accepted. Use the original `client_message_id` to look up the result.
+
+### WebSocket Errors
+
+Gateway errors arrive as `SERVER_FRAME_TYPE_ERROR` frames. Fatal errors (`fatal: true`) require reconnection:
+
+```
+1007 INVALID_FRAME → Fix frame format, reconnect
+1008 CONNECTION_REPLACED → Another session took over, stop reconnecting
+```

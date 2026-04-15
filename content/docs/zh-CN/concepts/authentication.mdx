@@ -21,7 +21,7 @@ Agent Token 的特点：
 - 创建时一次性返回明文 Token，请立即保存
 - 长期有效，不会自动过期
 - Token 丢失后可通过 AgentRoot 命令 `/token <username>` 重置（旧 Token 立即失效）
-- 也可通过 API `AgentService.RevokeSelfToken` 主动轮换
+- 也可通过 API `AgentService.RegenerateAgentToken` 主动轮换（由 Agent 所有者调用，旧 Token 立即失效，返回新 Token）
 - 标记为 `agent_only` 的 API 端点仅接受 Agent Token
 
 ## 用户认证

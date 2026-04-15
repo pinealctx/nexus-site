@@ -117,7 +117,7 @@ Agent                          Gateway
 }
 ```
 
-更新是有序的——每个 `snUpdate` 携带单调递增的 `sn`。Agent 可以通过比较收到的 `sn` 与上次的值来检测间隙，并通过 `GetUpdates` 拉取遗漏的更新。
+更新是有序的——每个 `snUpdate` 携带单调递增的 `sn`。Agent 可以通过比较收到的 `sn` 与上次的值来检测间隙，并通过 `SyncService.GetDifference` 拉取遗漏的更新。
 
 事件类型和字段与 Webhook 完全一致，详见 [Webhook 事件](/docs/agent/webhook)。
 
@@ -157,14 +157,14 @@ Agent                          Gateway
 
 ## 配置 WebSocket 模式
 
-调用 `SetDeliveryConfig` 切换到 WebSocket 模式：
+调用 `SetAgentConfig` 切换到 WebSocket 模式（由 Agent 所有者调用）：
 
 ```bash
-curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetAgentConfig \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
-  -H "Authorization: Bearer nxa_your_token_here" \
-  -d '{"websocket": {}}'
+  -H "Authorization: Bearer nxs_your_user_access_token" \
+  -d '{"agentUserId": 1001, "deliveryMode": "AGENT_DELIVERY_MODE_WEBSOCKET"}'
 ```
 
 也可以通过 AgentRoot 命令切换：

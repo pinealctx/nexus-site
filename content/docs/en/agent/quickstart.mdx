@@ -45,17 +45,17 @@ If you lose the Token, reset it (the old Token is invalidated immediately):
 
 ## Step 2: Verify Token
 
-Call `GetSelfAgent` to confirm your Agent identity:
+Call `UserService.GetProfile` to confirm your Agent identity:
 
 ```bash
-curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/GetSelfAgent \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.UserService/GetProfile \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
   -H "Authorization: Bearer nxa_your_token_here" \
   -d '{}'
 ```
 
-A successful response with your Agent's user info and profile confirms the Token is valid.
+A successful response with your Agent's `userId`, `nickname`, and profile confirms the Token is valid.
 
 ## Step 3: Configure Event Delivery
 
@@ -69,17 +69,17 @@ Configure via AgentRoot command:
 /setwebhook weather_bot https://your-server.com/webhook
 ```
 
-Or via API:
+Or via API (called by the agent owner with their user access token):
 
 ```bash
-curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetDeliveryConfig \
+curl -X POST https://api.nexus-dev.xsyphon.com/api.v1.AgentService/SetAgentConfig \
   -H "Content-Type: application/json" \
   -H "Connect-Protocol-Version: 1" \
-  -H "Authorization: Bearer nxa_your_token_here" \
-  -d '{"webhook": {"url": "https://your-server.com/webhook"}}'
+  -H "Authorization: Bearer nxs_your_user_access_token" \
+  -d '{"agentUserId": 1001, "deliveryMode": "AGENT_DELIVERY_MODE_WEBHOOK", "webhookUrl": "https://your-server.com/webhook"}'
 ```
 
-On success, the response contains a `webhook_secret` for signature verification (HMAC-SHA256). Store it securely.
+On success, the response contains a `secret_key` for signature verification (HMAC-SHA256). Store it securely.
 
 ### Option B: WebSocket
 
@@ -258,4 +258,5 @@ Also validate the timestamp — reject requests older than 5 minutes to prevent 
 - **[Webhook Events](/docs/agent/webhook)** — All event types and field details
 - **[WebSocket](/docs/agent/websocket)** — Real-time bidirectional communication
 - **[Message Types](/docs/agent/messages)** — Send images, Markdown, Adaptive Cards, streaming messages
-- **[API Reference](/api)** — Complete API endpoint documentation
+- **[Error Codes](/docs/concepts/error-codes)** — Business error codes reference
+- **[Contacts & Groups](/docs/concepts/contacts-and-groups)** — User relationships and group management

@@ -3,7 +3,7 @@ title: 消息类型
 description: Agent 可以发送和接收的所有消息类型
 ---
 
-Nexus AI 支持多种消息类型，Agent 可以发送和接收所有类型。消息通过 `MessageBody` 结构承载，`type` 字段标识类型，`content` 字段携带具体内容。
+Nexus AI 支持多种消息类型，Agent 可以发送和接收所有类型。消息通过 `MessageBody` 结构承载，`type` 字段标识类型，`oneof content` 字段携带类型对应的具体内容。
 
 ## 文本消息 (TEXT)
 
@@ -88,6 +88,46 @@ Markdown 长度上限 20,000 字符。
       "filename": "report.pdf",
       "sizeBytes": "1048576",
       "mimeType": "application/pdf"
+    }
+  }
+}
+```
+
+## 语音消息 (AUDIO)
+
+先通过 `MediaService.UploadFile` 上传音频获取 `file_id`，再发送：
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_AUDIO",
+    "audio": {
+      "fileId": "file_audio123",
+      "durationMs": 15000,
+      "sizeBytes": "512000",
+      "transcript": "这是一条语音消息的转写文本。"
+    }
+  }
+}
+```
+
+`transcript` 字段可选——自动生成或手动设置的语音转写结果。
+
+## 视频消息 (VIDEO)
+
+先通过分片上传（`InitUpload` → `UploadChunk` → `CompleteUpload`）上传视频，再发送：
+
+```json
+{
+  "body": {
+    "type": "MESSAGE_TYPE_VIDEO",
+    "video": {
+      "fileId": "file_video123",
+      "thumbnailFileId": "file_thumb_video",
+      "durationMs": 60000,
+      "width": 1920,
+      "height": 1080,
+      "sizeBytes": "52428800"
     }
   }
 }

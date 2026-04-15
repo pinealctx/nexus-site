@@ -1,0 +1,281 @@
+---
+title: 错误码参考
+description: Nexus AI 所有业务错误码完整参考
+---
+
+所有 API 错误遵循 [Connect RPC 错误规范](https://connectrpc.com/docs/go/errors)。业务错误在响应中包含结构化的 `ErrorDetail`：
+
+```json
+{
+  "code": "unauthenticated",
+  "message": "INVALID_TOKEN",
+  "detail": {
+    "@type": "type.googleapis.com/shared.v1.ErrorDetail",
+    "errorCode": 1001,
+    "errorName": "INVALID_TOKEN",
+    "metadata": {}
+  }
+}
+```
+
+客户端应使用 `errorCode` 做程序化处理，`errorName` 用于日志记录。
+
+## 错误格式
+
+```typescript
+interface ErrorDetail {
+  errorCode: number    // 数值型业务错误码
+  errorName: string    // 可读标识符（如 "INVALID_TOKEN"）
+  metadata: Record<string, string>  // 可选上下文信息
+}
+```
+
+常见 `metadata` 键：
+
+| 键 | 说明 |
+|----|------|
+| `retry_after` | 重试前等待的秒数（限流错误） |
+| `attempts_remaining` | 锁定前剩余尝试次数 |
+
+## 错误码分段
+
+| 范围 | 领域 |
+|------|------|
+| 1000–1999 | 认证与登录 |
+| 2000–2999 | 用户与资料 |
+| 3000–3999 | 联系人 |
+| 4000–4999 | 群组 |
+| 5000–5999 | 会话 |
+| 6000–6999 | 消息 |
+| 7000–7999 | Agent |
+| 8000–8999 | 媒体与文件 |
+| 9000–9999 | 推送通知 |
+
+---
+
+## 认证与登录 (1000–1999)
+
+### Token 与会话 (1001–1099)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 1001 | `INVALID_TOKEN` | 401 | Token 格式错误、已撤销或无法识别 |
+| 1002 | `TOKEN_EXPIRED` | 401 | Access Token 已过期，使用 `RefreshToken` 刷新 |
+| 1003 | `REFRESH_TOKEN_INVALID` | 401 | Refresh Token 无效或已撤销 |
+| 1004 | `REFRESH_TOKEN_REUSED` | 401 | Refresh Token 已被使用（可能被盗用，所有 Token 已撤销） |
+| 1005 | `DEVICE_LIMIT_EXCEEDED` | 429 | 同时在线设备数过多 |
+| 1006 | `REFRESH_RATE_LIMITED` | 429 | Token 刷新请求过于频繁，`metadata.retry_after` |
+
+### 网关连接 (1007–1099)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 1007 | `INVALID_FRAME` | 400 | WebSocket 帧格式错误 |
+| 1008 | `CONNECTION_REPLACED` | 499 | 同一用户在另一设备建立连接，当前连接被关闭 |
+
+### 验证码 (1101–1199)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 1101 | `VERIFY_CODE_RATE_LIMITED` | 429 | 短时间内请求验证码过于频繁，`metadata.retry_after` |
+| 1102 | `VERIFY_CODE_DAILY_LIMIT` | 429 | 当日发送次数已达上限 |
+| 1103 | `VERIFY_CODE_SEND_FAILED` | 500 | 短信/邮件发送失败 |
+| 1104 | `VERIFY_TOKEN_EXPIRED` | 404 | `verify_token` 已过期，需重新请求验证码 |
+| 1105 | `VERIFY_CODE_INVALID` | 400 | 验证码不正确 |
+| 1106 | `VERIFY_CODE_TOO_MANY_ATTEMPTS` | 429 | 错误尝试次数过多，`metadata.attempts_remaining` |
+
+### 密码 (1201–1299)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 1201 | `INVALID_PASSWORD` | 401 | 密码错误 |
+| 1202 | `ACCOUNT_LOCKED` | 429 | 登录失败次数过多，账户被锁定 |
+| 1203 | `PASSWORD_TOO_WEAK` | 400 | 密码强度不足 |
+| 1204 | `RESET_TOKEN_INVALID` | 404 | 密码重置 Token 已过期或无效 |
+| 1205 | `PASSWORD_NOT_SET` | 412 | 账户未设置密码（使用 `SetupPassword`） |
+| 1206 | `SAME_PASSWORD` | 400 | 新密码与旧密码相同 |
+| 1207 | `PASSWORD_ALREADY_SET` | 412 | 账户已设置密码 |
+
+### 身份验证 (1301–1399)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 1301 | `INVALID_EMAIL` | 400 | 邮箱地址格式错误 |
+| 1302 | `INVALID_PHONE` | 400 | 手机号码格式错误 |
+
+### 登录方式 (1401–1499)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 1401 | `LOGIN_METHOD_NOT_ALLOWED` | 400 | 请求的登录方式（邮箱/手机）被服务端配置禁用 |
+
+---
+
+## 用户与资料 (2000–2999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 2001 | `USER_NOT_FOUND` | 404 | 目标用户不存在 |
+| 2002 | `USERNAME_TAKEN` | 409 | 用户名已被占用 |
+| 2003 | `USERNAME_ALREADY_CHANGED` | 412 | 用户名只能设置一次 |
+| 2004 | `INVALID_USERNAME_FORMAT` | 400 | 格式要求：5–32 字符，`^[a-z][a-z0-9_]*$` |
+| 2005 | `PHONE_ALREADY_BOUND` | 409 | 手机号已绑定其他账户 |
+| 2006 | `EMAIL_ALREADY_BOUND` | 409 | 邮箱已绑定其他账户 |
+| 2007 | `NICKNAME_TOO_LONG` | 400 | 昵称超过 64 字符 |
+| 2008 | `SIGNATURE_TOO_LONG` | 400 | 签名超过 200 字符 |
+| 2009 | `DEVICE_NOT_FOUND` | 404 | 设备会话不存在 |
+| 2010 | `CANNOT_REMOVE_CURRENT_DEVICE` | 400 | 不能移除当前发起请求的设备 |
+| 2011 | `USERNAME_RESERVED` | 400 | 用户名为系统保留名称 |
+
+---
+
+## 联系人 (3000–3999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 3001 | `ALREADY_CONTACTS` | 409 | 已经是联系人 |
+| 3002 | `FRIEND_REQUEST_EXISTS` | 409 | 已有待处理的好友请求 |
+| 3003 | `FRIEND_REQUEST_NOT_FOUND` | 404 | 好友请求不存在 |
+| 3004 | `FRIEND_REQUEST_HANDLED` | 412 | 好友请求已被接受或拒绝 |
+| 3005 | `CANNOT_ADD_SELF` | 400 | 不能添加自己为联系人 |
+| 3006 | `USER_BLOCKED` | 403 | 操作被阻止——你或对方已屏蔽对方 |
+| 3007 | `NOT_CONTACTS` | 412 | 需要先成为联系人才能执行此操作 |
+| 3008 | `ALREADY_BLOCKED` | 409 | 已屏蔽该用户 |
+| 3009 | `NOT_BLOCKED` | 412 | 该用户不在你的黑名单中 |
+| 3010 | `AGENT_PRIVATE` | 403 | Agent 为私有可见性，无法直接添加 |
+| 3011 | `USE_SEND_FRIEND_REQUEST` | 412 | 目标是普通用户——请使用 `SendFriendRequest` |
+| 3012 | `USE_ADD_CONTACT` | 412 | 目标是 Agent——请使用 `AddContact` |
+
+---
+
+## 群组 (4000–4999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 4001 | `GROUP_NOT_FOUND` | 404 | 群组不存在 |
+| 4002 | `GROUP_DISSOLVED` | 412 | 群组已被解散 |
+| 4003 | `NOT_GROUP_MEMBER` | 403 | 你不是该群组成员 |
+| 4004 | `NOT_GROUP_OWNER` | 403 | 仅群主可执行此操作 |
+| 4005 | `ALREADY_GROUP_MEMBER` | 409 | 用户已是群组成员 |
+| 4006 | `GROUP_MEMBER_LIMIT` | 429 | 群组成员数已达上限 |
+| 4007 | `GROUP_AGENT_LIMIT` | 429 | 群组 Agent 数已达上限 |
+| 4008 | `CANNOT_KICK_OWNER` | 400 | 不能移除群主 |
+| 4009 | `GROUP_NAME_INVALID` | 400 | 群名称为空或过长（1–64 字符） |
+| 4010 | `USER_GROUP_LIMIT` | 429 | 用户已加入过多群组 |
+| 4011 | `INVITE_BLOCKED_USER` | 403 | 被邀请的用户已屏蔽你 |
+| 4012 | `OWNER_CANNOT_LEAVE` | 403 | 群主不能离开群组，只能解散 |
+| 4013 | `GROUP_TOO_FEW_MEMBERS` | 412 | 群组至少需要 2 名成员 |
+
+---
+
+## 会话 (5000–5999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 5001 | `CONVERSATION_NOT_FOUND` | 404 | 会话不存在 |
+| 5002 | `NOT_CONVERSATION_MEMBER` | 403 | 你不是该会话的参与者 |
+| 5003 | `CONVERSATION_READONLY` | 412 | 无法向此会话发送消息（如已删除、已静音） |
+
+---
+
+## 消息 (6000–6999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 6001 | `MESSAGE_NOT_FOUND` | 404 | 该会话中不存在此消息 |
+| 6002 | `NOT_MESSAGE_SENDER` | 403 | 不是消息发送者（不能编辑/撤回他人消息） |
+| 6003 | `RECALL_TIMEOUT` | 412 | 已超过 24 小时撤回时限 |
+| 6004 | `MESSAGE_ALREADY_RECALLED` | 412 | 消息已被撤回 |
+| 6005 | `INVALID_MESSAGE_TYPE` | 400 | 不支持或无法识别的消息类型 |
+| 6006 | `MESSAGE_TOO_LONG` | 400 | 消息内容超出大小限制 |
+| 6007 | `SEND_BLOCKED` | 403 | 你已被接收方屏蔽 |
+| 6008 | `DUPLICATE_MESSAGE` | 409 | 相同 `client_message_id` 的消息已存在 |
+| 6009 | `STREAM_NOT_FOUND` | 404 | 流式消息不存在或不在流式阶段 |
+| 6010 | `STREAM_SEQ_INVALID` | 400 | 流式增量序号乱序 |
+| 6011 | `CARD_ACTION_EXPIRED` | 404 | 卡片操作回调已过期（5 分钟 TTL） |
+| 6012 | `STREAM_ALREADY_ENDED` | 412 | 流式消息已结束或出错 |
+| 6013 | `MESSAGE_TYPE_MISMATCH` | 400 | 编辑的消息类型与原始类型不匹配 |
+| 6014 | `NOT_CARD_MESSAGE` | 412 | 消息不是 CARD 类型（无法提交卡片操作） |
+
+---
+
+## Agent (7000–7999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 7001 | `AGENT_NOT_FOUND` | 404 | Agent 不存在 |
+| 7003 | `AGENT_DELETED` | 412 | Agent 已被删除 |
+| 7004 | `AGENT_USERNAME_TAKEN` | 409 | Agent 用户名已被占用 |
+| 7005 | `NOT_AGENT_CREATOR` | 403 | 你不是该 Agent 的创建者 |
+| 7006 | `WEBHOOK_VERIFICATION_FAILED` | 412 | Webhook URL 不可达或返回非 2xx |
+| 7007 | `WEBHOOK_NOT_CONFIGURED` | 412 | Agent 未配置 Webhook URL |
+| 7008 | `IP_NOT_ALLOWED` | 403 | 请求 IP 不在 Agent 的 IP 白名单中 |
+| 7009 | `COMMANDS_LIMIT_EXCEEDED` | 429 | 注册的斜杠命令数量过多 |
+| 7010 | `AGENTROOT_ALREADY_EXISTS` | 409 | AgentRoot 系统 Agent 已初始化 |
+| 7011 | `INVALID_DELIVERY_CONFIG` | 400 | 投递模式无效或缺少必填字段 |
+| 7012 | `DELIVERY_MODE_MISMATCH` | 412 | 事件投递模式与请求不匹配 |
+| 7013 | `MINI_APP_NOT_ENABLED` | 412 | Agent 未启用 Mini App |
+| 7014 | `INVALID_MINI_APP_URL` | 400 | Mini App URL 无效 |
+| 7015 | `MINI_APP_ACCESS_DENIED` | 403 | 来源不在 Mini App 允许的 Origin 列表中 |
+
+---
+
+## 媒体与文件 (8000–8999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 8001 | `FILE_TOO_LARGE` | 429 | 文件超出大小限制（`UploadFile` 为 5 MB，分片上传为 100 MB） |
+| 8002 | `UNSUPPORTED_FILE_TYPE` | 400 | 不允许的文件类型 |
+| 8003 | `UPLOAD_SESSION_EXPIRED` | 404 | 分片上传会话已超时 |
+| 8004 | `UPLOAD_SESSION_NOT_FOUND` | 404 | 上传会话 ID 不存在 |
+| 8005 | `CHUNK_OFFSET_INVALID` | 400 | 分片偏移量与期望位置不匹配 |
+| 8006 | `FILE_INCOMPLETE` | 412 | 尚未收到所有分片，无法完成上传 |
+| 8007 | `INVALID_PURPOSE` | 400 | 无效或无法识别的媒体用途 |
+| 8008 | `FILE_NOT_FOUND` | 404 | 请求的文件不存在 |
+| 8009 | `CHUNK_TOO_SMALL` | 400 | 单个分片低于最小大小要求 |
+
+---
+
+## 推送通知 (9000–9999)
+
+| 错误码 | 名称 | HTTP 状态 | 说明 |
+|--------|------|-----------|------|
+| 9001 | `INVALID_PUSH_TOKEN` | 400 | 推送 Token 格式错误或为空 |
+| 9002 | `UNSUPPORTED_PUSH_PLATFORM` | 400 | 推送平台不是 APNs 或 FCM |
+| 9003 | `PUSH_TOKEN_NOT_FOUND` | 404 | 该设备的推送 Token 未注册 |
+
+---
+
+## 客户端处理指南
+
+### Token 生命周期
+
+```
+1001 INVALID_TOKEN   → 重新认证（用户：登录，Agent：检查 Token）
+1002 TOKEN_EXPIRED   → 调用 RefreshToken 刷新
+1003 REFRESH_TOKEN_INVALID → 需要完整重新登录
+1004 REFRESH_TOKEN_REUSED  → 需要完整重新登录（安全事件）
+```
+
+### 限流处理
+
+收到 429 错误时，检查 `metadata.retry_after`：
+
+```json
+{"errorCode": 1101, "errorName": "VERIFY_CODE_RATE_LIMITED", "metadata": {"retry_after": "60"}}
+```
+
+等待指定秒数后重试。
+
+### 幂等发送
+
+`DUPLICATE_MESSAGE`（6008）不是失败——它表示消息已被接受。使用原始的 `client_message_id` 查找结果。
+
+### WebSocket 错误
+
+网关错误通过 `SERVER_FRAME_TYPE_ERROR` 帧推送。致命错误（`fatal: true`）需要重新连接：
+
+```
+1007 INVALID_FRAME → 修正帧格式后重连
+1008 CONNECTION_REPLACED → 另一会话接管，停止重连
+```
