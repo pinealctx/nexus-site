@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-15T03:07:50.549Z",
+  "generatedAt": "2026-04-16T10:04:08.489Z",
   "api": {
     "baseUrl": "https://api.nexus-dev.xsyphon.com",
     "services": [
@@ -702,8 +702,20 @@
       "path": "/docs/concepts/authentication"
     },
     {
+      "title": "联系人与群组",
+      "path": "/docs/concepts/contacts-and-groups"
+    },
+    {
       "title": "会话模型",
       "path": "/docs/concepts/conversations"
+    },
+    {
+      "title": "错误码参考",
+      "path": "/docs/concepts/error-codes"
+    },
+    {
+      "title": "媒体与文件",
+      "path": "/docs/concepts/media-and-files"
     },
     {
       "title": "消息系统",
