@@ -38,6 +38,7 @@
 - POST /api.v1.AgentService/RegenerateAgentToken
 - POST /api.v1.AgentService/RegenerateAgentSecretKey
 - POST /api.v1.AgentService/SetAgentMiniApp
+- POST /api.v1.AgentService/UpdateAgentSelfConfig
 
 ### UserService
 - POST /api.v1.UserService/GetProfile

@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-16T10:04:07.694Z",
+  "generatedAt": "2026-04-21T09:57:10.053Z",
   "services": [
     {
       "name": "AgentService",
       "fullName": "api.v1.AgentService",
-      "description": "AgentService handles agent discovery, Mini App launch, and developer\nmanagement of agents.\n\nDiscovery (any authenticated identity):\n- Users browse featured agents via ListFeaturedAgents.\n- Users view agent public profile via GetAgentInfo.\n\nMini App launch (user_only):\n- Users obtain signed initData to launch a Mini App via GetMiniAppLaunchData.\n\nDeveloper management (user_only):\n- Developers create agents via CreateAgent.\n- Developers list their agents via ListMyAgents.\n- Developers view full agent profile via GetMyAgent.\n- Developers update agent config via SetAgentConfig.\n- Developers delete agents via DeleteMyAgent.\n- Developers regenerate agent token via RegenerateAgentToken.\n- Developers regenerate agent secret key via RegenerateAgentSecretKey.\n- Developers configure Mini App via SetAgentMiniApp.\n\nRelationship to other services:\n- Adding an agent creates a conversation (type = AGENT) visible in ConversationService.ListConversations.\n- Adding an agent to a group is handled by GroupService.AddAgent.",
+      "description": "AgentService handles agent discovery, Mini App launch, and developer\nmanagement of agents.\n\nDiscovery (any authenticated identity):\n- Users browse featured agents via ListFeaturedAgents.\n- Users view agent public profile via GetAgentInfo.\n\nMini App launch (user_only):\n- Users obtain signed initData to launch a Mini App via GetMiniAppLaunchData.\n\nDeveloper management (user_only):\n- Developers create agents via CreateAgent.\n- Developers list their agents via ListMyAgents.\n- Developers view full agent profile via GetMyAgent.\n- Developers update agent config via SetAgentConfig.\n- Developers delete agents via DeleteMyAgent.\n- Developers regenerate agent token via RegenerateAgentToken.\n- Developers regenerate agent secret key via RegenerateAgentSecretKey.\n- Developers configure Mini App via SetAgentMiniApp.\n\nAgent self-management:\n- Agents update their own config via UpdateAgentSelfConfig.\n\nRelationship to other services:\n- Adding an agent creates a conversation (type = AGENT) visible in ConversationService.ListConversations.\n- Adding an agent to a group is handled by GroupService.AddAgent.",
       "methods": [
         {
           "name": "ListFeaturedAgents",
@@ -138,6 +138,18 @@
           },
           "inputType": "api.v1.SetAgentMiniAppRequest",
           "outputType": "api.v1.SetAgentMiniAppResponse"
+        },
+        {
+          "name": "UpdateAgentSelfConfig",
+          "description": "UpdateAgentSelfConfig allows an authenticated agent to update its own\nconfiguration. The agent is identified by the caller's Bearer token;\nno agent_user_id field is required. Only agents may call this RPC.\n\nError conditions:\n- PERMISSION_DENIED: Caller is not an agent.\n- FAILED_PRECONDITION: Agent is not active.\n- INVALID_ARGUMENT: Invalid field values or webhook URL.",
+          "httpPath": "/api.v1.AgentService/UpdateAgentSelfConfig",
+          "options": {
+            "skipAuth": false,
+            "agentOnly": true,
+            "userOnly": false
+          },
+          "inputType": "api.v1.UpdateAgentSelfConfigRequest",
+          "outputType": "api.v1.UpdateAgentSelfConfigResponse"
         }
       ]
     },
@@ -1908,6 +1920,52 @@
       "name": "SetAgentMiniAppResponse",
       "fullName": "api.v1.SetAgentMiniAppResponse",
       "description": "SetAgentMiniAppResponse is returned after Mini App config is set.",
+      "fields": []
+    },
+    "api.v1.UpdateAgentSelfConfigRequest": {
+      "name": "UpdateAgentSelfConfigRequest",
+      "fullName": "api.v1.UpdateAgentSelfConfigRequest",
+      "description": "UpdateAgentSelfConfigRequest updates agent-owned configuration fields.\nThe agent identity is derived from the auth token — no agent_user_id needed.",
+      "fields": [
+        {
+          "name": "commands",
+          "jsonName": "commands",
+          "type": "shared.v1.AgentCommandList",
+          "description": "Slash commands (replaces existing, max 100). When set, replaces all\ncommands; omit to leave commands unchanged.",
+          "optional": true,
+          "repeated": false,
+          "oneofGroup": "_commands",
+          "sensitive": false
+        },
+        {
+          "name": "delivery_mode",
+          "jsonName": "deliveryMode",
+          "type": "shared.v1.AgentDeliveryMode",
+          "description": "Event delivery mode.",
+          "optional": true,
+          "repeated": false,
+          "oneofGroup": "_delivery_mode",
+          "sensitive": false
+        },
+        {
+          "name": "webhook_url",
+          "jsonName": "webhookUrl",
+          "type": "string",
+          "description": "Webhook URL (required when delivery_mode is WEBHOOK, must be HTTPS).",
+          "optional": true,
+          "repeated": false,
+          "oneofGroup": "_webhook_url",
+          "sensitive": false,
+          "validation": {
+            "maxLen": 2048
+          }
+        }
+      ]
+    },
+    "api.v1.UpdateAgentSelfConfigResponse": {
+      "name": "UpdateAgentSelfConfigResponse",
+      "fullName": "api.v1.UpdateAgentSelfConfigResponse",
+      "description": "UpdateAgentSelfConfigResponse is returned after agent self-config is updated.",
       "fields": []
     },
     "api.v1.User": {

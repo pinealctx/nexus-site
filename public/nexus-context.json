@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-16T10:04:08.489Z",
+  "generatedAt": "2026-04-21T09:57:10.854Z",
   "api": {
     "baseUrl": "https://api.nexus-dev.xsyphon.com",
     "services": [
@@ -94,6 +94,14 @@
             "auth": "user_token",
             "requestType": "SetAgentMiniAppRequest",
             "responseType": "SetAgentMiniAppResponse"
+          },
+          {
+            "name": "UpdateAgentSelfConfig",
+            "path": "/api.v1.AgentService/UpdateAgentSelfConfig",
+            "description": "UpdateAgentSelfConfig allows an authenticated agent to update its own",
+            "auth": "agent_token",
+            "requestType": "UpdateAgentSelfConfigRequest",
+            "responseType": "UpdateAgentSelfConfigResponse"
           }
         ]
       },
