@@ -33,6 +33,21 @@ pnpm gen
 pnpm build
 ```
 
+## Release 数据
+
+下载页和 CLI 安装脚本通过稳定 channel manifest 获取最新版本信息：
+
+```bash
+S3_BUCKET=<bucket>
+```
+
+站点会自动派生：
+
+- `https://<bucket>.s3.amazonaws.com/desktop/channels/stable/desktop.json`
+- `https://<bucket>.s3.amazonaws.com/cli/channels/stable/cli.json`
+
+如果未配置 `S3_BUCKET`，下载页会回退到 `public/releases/*.json` 本地 fixture；安装脚本会保留占位符并在执行时失败。
+
 ## 测试与 Lint
 
 ```bash

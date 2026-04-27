@@ -20,14 +20,20 @@ export interface ProductRelease {
 }
 
 const S3_BUCKET = process.env.S3_BUCKET;
-const RELEASES_BASE_URL = S3_BUCKET ? `https://${S3_BUCKET}.s3.amazonaws.com/releases` : "";
+const RELEASE_URLS: Record<string, string | undefined> = S3_BUCKET
+  ? {
+      "desktop.json": `https://${S3_BUCKET}.s3.amazonaws.com/desktop/channels/stable/desktop.json`,
+      "cli.json": `https://${S3_BUCKET}.s3.amazonaws.com/cli/channels/stable/cli.json`,
+    }
+  : {};
 const REVALIDATE_SECONDS = 600; // 10-minute TTL
 
 async function loadRelease(filename: string): Promise<ProductRelease> {
   // Remote fetch with Next.js data cache (TTL = 10 min)
-  if (RELEASES_BASE_URL) {
+  const releaseUrl = RELEASE_URLS[filename];
+  if (releaseUrl) {
     try {
-      const res = await fetch(`${RELEASES_BASE_URL}/${filename}`, {
+      const res = await fetch(releaseUrl, {
         next: { revalidate: REVALIDATE_SECONDS },
       });
       if (res.ok) {

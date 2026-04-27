@@ -38,7 +38,7 @@ detect_platform() {
 
   case "$(uname -s)" in
     Linux*)  os="linux" ;;
-    Darwin*) os="darwin" ;;
+    Darwin*) os="macos" ;;
     MINGW*|MSYS*|CYGWIN*) os="windows" ;;
     *) err "Unsupported OS: $(uname -s)" ;;
   esac
