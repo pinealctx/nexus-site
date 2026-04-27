@@ -7,7 +7,7 @@ const S3_BUCKET = process.env.S3_BUCKET;
 const template = readFileSync(join(process.cwd(), "lib", "install-scripts", "install.sh"), "utf-8");
 
 export function GET() {
-  const releasesUrl = S3_BUCKET ? `https://${S3_BUCKET}.s3.amazonaws.com/cli/channels/stable/cli.json` : "";
+  const releasesUrl = S3_BUCKET ? `https://${S3_BUCKET}.s3.amazonaws.com/releases/cli/channels/stable/cli.json` : "";
   const body = template.replaceAll(PLACEHOLDER, releasesUrl);
 
   return new Response(body, {
