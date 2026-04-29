@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-29T03:41:14.370Z",
+  "generatedAt": "2026-04-29T09:49:24.929Z",
   "services": [
     {
       "name": "AgentService",
@@ -3881,253 +3881,6 @@
         }
       ]
     },
-    "api.v1.GetConversationRequest": {
-      "name": "GetConversationRequest",
-      "fullName": "api.v1.GetConversationRequest",
-      "description": "GetConversationRequest requests a single conversation by ID.",
-      "fields": [
-        {
-          "name": "conversation_id",
-          "jsonName": "conversationId",
-          "type": "int64",
-          "description": "Conversation ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        }
-      ]
-    },
-    "api.v1.GetConversationResponse": {
-      "name": "GetConversationResponse",
-      "fullName": "api.v1.GetConversationResponse",
-      "description": "GetConversationResponse contains the conversation detail.",
-      "fields": [
-        {
-          "name": "conversation",
-          "jsonName": "conversation",
-          "type": "shared.v1.ConversationInfo",
-          "description": "Conversation info.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "api.v1.ListConversationsRequest": {
-      "name": "ListConversationsRequest",
-      "fullName": "api.v1.ListConversationsRequest",
-      "description": "ListConversationsRequest requests conversations with pagination.",
-      "fields": [
-        {
-          "name": "before_time",
-          "jsonName": "beforeTime",
-          "type": "int64",
-          "description": "Pagination anchor: only return conversations with last_message_time < before_time.\nOmit for the first page.",
-          "optional": true,
-          "repeated": false,
-          "oneofGroup": "_before_time",
-          "sensitive": false
-        },
-        {
-          "name": "limit",
-          "jsonName": "limit",
-          "type": "int32",
-          "description": "Maximum number of items to return (default: 20, max: 100).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gte": 0,
-            "lte": 100
-          }
-        }
-      ]
-    },
-    "api.v1.ListConversationsResponse": {
-      "name": "ListConversationsResponse",
-      "fullName": "api.v1.ListConversationsResponse",
-      "description": "ListConversationsResponse contains conversations with related user and group data.",
-      "fields": [
-        {
-          "name": "conversations",
-          "jsonName": "conversations",
-          "type": "shared.v1.ConversationInfo",
-          "description": "Conversations ordered by last_message_time descending.",
-          "optional": false,
-          "repeated": true,
-          "sensitive": false
-        },
-        {
-          "name": "related_users",
-          "jsonName": "relatedUsers",
-          "type": "shared.v1.UserInfo",
-          "description": "Related user info referenced by the conversations (private chat peers, message senders).",
-          "optional": false,
-          "repeated": true,
-          "sensitive": false
-        },
-        {
-          "name": "related_groups",
-          "jsonName": "relatedGroups",
-          "type": "shared.v1.GroupInfo",
-          "description": "Related group info referenced by GROUP-type conversations.",
-          "optional": false,
-          "repeated": true,
-          "sensitive": false
-        },
-        {
-          "name": "has_more",
-          "jsonName": "hasMore",
-          "type": "bool",
-          "description": "Whether there are more conversations beyond this page.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "api.v1.UpdateConversationActionRequest": {
-      "name": "UpdateConversationActionRequest",
-      "fullName": "api.v1.UpdateConversationActionRequest",
-      "description": "UpdateConversationActionRequest performs a conversation action.",
-      "fields": [
-        {
-          "name": "conversation_id",
-          "jsonName": "conversationId",
-          "type": "int64",
-          "description": "Target conversation ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        },
-        {
-          "name": "action",
-          "jsonName": "action",
-          "type": "shared.v1.ConversationActionType",
-          "description": "Action to perform.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "clear_messages",
-          "jsonName": "clearMessages",
-          "type": "bool",
-          "description": "Whether to clear the user's message history for this conversation.\nOnly used when action = DELETE. Defaults to false (keep history).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
-    "api.v1.UpdateConversationActionResponse": {
-      "name": "UpdateConversationActionResponse",
-      "fullName": "api.v1.UpdateConversationActionResponse",
-      "description": "UpdateConversationActionResponse is returned after the action is performed.",
-      "fields": []
-    },
-    "api.v1.MarkAsReadRequest": {
-      "name": "MarkAsReadRequest",
-      "fullName": "api.v1.MarkAsReadRequest",
-      "description": "MarkAsReadRequest marks messages as read up to a given message ID.",
-      "fields": [
-        {
-          "name": "conversation_id",
-          "jsonName": "conversationId",
-          "type": "int64",
-          "description": "Conversation ID.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        },
-        {
-          "name": "up_to_message_id",
-          "jsonName": "upToMessageId",
-          "type": "int64",
-          "description": "Mark all messages up to and including this message ID as read.\nMust be >= current last_read_message_id (cannot go backwards).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false,
-          "validation": {
-            "gt": 0
-          }
-        }
-      ]
-    },
-    "api.v1.MarkAsReadResponse": {
-      "name": "MarkAsReadResponse",
-      "fullName": "api.v1.MarkAsReadResponse",
-      "description": "MarkAsReadResponse is returned after the read position is updated.",
-      "fields": []
-    },
-    "shared.v1.ErrorDetail": {
-      "name": "ErrorDetail",
-      "fullName": "shared.v1.ErrorDetail",
-      "description": "ErrorDetail is the standard error payload attached to connect.Error details.\nIt is the sole mechanism for clients to identify and handle errors.",
-      "fields": [
-        {
-          "name": "error_code",
-          "jsonName": "errorCode",
-          "type": "int32",
-          "description": "Numeric business error code. Client uses this for programmatic handling.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "error_name",
-          "jsonName": "errorName",
-          "type": "string",
-          "description": "Error name (readable identifier, e.g. \"INVALID_TOKEN\"). For logging.",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "metadata",
-          "jsonName": "metadata",
-          "type": "shared.v1.ErrorDetail.MetadataEntry",
-          "description": "Optional metadata (e.g. retry_after, attempts_remaining).",
-          "optional": false,
-          "repeated": true,
-          "sensitive": false
-        }
-      ]
-    },
-    "shared.v1.ErrorDetail.MetadataEntry": {
-      "name": "MetadataEntry",
-      "fullName": "shared.v1.ErrorDetail.MetadataEntry",
-      "description": "",
-      "fields": [
-        {
-          "name": "key",
-          "jsonName": "key",
-          "type": "string",
-          "description": "",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "value",
-          "jsonName": "value",
-          "type": "string",
-          "description": "",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        }
-      ]
-    },
     "shared.v1.GroupContent": {
       "name": "GroupContent",
       "fullName": "shared.v1.GroupContent",
@@ -5086,6 +4839,15 @@
           "optional": false,
           "repeated": false,
           "sensitive": false
+        },
+        {
+          "name": "client_message_id",
+          "jsonName": "clientMessageId",
+          "type": "int64",
+          "description": "Client-generated message ID for idempotency and dedup.\nEchoed from SendMessageRequest.client_message_id.\nZero for system-generated messages (greetings, group events).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
         }
       ]
     },
@@ -5119,6 +4881,262 @@
       "fullName": "shared.v1.RecalledContent",
       "description": "RecalledContent replaces the original message body when a message is\nrecalled by its sender. The envelope's message_id and sender_id remain\nunchanged. Clients resolve the sender nickname from their local user\ncache to render \"Alice recalled a message\".",
       "fields": []
+    },
+    "api.v1.GetConversationRequest": {
+      "name": "GetConversationRequest",
+      "fullName": "api.v1.GetConversationRequest",
+      "description": "GetConversationRequest requests a single conversation by ID.",
+      "fields": [
+        {
+          "name": "conversation_id",
+          "jsonName": "conversationId",
+          "type": "int64",
+          "description": "Conversation ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        }
+      ]
+    },
+    "api.v1.GetConversationResponse": {
+      "name": "GetConversationResponse",
+      "fullName": "api.v1.GetConversationResponse",
+      "description": "GetConversationResponse contains the conversation detail.",
+      "fields": [
+        {
+          "name": "conversation",
+          "jsonName": "conversation",
+          "type": "shared.v1.ConversationInfo",
+          "description": "Conversation info.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.ListConversationsRequest": {
+      "name": "ListConversationsRequest",
+      "fullName": "api.v1.ListConversationsRequest",
+      "description": "ListConversationsRequest requests conversations with pagination.",
+      "fields": [
+        {
+          "name": "before_time",
+          "jsonName": "beforeTime",
+          "type": "int64",
+          "description": "Pagination anchor: only return conversations with last_message_time < before_time.\nOmit for the first page.",
+          "optional": true,
+          "repeated": false,
+          "oneofGroup": "_before_time",
+          "sensitive": false
+        },
+        {
+          "name": "limit",
+          "jsonName": "limit",
+          "type": "int32",
+          "description": "Maximum number of items to return (default: 20, max: 100).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gte": 0,
+            "lte": 100
+          }
+        }
+      ]
+    },
+    "api.v1.ListConversationsResponse": {
+      "name": "ListConversationsResponse",
+      "fullName": "api.v1.ListConversationsResponse",
+      "description": "ListConversationsResponse contains conversations with related user and group data.",
+      "fields": [
+        {
+          "name": "conversations",
+          "jsonName": "conversations",
+          "type": "shared.v1.ConversationInfo",
+          "description": "Conversations ordered by last_message_time descending.",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        },
+        {
+          "name": "related_users",
+          "jsonName": "relatedUsers",
+          "type": "shared.v1.UserInfo",
+          "description": "Related user info referenced by the conversations (private chat peers, message senders).",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        },
+        {
+          "name": "related_groups",
+          "jsonName": "relatedGroups",
+          "type": "shared.v1.GroupInfo",
+          "description": "Related group info referenced by GROUP-type conversations.",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        },
+        {
+          "name": "messages",
+          "jsonName": "messages",
+          "type": "shared.v1.MessageEnvelope",
+          "description": "Latest message for each conversation. One entry per conversation that\nhas at least one message (keyed by conversation_id in the envelope).\nClients use this to render the last message preview in the conversation list.",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        },
+        {
+          "name": "has_more",
+          "jsonName": "hasMore",
+          "type": "bool",
+          "description": "Whether there are more conversations beyond this page.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.UpdateConversationActionRequest": {
+      "name": "UpdateConversationActionRequest",
+      "fullName": "api.v1.UpdateConversationActionRequest",
+      "description": "UpdateConversationActionRequest performs a conversation action.",
+      "fields": [
+        {
+          "name": "conversation_id",
+          "jsonName": "conversationId",
+          "type": "int64",
+          "description": "Target conversation ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        },
+        {
+          "name": "action",
+          "jsonName": "action",
+          "type": "shared.v1.ConversationActionType",
+          "description": "Action to perform.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "clear_messages",
+          "jsonName": "clearMessages",
+          "type": "bool",
+          "description": "Whether to clear the user's message history for this conversation.\nOnly used when action = DELETE. Defaults to false (keep history).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
+    },
+    "api.v1.UpdateConversationActionResponse": {
+      "name": "UpdateConversationActionResponse",
+      "fullName": "api.v1.UpdateConversationActionResponse",
+      "description": "UpdateConversationActionResponse is returned after the action is performed.",
+      "fields": []
+    },
+    "api.v1.MarkAsReadRequest": {
+      "name": "MarkAsReadRequest",
+      "fullName": "api.v1.MarkAsReadRequest",
+      "description": "MarkAsReadRequest marks messages as read up to a given message ID.",
+      "fields": [
+        {
+          "name": "conversation_id",
+          "jsonName": "conversationId",
+          "type": "int64",
+          "description": "Conversation ID.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        },
+        {
+          "name": "up_to_message_id",
+          "jsonName": "upToMessageId",
+          "type": "int64",
+          "description": "Mark all messages up to and including this message ID as read.\nMust be >= current last_read_message_id (cannot go backwards).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false,
+          "validation": {
+            "gt": 0
+          }
+        }
+      ]
+    },
+    "api.v1.MarkAsReadResponse": {
+      "name": "MarkAsReadResponse",
+      "fullName": "api.v1.MarkAsReadResponse",
+      "description": "MarkAsReadResponse is returned after the read position is updated.",
+      "fields": []
+    },
+    "shared.v1.ErrorDetail": {
+      "name": "ErrorDetail",
+      "fullName": "shared.v1.ErrorDetail",
+      "description": "ErrorDetail is the standard error payload attached to connect.Error details.\nIt is the sole mechanism for clients to identify and handle errors.",
+      "fields": [
+        {
+          "name": "error_code",
+          "jsonName": "errorCode",
+          "type": "int32",
+          "description": "Numeric business error code. Client uses this for programmatic handling.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "error_name",
+          "jsonName": "errorName",
+          "type": "string",
+          "description": "Error name (readable identifier, e.g. \"INVALID_TOKEN\"). For logging.",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "metadata",
+          "jsonName": "metadata",
+          "type": "shared.v1.ErrorDetail.MetadataEntry",
+          "description": "Optional metadata (e.g. retry_after, attempts_remaining).",
+          "optional": false,
+          "repeated": true,
+          "sensitive": false
+        }
+      ]
+    },
+    "shared.v1.ErrorDetail.MetadataEntry": {
+      "name": "MetadataEntry",
+      "fullName": "shared.v1.ErrorDetail.MetadataEntry",
+      "description": "",
+      "fields": [
+        {
+          "name": "key",
+          "jsonName": "key",
+          "type": "string",
+          "description": "",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "value",
+          "jsonName": "value",
+          "type": "string",
+          "description": "",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        }
+      ]
     },
     "shared.v1.SnUpdate": {
       "name": "SnUpdate",
@@ -7018,15 +7036,6 @@
           "jsonName": "createdAt",
           "type": "int64",
           "description": "Message creation time (Unix ms).",
-          "optional": false,
-          "repeated": false,
-          "sensitive": false
-        },
-        {
-          "name": "client_message_id",
-          "jsonName": "clientMessageId",
-          "type": "int64",
-          "description": "Client message ID (echoed back from the request).",
           "optional": false,
           "repeated": false,
           "sensitive": false
