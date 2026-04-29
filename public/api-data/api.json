@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-04-21T09:57:10.053Z",
+  "generatedAt": "2026-04-29T03:41:14.370Z",
   "services": [
     {
       "name": "AgentService",
@@ -6724,7 +6724,7 @@
           "description": "File binary data.",
           "optional": false,
           "repeated": false,
-          "sensitive": false
+          "sensitive": true
         }
       ]
     },
@@ -6848,7 +6848,7 @@
           "description": "Chunk binary data.",
           "optional": false,
           "repeated": false,
-          "sensitive": false
+          "sensitive": true
         },
         {
           "name": "offset",
@@ -7018,6 +7018,15 @@
           "jsonName": "createdAt",
           "type": "int64",
           "description": "Message creation time (Unix ms).",
+          "optional": false,
+          "repeated": false,
+          "sensitive": false
+        },
+        {
+          "name": "client_message_id",
+          "jsonName": "clientMessageId",
+          "type": "int64",
+          "description": "Client message ID (echoed back from the request).",
           "optional": false,
           "repeated": false,
           "sensitive": false
