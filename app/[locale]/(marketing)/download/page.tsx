@@ -26,7 +26,7 @@ const RELEASE_URLS: Record<string, string | undefined> = S3_BUCKET
       "cli.json": `https://${S3_BUCKET}.s3.amazonaws.com/releases/cli/channels/stable/cli.json`,
     }
   : {};
-const REVALIDATE_SECONDS = 600; // 10-minute TTL
+const REVALIDATE_SECONDS = 60; // 1-minute TTL
 
 async function loadRelease(filename: string): Promise<ProductRelease> {
   // Remote fetch with Next.js data cache (TTL = 10 min)
