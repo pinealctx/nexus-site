@@ -2,12 +2,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const PLACEHOLDER = "__RELEASES_URL_PLACEHOLDER__";
-const S3_BUCKET = process.env.S3_BUCKET;
+const RELEASES_BASE_URL = process.env.RELEASES_BASE_URL;
+const RELEASE_CHANNEL = process.env.RELEASE_CHANNEL || "stable";
 
 const template = readFileSync(join(process.cwd(), "lib", "install-scripts", "install.ps1"), "utf-8");
 
 export function GET() {
-  const releasesUrl = S3_BUCKET ? `https://${S3_BUCKET}.s3.amazonaws.com/releases/cli/channels/stable/cli.json` : "";
+  const releasesUrl = RELEASES_BASE_URL ? `${RELEASES_BASE_URL}/cli/channels/${RELEASE_CHANNEL}/cli.json` : "";
   const body = template.replaceAll(PLACEHOLDER, releasesUrl);
 
   return new Response(body, {

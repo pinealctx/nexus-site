@@ -19,11 +19,12 @@ export interface ProductRelease {
   assets: ReleaseAsset[];
 }
 
-const S3_BUCKET = process.env.S3_BUCKET;
-const RELEASE_URLS: Record<string, string | undefined> = S3_BUCKET
+const RELEASES_BASE_URL = process.env.RELEASES_BASE_URL;
+const RELEASE_CHANNEL = process.env.RELEASE_CHANNEL || "stable";
+const RELEASE_URLS: Record<string, string | undefined> = RELEASES_BASE_URL
   ? {
-      "desktop.json": `https://${S3_BUCKET}.s3.amazonaws.com/releases/desktop/channels/stable/desktop.json`,
-      "cli.json": `https://${S3_BUCKET}.s3.amazonaws.com/releases/cli/channels/stable/cli.json`,
+      "desktop.json": `${RELEASES_BASE_URL}/desktop/channels/${RELEASE_CHANNEL}/desktop.json`,
+      "cli.json": `${RELEASES_BASE_URL}/cli/channels/${RELEASE_CHANNEL}/cli.json`,
     }
   : {};
 const REVALIDATE_SECONDS = 60; // 1-minute TTL
