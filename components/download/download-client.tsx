@@ -174,7 +174,12 @@ function ProductSection({
 
       {/* Primary download button */}
       <div className="mt-6 flex flex-col items-center gap-3">
-        {matched ? (
+        {!detected ? (
+          <div className="flex h-14 items-center gap-3 text-sm text-muted-foreground">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            {t("detecting")}
+          </div>
+        ) : matched ? (
           matched.available ? (
             <>
               <a
@@ -199,10 +204,7 @@ function ProductSection({
             </div>
           )
         ) : (
-          <div className="flex h-14 items-center gap-3 text-sm text-muted-foreground">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            {t("detecting")}
-          </div>
+          <div className="flex h-14 items-center gap-3 text-sm text-muted-foreground">{t("no_download")}</div>
         )}
       </div>
 

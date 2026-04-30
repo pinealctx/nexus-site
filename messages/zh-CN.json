@@ -48,6 +48,7 @@
     "install_hint_windows": "下载 .exe 安装包，双击运行安装向导",
     "install_hint_linux": "下载 AppImage，添加执行权限后运行",
     "detecting": "正在检测你的平台...",
+    "no_download": "暂无适用于你平台的下载。",
     "coming_soon": "敬请期待"
   },
   "footer": {

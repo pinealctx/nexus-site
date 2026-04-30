@@ -48,6 +48,7 @@
     "install_hint_windows": "Download the .exe installer and run the setup wizard",
     "install_hint_linux": "Download the AppImage, make it executable, and run",
     "detecting": "Detecting your platform...",
+    "no_download": "No download available for your platform.",
     "coming_soon": "Coming Soon"
   },
   "footer": {
